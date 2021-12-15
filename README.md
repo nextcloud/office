@@ -2,7 +2,7 @@
  
  Meta repo for the office team 
  
- The purpose of this repo is primarily to be able to create tickets for tasks that span across the groupware repos.
+ The purpose of this repo is primarily to be able to create tickets for tasks that span across the office repos.
  
  ## Apps in scope
 
