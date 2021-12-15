@@ -16,3 +16,4 @@
 
 * ONLYOFFICE ([Nextcloud integration app](https://github.com/ONLYOFFICE/onlyoffice-nextcloud/) + [ONLYOFFICE DocumentServer](https://www.onlyoffice.com/))
 * [Collabora Online Server](https://www.collaboraoffice.com/de/collabora-online/))
+* [Built-in CODE server](https://github.com/CollaboraOnline/richdocumentscode)
