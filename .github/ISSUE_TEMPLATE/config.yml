@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Nextcloud Office
+    url: https://github.com/nextcloud/richdocuments/issues/new/choose
+    about: Open a bug report or feature request for Nextcloud Office
