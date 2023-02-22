@@ -11,6 +11,7 @@
 * [Text](https://github.com/nextcloud/text)
 * [Deck](https://github.com/nextcloud/deck)
 * [Collectives](https://gitlab.com/collectivecloud/collectives)
+* [Tables](https://github.com/nextcloud/tables)
 
 ### Limited scope (outside of team maintenance)
 
