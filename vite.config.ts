@@ -3,7 +3,9 @@ import { join, resolve } from 'path'
 
 export default createAppConfig(
 	{
-		main: resolve(join('src', 'main.js')),
+		main: resolve(join('src', 'main.ts')),
+		editor: resolve(join('src', 'editor.ts')),
+		'settings-admin': resolve(join('src', 'settings-admin.ts')),
 	},
 	{
 		createEmptyCSSEntryPoints: true,
