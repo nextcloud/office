@@ -5,8 +5,7 @@
 	"authors": [
 		{
 			"name": "Julius Knorr",
-			"email": "jus@bitgrid.net",
-			"homepage": ""
+			"email": "jus@bitgrid.net"
 		}
 	],
 	"autoload": {
