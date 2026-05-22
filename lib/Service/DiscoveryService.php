@@ -111,10 +111,12 @@ class DiscoveryService {
 	 * @param string $token    WOPI access token
 	 */
 	public function buildEditorUrl(string $urlsrc, string $wopiSrc, string $token): string {
+		// Strip WOPI template placeholders like <wopisrc=WOPI_SOURCE&> leaving bare ? and & separators.
 		$url = preg_replace('/<[^>]+>/', '', $urlsrc);
 		$url = rtrim($url, '?&');
-		$url .= '&wopisrc=' . urlencode($wopiSrc);
-		$url .= '&access_token=' . urlencode($token);
+		// Preserve the ? already in the base URL if present; otherwise start the query string.
+		$separator = str_contains($url, '?') ? '&' : '?';
+		$url .= $separator . 'wopisrc=' . urlencode($wopiSrc) . '&access_token=' . urlencode($token);
 		return $url;
 	}
 
