@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Office\AppInfo;
 
+use OCA\Office\Settings\Admin;
 use OCA\Office\TokenManager;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -24,6 +25,8 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
+		$context->registerSettings(Admin::class);
+
 		$context->registerService(TokenManager::class, static function ($c) {
 			return new TokenManager(
 				$c->get(IRootFolder::class),
