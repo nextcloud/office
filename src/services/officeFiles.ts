@@ -5,7 +5,6 @@
 
 import type { Node } from '@nextcloud/files'
 import { getClient, getDavNameSpaces, getDavProperties, getRootPath, resultToNode } from '@nextcloud/files/dav'
-import type { ResponseDataDetailed, SearchResult } from 'webdav'
 
 // TODO: This DAV SEARCH is unpaginated (depth: infinity). For users with very large
 // file collections the full result set is transferred over the wire before we slice it.
@@ -53,9 +52,9 @@ export async function getAllOfficeFiles(mimes: string[]): Promise<Node[]> {
 	const response = await client.search('/', {
 		details: true,
 		data: buildOfficeMimeSearch(mimes),
-	}) as ResponseDataDetailed<SearchResult>
+	}) as { data: { results: object[] } }
 
-	cachedNodes = (response.data.results as object[])
+	cachedNodes = response.data.results
 		.map(item => resultToNode(item as Parameters<typeof resultToNode>[0]))
 		.filter(node => node.type === 'file')
 
