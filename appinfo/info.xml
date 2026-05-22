@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>office</id>
+	<name>Office</name>
+	<summary>Office overview</summary>
+	<description>Office overview app for Nextcloud</description>
+	<version>1.0.0</version>
+	<licence>AGPL-3.0-or-later</licence>
+	<author mail="jus@bitgrid.net" homepage="">Julius Knorr</author>
+	<namespace>Office</namespace>
+	<category>office</category>
+	<bugs>https://github.com/nextcloud/office</bugs>
+	<dependencies>
+		<nextcloud min-version="31" max-version="32"/>
+	</dependencies>
+	<navigations>
+		<navigation>
+			<id>office</id>
+			<name>Office</name>
+			<route>office.page.index</route>
+			<icon>app.svg</icon>
+			<type>link</type>
+		</navigation>
+	</navigations>
+</info>
