@@ -16,11 +16,11 @@
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@nextcloud/auth": "^2.6.0",
+    "@nextcloud/axios": "^2.6.0",
     "@nextcloud/files": "^4.0.0",
     "@nextcloud/l10n": "^3.4.1",
     "@nextcloud/router": "^3.1.0",
     "@nextcloud/vue": "^9.3.1",
-    "axios": "^1.16.1",
     "vue": "^3.5.25"
   },
   "devDependencies": {
