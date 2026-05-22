@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OCA\Office\AppInfo;
 
+use OCA\Office\BackgroundJob\CleanupJob;
 use OCA\Office\Settings\Admin;
 use OCA\Office\TokenManager;
 use OCP\AppFramework\App;
@@ -26,6 +27,7 @@ class Application extends App implements IBootstrap {
 
 	public function register(IRegistrationContext $context): void {
 		$context->registerSettings(Admin::class);
+		$context->registerJob(CleanupJob::class);
 
 		$context->registerService(TokenManager::class, static function ($c) {
 			return new TokenManager(
