@@ -32,6 +32,18 @@ export interface CreatedFile {
 	filename: string
 }
 
+export interface OcsErrorResponse {
+	response?: {
+		data?: {
+			ocs?: {
+				meta?: {
+					message?: string
+				}
+			}
+		}
+	}
+}
+
 export async function getTemplates(): Promise<TemplateCreator[]> {
 	const response = await axios.get(generateOcsUrl('apps/files/api/v1/templates'))
 	return response.data.ocs.data

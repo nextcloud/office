@@ -41,6 +41,9 @@ ${conditions}
 </d:searchrequest>`
 }
 
+// Single flat cache for all office files. Safe because the sole caller (fetchAll)
+// always passes the full union of every creator's mimes. If a partial-mime caller
+// is ever added this must be keyed by the mimes set.
 let cachedNodes: Node[] | null = null
 
 export async function getAllOfficeFiles(mimes: string[]): Promise<Node[]> {

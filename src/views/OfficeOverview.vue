@@ -34,7 +34,7 @@ import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, filterByMimes, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
-import type { TemplateCreator, TemplateFile, CreatedFile } from '../services/templates.ts'
+import type { TemplateCreator, TemplateFile, CreatedFile, OcsErrorResponse } from '../services/templates.ts'
 import type { Node } from '@nextcloud/files'
 
 type Filter = 'all' | 'mine' | 'shared'
@@ -78,6 +78,8 @@ const createInput = ref<InstanceType<typeof NcTextField> | null>(null)
 
 watch(activeCreator, () => {
 	searchQuery.value = ''
+	// activeFilter is intentionally kept: a user who prefers "Shared with me" should
+	// stay on that filter when they switch between document categories.
 })
 
 const searchLabel = computed(() =>
@@ -115,6 +117,10 @@ const filteredFiles = computed(() => {
 
 const files = computed(() => filteredFiles.value.slice(0, MAX_DISPLAY_FILES))
 const hasMoreFiles = computed(() => filteredFiles.value.length > MAX_DISPLAY_FILES)
+
+const activeCategoryName = computed(() =>
+	activeCreator.value ? categoryName(activeCreator.value) : '',
+)
 
 function categoryName(creator: TemplateCreator): string {
 	for (const mime of (creator.mimetypes ?? [])) {
@@ -166,16 +172,32 @@ function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | nul
 	createError.value = ''
 	showCreateDialog.value = true
 	nextTick(() => {
-		const input = createInput.value?.$el?.querySelector('input') as HTMLInputElement | null
-		if (input) {
-			input.focus()
-			input.setSelectionRange(0, newFileName.value.length - creator.extension.length)
+		const component = createInput.value as { focus?: () => void; $el?: HTMLElement } | null
+		if (typeof component?.focus === 'function') {
+			component.focus()
+		} else {
+			component?.$el?.querySelector<HTMLInputElement>('input')?.focus()
 		}
+		// setSelectionRange pre-selects the basename (without extension) for quick editing.
+		component?.$el?.querySelector<HTMLInputElement>('input')
+			?.setSelectionRange(0, newFileName.value.length - creator.extension.length)
 	})
 }
 
+function validateFilename(name: string): string | null {
+	const trimmed = name.trim()
+	if (!trimmed) return t('office', 'Filename cannot be empty')
+	if (/[/\\]/.test(trimmed) || trimmed.includes('\x00')) return t('office', 'Filename contains invalid characters')
+	return null
+}
+
 async function doCreateFromTemplate() {
-	if (!newFileName.value.trim() || creating.value) return
+	if (creating.value) return
+	const validationError = validateFilename(newFileName.value)
+	if (validationError) {
+		createError.value = validationError
+		return
+	}
 	creating.value = true
 	createError.value = ''
 	try {
@@ -187,7 +209,7 @@ async function doCreateFromTemplate() {
 		invalidateOfficeFilesCache()
 		window.location.href = generateUrl('/f/{fileid}', { fileid: newFile.fileid })
 	} catch (e: unknown) {
-		const axiosError = e as { response?: { data?: { ocs?: { meta?: { message?: string } } } } }
+		const axiosError = e as OcsErrorResponse
 		createError.value = axiosError.response?.data?.ocs?.meta?.message
 			?? t('office', 'Failed to create file')
 	} finally {
@@ -195,15 +217,12 @@ async function doCreateFromTemplate() {
 	}
 }
 
-async function fetchAll(restoreCreator: TemplateCreator | null = null) {
+async function fetchAll() {
 	loading.value = true
 	error.value = null
 	try {
 		creators.value = await getTemplates()
-		const match = restoreCreator
-			? creators.value.find(c => c.app === restoreCreator.app && c.extension === restoreCreator.extension)
-			: null
-		activeCreator.value = match ?? creators.value[0] ?? null
+		activeCreator.value = creators.value[0] ?? null
 
 		if (creators.value.length > 0) {
 			const allMimes = creators.value.flatMap(c => c.mimetypes)
@@ -217,6 +236,8 @@ async function fetchAll(restoreCreator: TemplateCreator | null = null) {
 	}
 }
 
+// Called at module evaluation so the data request is in-flight before Vue
+// mounts and paints — reduces perceived time-to-interactive.
 fetchAll()
 </script>
 
@@ -259,14 +280,14 @@ fetchAll()
 					<NcEmptyContent v-if="error"
 						:name="error" />
 
-					<section v-else class="office-overview__files" aria-labelledby="files-section-heading">
+					<section v-else-if="activeCreator" class="office-overview__files" aria-labelledby="files-section-heading">
 						<div role="status" class="sr-only">
-							{{ t('office', '{count} {category} found', { count: files.length, category: categoryName(activeCreator!) }) }}
+							{{ t('office', '{count} {category} found', { count: files.length, category: activeCategoryName }) }}
 						</div>
 
 						<div class="office-overview__files-header">
 							<h2 id="files-section-heading" class="office-overview__files-title">
-								{{ t('office', 'Recent {category}', { category: categoryName(activeCreator!) }) }}
+								{{ t('office', 'Recent {category}', { category: activeCategoryName }) }}
 							</h2>
 						</div>
 
@@ -305,7 +326,7 @@ fetchAll()
 						</div>
 
 						<NcEmptyContent v-if="files.length === 0"
-							:name="t('office', 'No {category} found', { category: categoryName(activeCreator!) })">
+							:name="t('office', 'No {category} found', { category: activeCategoryName })">
 							<template #icon>
 								<NcIconSvgWrapper :svg="mdiFileDocumentOutline" :size="48" />
 							</template>
@@ -331,7 +352,7 @@ fetchAll()
 										class="overview-file-icon" />
 								</template>
 
-								<template v-if="activeCreator" #icon>
+								<template #icon>
 									<NcIconSvgWrapper :svg="activeCreator.iconSvgInline ?? ''" :size="20" />
 								</template>
 

@@ -19,6 +19,19 @@ const THEME_PALETTES: Record<string, [string, string, string, string]> = {
 	drawing: ['hsl(47 80% 62%)', 'hsl(47 80% 39%)', 'hsl(47 82% 28%)', 'hsl(47 85% 18%)'],
 }
 
+const MIME_THEME: Record<string, keyof typeof THEME_PALETTES> = {
+	'application/vnd.oasis.opendocument.presentation': 'presentation',
+	'application/vnd.oasis.opendocument.presentation-template': 'presentation',
+	'application/vnd.ms-powerpoint': 'presentation',
+	'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'presentation',
+	'application/vnd.oasis.opendocument.spreadsheet': 'spreadsheet',
+	'application/vnd.oasis.opendocument.spreadsheet-template': 'spreadsheet',
+	'application/vnd.ms-excel': 'spreadsheet',
+	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'spreadsheet',
+	'application/vnd.oasis.opendocument.graphics': 'drawing',
+	'application/vnd.oasis.opendocument.graphics-template': 'drawing',
+}
+
 // Inter-card gap (calc(baseline * 3), baseline = 4px) and a representative card
 // width, used to size the scroll step so a card of context stays visible.
 const CARD_WIDTH = 160
@@ -33,11 +46,11 @@ const canScrollRight = ref(false)
 const failedPreviews = ref<Record<number, boolean>>({})
 let resizeObserver: ResizeObserver | null = null
 
-const themeType = computed(() => {
-	const mimes = (props.creator.mimetypes ?? []).join(' ')
-	if (/presentation|powerpoint/.test(mimes)) return 'presentation'
-	if (/spreadsheet|ms-excel/.test(mimes)) return 'spreadsheet'
-	if (/graphics|drawing/.test(mimes)) return 'drawing'
+const themeType = computed((): keyof typeof THEME_PALETTES => {
+	for (const mime of (props.creator.mimetypes ?? [])) {
+		const theme = MIME_THEME[mime]
+		if (theme) return theme
+	}
 	return 'document'
 })
 
