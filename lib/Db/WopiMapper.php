@@ -142,6 +142,21 @@ class WopiMapper extends QBMapper {
 		return array_column($qb->executeQuery()->fetchAll(), 'id');
 	}
 
+	/**
+	 * Delete WOPI rows by their primary-key IDs.
+	 *
+	 * @param int[] $ids
+	 */
+	public function deleteByIds(array $ids): void {
+		if (empty($ids)) {
+			return;
+		}
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete('office_wopi')
+			->where($qb->expr()->in('id', $qb->createNamedParameter($ids, IQueryBuilder::PARAM_INT_ARRAY)));
+		$qb->executeStatement();
+	}
+
 	private function newExpiry(): int {
 		return $this->timeFactory->getTime() + self::TOKEN_TTL;
 	}
