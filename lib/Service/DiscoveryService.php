@@ -76,13 +76,19 @@ class DiscoveryService {
 	 * @return string|null urlsrc template string, or null if not found
 	 */
 	public function getUrlSrc(string $extension, string $action = 'edit'): ?string {
+		// Allowlist: file extensions are plain ASCII alnum — reject anything else to prevent XPath injection.
+		if (!preg_match('/^[a-zA-Z0-9]{1,20}$/', $extension)) {
+			return null;
+		}
+
 		$xml = $this->get();
 		if ($xml === null) {
 			return null;
 		}
 
 		try {
-			$parsed = new SimpleXMLElement($xml);
+			// LIBXML_NONET prevents libxml from making network requests while parsing (e.g. external DTD subsets).
+			$parsed = new SimpleXMLElement($xml, LIBXML_NONET | LIBXML_NOCDATA);
 		} catch (\Exception $e) {
 			$this->logger->error('Failed to parse WOPI discovery XML: ' . $e->getMessage());
 			return null;
