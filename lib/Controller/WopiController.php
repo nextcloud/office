@@ -216,14 +216,17 @@ class WopiController extends Controller {
 
 		try {
 			$content = fopen('php://input', 'rb');
+			try {
+				$freespace = $file->getStorage()->free_space($file->getInternalPath());
+				$contentLength = (int)$this->request->getHeader('Content-Length');
+				if ($freespace >= 0 && $contentLength > $freespace) {
+					return new JSONResponse(['message' => 'Not enough storage'], Http::STATUS_INSUFFICIENT_STORAGE);
+				}
 
-			$freespace = $file->getStorage()->free_space($file->getInternalPath());
-			$contentLength = (int)$this->request->getHeader('Content-Length');
-			if ($freespace >= 0 && $contentLength > $freespace) {
-				return new JSONResponse(['message' => 'Not enough storage'], Http::STATUS_INSUFFICIENT_STORAGE);
+				$this->writeWithLock($wopi, $file, fn () => $file->putContent($content));
+			} finally {
+				fclose($content);
 			}
-
-			$this->writeWithLock($wopi, $file, fn () => $file->putContent($content));
 		} catch (LockedException $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 			return new JSONResponse(['message' => 'File locked'], Http::STATUS_CONFLICT);
@@ -262,20 +265,37 @@ class WopiController extends Controller {
 			$end = isset($m[2]) ? (int)$m[2] : $size - 1;
 			// Clamp end to actual file size to produce a correct Content-Range header (RFC 7233).
 			$end = min($end, $size - 1);
+
+			// RFC 7233 §4.4: return 416 if range is unsatisfiable.
+			if ($start >= $size || $start > $end) {
+				$response = new Http\Response();
+				$response->setStatus(416);
+				$response->addHeader('Content-Range', "bytes */{$size}");
+				return $response;
+			}
+
 			$length = $end - $start + 1;
 
 			$fp = $file->fopen('rb');
-			$rangeStream = fopen('php://temp', 'w+b');
-			stream_copy_to_stream($fp, $rangeStream, $length, $start);
-			fclose($fp);
-			fseek($rangeStream, 0);
+			try {
+				$rangeStream = fopen('php://temp', 'w+b');
+				try {
+					stream_copy_to_stream($fp, $rangeStream, $length, $start);
+					fseek($rangeStream, 0);
 
-			$response = new StreamResponse($rangeStream);
-			$response->setStatus(Http::STATUS_PARTIAL_CONTENT);
-			$response->addHeader('Content-Range', "bytes {$start}-{$end}/{$size}");
-			$response->addHeader('Content-Length', (string)$length);
-			$response->addHeader('Accept-Ranges', 'bytes');
-			return $response;
+					$response = new StreamResponse($rangeStream);
+					$response->setStatus(Http::STATUS_PARTIAL_CONTENT);
+					$response->addHeader('Content-Range', "bytes {$start}-{$end}/{$size}");
+					$response->addHeader('Content-Length', (string)$length);
+					$response->addHeader('Accept-Ranges', 'bytes');
+					return $response;
+				} catch (\Throwable $e) {
+					fclose($rangeStream);
+					throw $e;
+				}
+			} finally {
+				fclose($fp);
+			}
 		}
 
 		return new StreamResponse($file->fopen('rb'));
