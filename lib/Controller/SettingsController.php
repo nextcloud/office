@@ -11,6 +11,7 @@ namespace OCA\Office\Controller;
 
 use OCA\Office\AppInfo\Application;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\ApiRoute;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -46,6 +47,16 @@ class SettingsController extends Controller {
 	#[AuthorizedAdminSetting(settings: Settings\Admin::class)]
 	#[ApiRoute(verb: 'POST', url: '/settings/admin')]
 	public function setAdmin(string $wopi_url, string $disable_certificate_verification = 'no'): DataResponse {
+		if ($wopi_url !== '') {
+			$parsed = parse_url($wopi_url);
+			if (!$parsed || !in_array($parsed['scheme'] ?? '', ['http', 'https'], true)) {
+				return new DataResponse(['error' => 'wopi_url must use the http or https scheme'], Http::STATUS_BAD_REQUEST);
+			}
+			if (isset($parsed['user']) || isset($parsed['pass'])) {
+				return new DataResponse(['error' => 'wopi_url must not contain credentials'], Http::STATUS_BAD_REQUEST);
+			}
+		}
+
 		$this->appConfig->setValueString(Application::APP_ID, 'wopi_url', rtrim($wopi_url, '/'));
 		$this->appConfig->setValueString(Application::APP_ID, 'disable_certificate_verification', $disable_certificate_verification === 'yes' ? 'yes' : 'no');
 
