@@ -80,6 +80,7 @@ class TokenManager {
 		string $ownerUid,
 		string $guestName,
 		bool $canWrite,
+		bool $hideDownload,
 	): Wopi {
 		$ownerFolder = $this->rootFolder->getUserFolder($ownerUid);
 		$file = $ownerFolder->getFirstNodeById($fileId);
@@ -99,6 +100,7 @@ class TokenManager {
 			guestDisplayname: $guestName,
 			version: $version,
 			canWrite: $canWrite,
+			hideDownload: $hideDownload,
 			serverHost: $serverHost,
 		);
 	}
