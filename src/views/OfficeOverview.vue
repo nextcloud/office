@@ -150,11 +150,12 @@ function getPreviewUrl(file: Node): string {
 }
 
 function openFile(file: Node) {
-	if (window.OCA?.Viewer?.open) {
-		window.OCA.Viewer.open({ path: file.path })
-	} else {
-		window.location.href = generateUrl('/f/{fileid}', { fileid: file.fileid })
-	}
+	// Navigate directly to the in-app editor. The older approach used the NC
+	// Viewer (OCA.Viewer.open) or the Files shortlink (/f/{fileid}), both of
+	// which route through the Files app and lose the overview as the referrer.
+	// If we ever need to fall back: OCA.Viewer.open({ path: file.path }) or
+	// window.location.href = generateUrl('/f/{fileid}', { fileid: file.fileid })
+	window.location.href = generateUrl('/apps/office/open') + '?fileId=' + encodeURIComponent(String(file.fileid))
 }
 
 function openInFiles() {
