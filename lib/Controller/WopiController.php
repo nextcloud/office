@@ -102,6 +102,8 @@ class WopiController extends Controller {
 		} catch (NoLockProviderException|PreConditionNotMetException) {
 		}
 
+		$hideDownload = $wopi->getHideDownload();
+
 		return new JSONResponse([
 			'BaseFileName' => $file->getName(),
 			'Size' => $file->getSize(),
@@ -110,13 +112,16 @@ class WopiController extends Controller {
 			'OwnerId' => $wopi->getOwnerUid(),
 			'UserFriendlyName' => $displayName,
 			'UserCanWrite' => $canWrite,
-			'UserCanNotWriteRelative' => $wopi->isGuest(),
+			'UserCanNotWriteRelative' => $wopi->isGuest() || $hideDownload,
 			'PostMessageOrigin' => $wopi->getServerHost(),
 			'LastModifiedTime' => $this->toISO8601($file->getMTime()),
 			'SupportsRename' => !$wopi->isGuest(),
 			'UserCanRename' => !$wopi->isGuest(),
 			'EnableInsertRemoteImage' => !$wopi->isGuest(),
 			'EnableShare' => !$wopi->isGuest(),
+			'HideExportOption' => $hideDownload,
+			'DisablePrint' => $hideDownload,
+			'DisableExport' => $hideDownload,
 			'HideUserList' => '',
 			'EnableOwnerTermination' => $canWrite && !$wopi->isGuest(),
 			'HasContentRange' => true,
