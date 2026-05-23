@@ -295,6 +295,10 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
+		if (!$wopi->getCanwrite()) {
+			return new JSONResponse([], Http::STATUS_FORBIDDEN);
+		}
+
 		$override = $this->request->getHeader('X-WOPI-Override');
 		$lockId = $this->request->getHeader('X-WOPI-Lock');
 
