@@ -25,6 +25,8 @@ use OCP\DB\Types;
  * @method string getVersion()
  * @method void setCanwrite(bool $canwrite)
  * @method bool getCanwrite()
+ * @method void setHideDownload(bool $hide)
+ * @method bool getHideDownload()
  * @method void setServerHost(string $host)
  * @method string getServerHost()
  * @method void setToken(string $token)
@@ -54,6 +56,9 @@ class Wopi extends Entity {
 	/** @var bool */
 	protected $canwrite = false;
 
+	/** @var bool */
+	protected $hideDownload = false;
+
 	/** @var string */
 	protected $serverHost;
 
@@ -70,6 +75,7 @@ class Wopi extends Entity {
 		$this->addType('fileid', Types::INTEGER);
 		$this->addType('version', Types::STRING);
 		$this->addType('canwrite', Types::BOOLEAN);
+		$this->addType('hideDownload', Types::BOOLEAN);
 		$this->addType('serverHost', Types::STRING);
 		$this->addType('token', Types::STRING);
 		$this->addType('expiry', Types::INTEGER);
