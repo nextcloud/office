@@ -14,6 +14,12 @@
 	<dependencies>
 		<nextcloud min-version="31" max-version="35"/>
 	</dependencies>
+	<background-jobs>
+		<job>OCA\Office\BackgroundJob\CleanupJob</job>
+	</background-jobs>
+	<settings>
+		<admin>OCA\Office\Settings\Admin</admin>
+	</settings>
 	<navigations>
 		<navigation>
 			<id>office</id>
