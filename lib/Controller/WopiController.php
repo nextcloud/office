@@ -163,7 +163,9 @@ class WopiController extends Controller {
 		}
 
 		if ($file->getSize() === 0) {
-			return new Http\Response();
+			$empty = new Http\Response();
+			$empty->addHeader('Content-Type', 'application/octet-stream');
+			return $empty;
 		}
 
 		$rangeHeader = $this->request->getHeader('Range');
@@ -171,7 +173,9 @@ class WopiController extends Controller {
 			return $this->getFileRange($file, $rangeHeader);
 		}
 
-		return new StreamResponse($file->fopen('rb'));
+		$response = new StreamResponse($file->fopen('rb'));
+		$response->addHeader('Content-Type', 'application/octet-stream');
+		return $response;
 	}
 
 	/**
@@ -433,6 +437,7 @@ class WopiController extends Controller {
 
 					$response = new StreamResponse($rangeStream);
 					$response->setStatus(Http::STATUS_PARTIAL_CONTENT);
+					$response->addHeader('Content-Type', 'application/octet-stream');
 					$response->addHeader('Content-Range', "bytes {$start}-{$end}/{$size}");
 					$response->addHeader('Content-Length', (string)$length);
 					$response->addHeader('Accept-Ranges', 'bytes');
@@ -446,7 +451,9 @@ class WopiController extends Controller {
 			}
 		}
 
-		return new StreamResponse($file->fopen('rb'));
+		$response = new StreamResponse($file->fopen('rb'));
+		$response->addHeader('Content-Type', 'application/octet-stream');
+		return $response;
 	}
 
 	/**
