@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import { generateUrl } from '@nextcloud/router'
 
 interface EditorData {
 	editorUrl: string
@@ -36,7 +37,14 @@ function handleMessage(event: MessageEvent): void {
 	}
 
 	if (id === 'UI_Close') {
-		window.close()
+		// window.close() only works for popup windows; full-page navigation
+		// requires history traversal. Fall back to the office overview if there
+		// is no history entry to go back to (e.g. direct URL access).
+		if (window.history.length > 1) {
+			window.history.back()
+		} else {
+			window.location.href = generateUrl('/apps/office')
+		}
 	}
 }
 
