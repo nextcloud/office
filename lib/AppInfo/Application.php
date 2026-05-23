@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace OCA\Office\AppInfo;
 
+use OCA\Office\Listener\LoadAdditionalScriptsListener;
 use OCA\Office\TokenManager;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\Collaboration\Resources\LoadAdditionalScriptsEvent;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
@@ -24,6 +26,8 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
+		$context->registerEventListener(LoadAdditionalScriptsEvent::class, LoadAdditionalScriptsListener::class);
+
 		$context->registerService(TokenManager::class, static function ($c) {
 			return new TokenManager(
 				$c->get(IRootFolder::class),
