@@ -108,7 +108,10 @@ class ShareController extends Controller {
 		$canWrite = (bool)($share->getPermissions() & \OCP\Constants::PERMISSION_UPDATE);
 		$hideDownload = $share->getHideDownload();
 		$ownerUid = $share->getShareOwner();
-		$displayName = $guestName ?? 'Guest';
+
+		$guestName = trim(preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? ''));
+		$guestName = mb_substr($guestName, 0, 64);
+		$displayName = $guestName !== '' ? $guestName : 'Guest';
 
 		try {
 			$wopi = $this->tokenManager->generateGuestToken(
@@ -166,6 +169,7 @@ class ShareController extends Controller {
 		if ($path !== null) {
 			$resolved = $node->get($path);
 		} elseif ($fileId !== null) {
+			// getFirstNodeById scoped to $node — cannot escape the shared folder boundary.
 			$resolved = $node->getFirstNodeById($fileId);
 		} else {
 			throw new NotFoundException('Folder share requires fileId or path parameter');
