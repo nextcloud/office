@@ -106,6 +106,37 @@ class DiscoveryService {
 	}
 
 	/**
+	 * Return all MIME types advertised by the editor's discovery XML.
+	 *
+	 * Returns an empty array if discovery XML is unavailable or unparseable.
+	 *
+	 * @return string[]
+	 */
+	public function getSupportedMimeTypes(): array {
+		$xml = $this->get();
+		if ($xml === null) {
+			return [];
+		}
+
+		try {
+			$parsed = new SimpleXMLElement($xml, LIBXML_NONET | LIBXML_NOCDATA);
+		} catch (\Exception $e) {
+			$this->logger->error('Failed to parse WOPI discovery XML: ' . $e->getMessage());
+			return [];
+		}
+
+		$mimes = [];
+		foreach ($parsed->xpath('//app/@name') as $name) {
+			$mime = (string)$name;
+			if ($mime !== '' && str_contains($mime, '/')) {
+				$mimes[] = $mime;
+			}
+		}
+
+		return array_values(array_unique($mimes));
+	}
+
+	/**
 	 * Build the final editor URL by substituting the wopisrc template parameter.
 	 *
 	 * The WOPI urlsrc is a template like:
