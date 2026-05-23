@@ -217,6 +217,23 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_NOT_FOUND);
 		}
 
+		// Enforce WOPI lock: if a non-expired lock exists the client must supply the matching lock ID.
+		$lockId = $this->request->getHeader('X-WOPI-Lock');
+		$existingLock = $this->wopiLockMapper->findByFileId($fileId);
+		if ($existingLock !== null && !$existingLock->isExpired()) {
+			if ($lockId !== $existingLock->getLockId()) {
+				return $this->lockConflict($existingLock->getLockId(), 'File is locked');
+			}
+		}
+
+		// Enforce optimistic version check: reject out-of-band edits that would be silently overwritten.
+		$clientVersion = $this->request->getHeader('X-WOPI-ItemVersion');
+		if ($clientVersion !== '' && $clientVersion !== (string)$file->getMTime()) {
+			$response = new JSONResponse(['message' => 'Version mismatch'], Http::STATUS_CONFLICT);
+			$response->addHeader('X-WOPI-ItemVersion', (string)$file->getMTime());
+			return $response;
+		}
+
 		try {
 			$content = fopen('php://input', 'rb');
 			try {
