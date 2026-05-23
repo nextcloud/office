@@ -19,6 +19,7 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\RedirectResponse;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Files\File;
 use OCP\Files\Folder;
@@ -27,6 +28,7 @@ use OCP\Files\NotPermittedException;
 use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
+use OCP\IUserSession;
 use OCP\Share\Exceptions\ShareNotFound;
 use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
@@ -38,6 +40,7 @@ class ShareController extends Controller {
 		IRequest $request,
 		private IShareManager $shareManager,
 		private ISession $session,
+		private IUserSession $userSession,
 		private TokenManager $tokenManager,
 		private DiscoveryService $discoveryService,
 		private IURLGenerator $urlGenerator,
@@ -72,13 +75,20 @@ class ShareController extends Controller {
 		// Password-protected share: NC core sets 'public_link_authenticated' in the session
 		// once the user has entered the password at /s/{token}. Check both legacy (string)
 		// and current (array of share IDs) formats, matching richdocuments' pattern.
-		if ($share->getPassword()) {
+		// Authenticated users bypass the password check — they have a full NC session.
+		if ($share->getPassword() && !$this->userSession->isLoggedIn()) {
 			$authenticated = $this->session->get('public_link_authenticated');
 			$isAuthenticated = (is_array($authenticated) && in_array($share->getId(), $authenticated, true))
 				|| $authenticated === $share->getId();
 
 			if (!$isAuthenticated) {
-				return new JSONResponse(['error' => 'Password required'], Http::STATUS_UNAUTHORIZED);
+				// Redirect to the share page to complete the password challenge.
+				// After authentication, the user must reopen the file action.
+				$sharePageUrl = $this->urlGenerator->linkToRoute(
+					'files_sharing.sharecontroller.showShare',
+					['token' => $shareToken],
+				);
+				return new RedirectResponse($sharePageUrl);
 			}
 		}
 
@@ -106,21 +116,32 @@ class ShareController extends Controller {
 		}
 
 		$canWrite = (bool)($share->getPermissions() & \OCP\Constants::PERMISSION_UPDATE);
-		$hideDownload = $share->getHideDownload();
 		$ownerUid = $share->getShareOwner();
 
-		$guestName = trim(preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? ''));
-		$guestName = mb_substr($guestName, 0, 64);
-		$displayName = $guestName !== '' ? $guestName : 'Guest';
-
 		try {
-			$wopi = $this->tokenManager->generateGuestToken(
-				fileId: $file->getId(),
-				ownerUid: $ownerUid,
-				guestName: $displayName,
-				canWrite: $canWrite,
-				hideDownload: $hideDownload,
-			);
+			if ($this->userSession->isLoggedIn()) {
+				// Authenticated user visiting a share link: issue a full user token via their
+				// own folder. hideDownload is intentionally not applied — the share's download
+				// restriction targets unauthenticated third parties, not collaborators with
+				// direct NC access.
+				$wopi = $this->tokenManager->generateToken($file->getId());
+			} else {
+				$hideDownload = $share->getHideDownload();
+
+				// Sanitize guestName: strip control chars, cap at 64 chars, default to 'Guest'.
+				// Authenticated user's display name overrides guestName param to prevent spoofing.
+				$guestName = trim(preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? ''));
+				$guestName = mb_substr($guestName, 0, 64);
+				$displayName = $guestName !== '' ? $guestName : 'Guest';
+
+				$wopi = $this->tokenManager->generateGuestToken(
+					fileId: $file->getId(),
+					ownerUid: $ownerUid,
+					guestName: $displayName,
+					canWrite: $canWrite,
+					hideDownload: $hideDownload,
+				);
+			}
 		} catch (NotPermittedException $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
 			return new JSONResponse(['error' => 'File not accessible'], Http::STATUS_FORBIDDEN);
