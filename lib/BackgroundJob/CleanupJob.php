@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace OCA\Office\BackgroundJob;
 
+use OCA\Office\Db\WopiLockMapper;
 use OCA\Office\Db\WopiMapper;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -16,16 +17,24 @@ use OCP\BackgroundJob\TimedJob;
 class CleanupJob extends TimedJob {
 	private const BATCH_SIZE = 500;
 
-	public function __construct(ITimeFactory $time, private WopiMapper $wopiMapper) {
+	public function __construct(
+		ITimeFactory $time,
+		private WopiMapper $wopiMapper,
+		private WopiLockMapper $wopiLockMapper,
+	) {
 		parent::__construct($time);
 		$this->setInterval(3600); // run hourly
 	}
 
 	protected function run(mixed $argument): void {
-		$ids = $this->wopiMapper->getExpiredTokenIds(self::BATCH_SIZE);
-		if (empty($ids)) {
-			return;
+		$tokenIds = $this->wopiMapper->getExpiredTokenIds(self::BATCH_SIZE);
+		if (!empty($tokenIds)) {
+			$this->wopiMapper->deleteByIds($tokenIds);
 		}
-		$this->wopiMapper->deleteByIds($ids);
+
+		$lockIds = $this->wopiLockMapper->getExpiredLockIds(self::BATCH_SIZE);
+		if (!empty($lockIds)) {
+			$this->wopiLockMapper->deleteByIds($lockIds);
+		}
 	}
 }
