@@ -245,7 +245,10 @@ class WopiController extends Controller {
 
 				$this->writeWithLock($wopi, $file, fn () => $file->putContent($content));
 			} finally {
-				fclose($content);
+				// putContent() may close the stream internally; guard to avoid a warning.
+				if (is_resource($content)) {
+					fclose($content);
+				}
 			}
 		} catch (LockedException $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
