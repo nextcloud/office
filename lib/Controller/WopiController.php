@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace OCA\Office\Controller;
 
 use OCA\Office\Db\Wopi;
+use OCA\Office\Db\WopiLock;
+use OCA\Office\Db\WopiLockMapper;
 use OCA\Office\Db\WopiMapper;
 use OCA\Office\Exception\ExpiredTokenException;
 use OCA\Office\Exception\UnknownTokenException;
@@ -41,6 +43,7 @@ class WopiController extends Controller {
 		IRequest $request,
 		private IRootFolder $rootFolder,
 		private WopiMapper $wopiMapper,
+		private WopiLockMapper $wopiLockMapper,
 		private IUserManager $userManager,
 		private ILockManager $lockManager,
 		private LoggerInterface $logger,
@@ -236,6 +239,131 @@ class WopiController extends Controller {
 		}
 
 		return new JSONResponse(['LastModifiedTime' => $this->toISO8601($file->getMTime())]);
+	}
+
+	/**
+	 * WOPI lock operations — all arrive as POST wopi/files/{fileId} with
+	 * an X-WOPI-Override header selecting the operation.
+	 */
+	#[NoAdminRequired]
+	#[NoCSRFRequired]
+	#[PublicPage]
+	#[FrontpageRoute(verb: 'POST', url: 'wopi/files/{fileId}')]
+	public function executeOperation(
+		int $fileId,
+		#[\SensitiveParameter]
+		string $access_token,
+	): Http\Response {
+		try {
+			$wopi = $this->wopiMapper->getWopiForToken($access_token);
+		} catch (UnknownTokenException $e) {
+			$this->logger->debug($e->getMessage(), ['exception' => $e]);
+			return new JSONResponse([], Http::STATUS_FORBIDDEN);
+		} catch (ExpiredTokenException $e) {
+			$this->logger->debug($e->getMessage(), ['exception' => $e]);
+			return new JSONResponse([], Http::STATUS_UNAUTHORIZED);
+		} catch (\Throwable $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			return new JSONResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
+		if ($wopi->getFileid() !== $fileId) {
+			return new JSONResponse([], Http::STATUS_FORBIDDEN);
+		}
+
+		$override = $this->request->getHeader('X-WOPI-Override');
+		$lockId = $this->request->getHeader('X-WOPI-Lock');
+
+		return match ($override) {
+			'LOCK' => $this->handleLock($fileId, $lockId),
+			'UNLOCK' => $this->handleUnlock($fileId, $lockId),
+			'REFRESH_LOCK' => $this->handleRefreshLock($fileId, $lockId),
+			'GET_LOCK' => $this->handleGetLock($fileId),
+			default => new JSONResponse(['error' => 'Unsupported WOPI operation'], Http::STATUS_NOT_IMPLEMENTED),
+		};
+	}
+
+	private function handleLock(int $fileId, string $lockId): Http\Response {
+		if ($lockId === '') {
+			return new JSONResponse(['error' => 'X-WOPI-Lock is required'], Http::STATUS_BAD_REQUEST);
+		}
+
+		$oldLockId = $this->request->getHeader('X-WOPI-OldLock');
+		$existing = $this->wopiLockMapper->findByFileId($fileId);
+
+		if ($oldLockId !== '') {
+			// UnlockAndRelock: verify the old lock first, then replace with new.
+			if ($existing === null || $existing->isExpired() || $existing->getLockId() !== $oldLockId) {
+				$current = ($existing !== null && !$existing->isExpired()) ? $existing->getLockId() : '';
+				return $this->lockConflict($current, 'Lock mismatch on UnlockAndRelock');
+			}
+			$this->wopiLockMapper->upsertLock($fileId, $lockId);
+			return $this->lockOkResponse();
+		}
+
+		if ($existing !== null && !$existing->isExpired()) {
+			if ($existing->getLockId() !== $lockId) {
+				return $this->lockConflict($existing->getLockId(), 'File is locked by another client');
+			}
+			// Idempotent re-lock with same ID — refresh the TTL.
+			$this->wopiLockMapper->upsertLock($fileId, $lockId);
+			return $this->lockOkResponse();
+		}
+
+		$this->wopiLockMapper->upsertLock($fileId, $lockId);
+		return $this->lockOkResponse();
+	}
+
+	private function handleUnlock(int $fileId, string $lockId): Http\Response {
+		if ($lockId === '') {
+			return new JSONResponse(['error' => 'X-WOPI-Lock is required'], Http::STATUS_BAD_REQUEST);
+		}
+
+		$existing = $this->wopiLockMapper->findByFileId($fileId);
+
+		if ($existing === null || $existing->isExpired() || $existing->getLockId() !== $lockId) {
+			$current = ($existing !== null && !$existing->isExpired()) ? $existing->getLockId() : '';
+			return $this->lockConflict($current, 'Lock mismatch');
+		}
+
+		$this->wopiLockMapper->delete($existing);
+		return $this->lockOkResponse();
+	}
+
+	private function handleRefreshLock(int $fileId, string $lockId): Http\Response {
+		if ($lockId === '') {
+			return new JSONResponse(['error' => 'X-WOPI-Lock is required'], Http::STATUS_BAD_REQUEST);
+		}
+
+		$existing = $this->wopiLockMapper->findByFileId($fileId);
+
+		if ($existing === null || $existing->isExpired() || $existing->getLockId() !== $lockId) {
+			$current = ($existing !== null && !$existing->isExpired()) ? $existing->getLockId() : '';
+			return $this->lockConflict($current, 'Lock mismatch on RefreshLock');
+		}
+
+		$this->wopiLockMapper->upsertLock($fileId, $lockId);
+		return $this->lockOkResponse();
+	}
+
+	private function handleGetLock(int $fileId): Http\Response {
+		$existing = $this->wopiLockMapper->findByFileId($fileId);
+		$current = ($existing !== null && !$existing->isExpired()) ? $existing->getLockId() : '';
+
+		$response = new JSONResponse([]);
+		$response->addHeader('X-WOPI-Lock', $current);
+		return $response;
+	}
+
+	private function lockOkResponse(): JSONResponse {
+		return new JSONResponse([]);
+	}
+
+	private function lockConflict(string $currentLockId, string $reason): JSONResponse {
+		$response = new JSONResponse([], Http::STATUS_CONFLICT);
+		$response->addHeader('X-WOPI-Lock', $currentLockId);
+		$response->addHeader('X-WOPI-LockFailureReason', $reason);
+		return $response;
 	}
 
 	private function getFileForToken(Wopi $wopi): File {
