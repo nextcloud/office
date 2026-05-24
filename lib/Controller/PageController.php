@@ -13,6 +13,7 @@ use OCP\AppFramework\Http\Attribute\OpenAPI;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\IRequest;
+use OCP\IURLGenerator;
 
 /**
  * @psalm-suppress UnusedClass
@@ -22,6 +23,7 @@ class PageController extends Controller {
 		string $appName,
 		IRequest $request,
 		private IInitialState $initialState,
+		private IURLGenerator $urlGenerator,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -31,9 +33,12 @@ class PageController extends Controller {
 	#[OpenAPI(OpenAPI::SCOPE_IGNORE)]
 	#[FrontpageRoute(verb: 'GET', url: '/')]
 	public function index(): TemplateResponse {
-		// Null until a WOPI backend branch provides a concrete editor route.
-		// The overview Vue component falls back to /f/{fileid} when this is null.
-		$this->initialState->provideInitialState('editor-url', null);
+		// WOPI backend is present on this branch: provide the editor open route
+		// so the overview navigates directly to the editor (clean history.back()).
+		$this->initialState->provideInitialState(
+			'editor-url',
+			$this->urlGenerator->linkToRoute('office.Editor.open'),
+		);
 		return new TemplateResponse(
 			Application::APP_ID,
 			'index',
