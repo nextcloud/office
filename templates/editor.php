@@ -7,9 +7,9 @@ use OCP\Util;
 
 /**
  * @var array $_ Template variables:
- *   - editorUrl       string  Full editor URL with wopisrc and access_token substituted
- *   - postMessageOrigin string NC server host used to validate inbound postMessages
- *   - fileName        string  Human-readable file name shown in the page title
+ *            - editorUrl       string  Full editor URL with wopisrc and access_token substituted
+ *            - postMessageOrigin string NC server host used to validate inbound postMessages
+ *            - fileName        string  Human-readable file name shown in the page title
  */
 
 Util::addScript(Application::APP_ID, Application::APP_ID . '-editor');
