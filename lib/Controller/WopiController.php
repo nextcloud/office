@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace OCA\Office\Controller;
 
 use OCA\Office\Db\Wopi;
-use OCA\Office\Db\WopiLock;
 use OCA\Office\Db\WopiLockMapper;
 use OCA\Office\Db\WopiMapper;
 use OCA\Office\Exception\ExpiredTokenException;

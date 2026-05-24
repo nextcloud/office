@@ -10,10 +10,10 @@ declare(strict_types=1);
 namespace OCA\Office\Listener;
 
 use OCA\Office\Service\DiscoveryService;
+use OCP\AppFramework\Services\IInitialState;
 use OCP\Collaboration\Resources\LoadAdditionalScriptsEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\Util;
 
 /** @template-implements IEventListener<LoadAdditionalScriptsEvent> */
