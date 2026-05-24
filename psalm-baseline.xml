@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="6.16.1@f1f5de594dc76faf8784e02d3dc4716c91c6f6ac">
+  <file src="lib/AppInfo/Application.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[Application]]></code>
+    </ClassMustBeFinal>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function boot(IBootContext $context): void {]]></code>
+      <code><![CDATA[public function register(IRegistrationContext $context): void {]]></code>
+    </MissingOverrideAttribute>
+  </file>
+  <file src="lib/BackgroundJob/CleanupJob.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[CleanupJob]]></code>
+    </ClassMustBeFinal>
+    <MissingOverrideAttribute>
+      <code><![CDATA[protected function run(mixed $argument): void {]]></code>
+    </MissingOverrideAttribute>
+    <UnusedClass>
+      <code><![CDATA[CleanupJob]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Controller/ApiController.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[ApiController]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="lib/Controller/EditorController.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[EditorController]]></code>
+    </ClassMustBeFinal>
+    <MissingDependency>
+      <code><![CDATA[$this->rootFolder]]></code>
+      <code><![CDATA[private]]></code>
+    </MissingDependency>
+    <MixedAssignment>
+      <code><![CDATA[$userFolder]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[getFirstNodeById]]></code>
+    </MixedMethodCall>
+    <UnusedClass>
+      <code><![CDATA[EditorController]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Controller/PageController.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[PageController]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="lib/Controller/SettingsController.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[SettingsController]]></code>
+    </ClassMustBeFinal>
+    <InvalidArgument>
+      <code><![CDATA[\OCA\Office\Settings\Admin::class]]></code>
+      <code><![CDATA[\OCA\Office\Settings\Admin::class]]></code>
+    </InvalidArgument>
+    <UnusedClass>
+      <code><![CDATA[SettingsController]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Controller/ShareController.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[ShareController]]></code>
+    </ClassMustBeFinal>
+    <PossiblyNullArgument>
+      <code><![CDATA[preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? '')]]></code>
+    </PossiblyNullArgument>
+    <UnusedClass>
+      <code><![CDATA[ShareController]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Controller/WopiController.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[WopiController]]></code>
+    </ClassMustBeFinal>
+    <InvalidOperand>
+      <code><![CDATA[$end - $start]]></code>
+      <code><![CDATA[$size - 1]]></code>
+      <code><![CDATA[$size - 1]]></code>
+    </InvalidOperand>
+    <MissingDependency>
+      <code><![CDATA[$this->rootFolder]]></code>
+      <code><![CDATA[private]]></code>
+    </MissingDependency>
+    <MixedArgument>
+      <code><![CDATA[$nodes]]></code>
+    </MixedArgument>
+    <MixedAssignment>
+      <code><![CDATA[$nodes]]></code>
+      <code><![CDATA[$userFolder]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[getById]]></code>
+    </MixedMethodCall>
+    <PossiblyFalseArgument>
+      <code><![CDATA[$content]]></code>
+    </PossiblyFalseArgument>
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(bool)$wopi->getCanwrite()]]></code>
+    </RedundantCastGivenDocblockType>
+    <UnusedClass>
+      <code><![CDATA[WopiController]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Db/Wopi.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[Wopi]]></code>
+    </ClassMustBeFinal>
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$canwrite]]></code>
+      <code><![CDATA[$fileid]]></code>
+      <code><![CDATA[$hideDownload]]></code>
+      <code><![CDATA[$serverHost]]></code>
+      <code><![CDATA[$token]]></code>
+      <code><![CDATA[$version]]></code>
+    </PossiblyUnusedProperty>
+    <PropertyNotSetInConstructor>
+      <code><![CDATA[$fileid]]></code>
+      <code><![CDATA[$serverHost]]></code>
+      <code><![CDATA[$token]]></code>
+      <code><![CDATA[Wopi]]></code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="lib/Db/WopiLock.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[WopiLock]]></code>
+    </ClassMustBeFinal>
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$fileid]]></code>
+      <code><![CDATA[$lockId]]></code>
+    </PossiblyUnusedProperty>
+    <PropertyNotSetInConstructor>
+      <code><![CDATA[WopiLock]]></code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="lib/Db/WopiLockMapper.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[WopiLockMapper]]></code>
+    </ClassMustBeFinal>
+    <MixedReturnTypeCoercion>
+      <code><![CDATA[array_column($qb->executeQuery()->fetchAll(), 'id')]]></code>
+      <code><![CDATA[int[]]]></code>
+    </MixedReturnTypeCoercion>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[WopiLock]]></code>
+    </PossiblyUnusedReturnValue>
+    <UnnecessaryVarAnnotation>
+      <code><![CDATA[WopiLock]]></code>
+      <code><![CDATA[WopiLock]]></code>
+      <code><![CDATA[WopiLock]]></code>
+    </UnnecessaryVarAnnotation>
+  </file>
+  <file src="lib/Db/WopiMapper.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[WopiMapper]]></code>
+    </ClassMustBeFinal>
+    <MixedArgument>
+      <code><![CDATA[$row]]></code>
+    </MixedArgument>
+    <MixedArrayAssignment>
+      <code><![CDATA[$safeRow['token']]]></code>
+    </MixedArrayAssignment>
+    <MixedAssignment>
+      <code><![CDATA[$row]]></code>
+      <code><![CDATA[$safeRow]]></code>
+    </MixedAssignment>
+    <MixedReturnTypeCoercion>
+      <code><![CDATA[array_column($qb->executeQuery()->fetchAll(), 'id')]]></code>
+      <code><![CDATA[int[]]]></code>
+    </MixedReturnTypeCoercion>
+    <PossiblyNullArgument>
+      <code><![CDATA[$offset]]></code>
+    </PossiblyNullArgument>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+    <UnnecessaryVarAnnotation>
+      <code><![CDATA[Wopi]]></code>
+      <code><![CDATA[Wopi]]></code>
+      <code><![CDATA[Wopi]]></code>
+    </UnnecessaryVarAnnotation>
+  </file>
+  <file src="lib/Exception/ExpiredTokenException.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[ExpiredTokenException]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="lib/Exception/UnknownTokenException.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[UnknownTokenException]]></code>
+    </ClassMustBeFinal>
+  </file>
+  <file src="lib/Listener/LoadAdditionalScriptsListener.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[LoadAdditionalScriptsListener]]></code>
+    </ClassMustBeFinal>
+    <MixedArgument>
+      <code><![CDATA[Application::APP_ID]]></code>
+    </MixedArgument>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+    <UndefinedClass>
+      <code><![CDATA[Application]]></code>
+    </UndefinedClass>
+  </file>
+  <file src="lib/Migration/Version1000Date20260522000000.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[Version1000Date20260522000000]]></code>
+    </ClassMustBeFinal>
+    <UndefinedDocblockClass>
+      <code><![CDATA[$schema->createTable('office_wopi')]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+    </UndefinedDocblockClass>
+    <UnnecessaryVarAnnotation>
+      <code><![CDATA[ISchemaWrapper]]></code>
+    </UnnecessaryVarAnnotation>
+    <UnusedClass>
+      <code><![CDATA[Version1000Date20260522000000]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Migration/Version1001Date20260523000000.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[Version1001Date20260523000000]]></code>
+    </ClassMustBeFinal>
+    <UndefinedDocblockClass>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+    </UndefinedDocblockClass>
+    <UnnecessaryVarAnnotation>
+      <code><![CDATA[ISchemaWrapper]]></code>
+    </UnnecessaryVarAnnotation>
+    <UnusedClass>
+      <code><![CDATA[Version1001Date20260523000000]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Migration/Version1002Date20260523000000.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[Version1002Date20260523000000]]></code>
+    </ClassMustBeFinal>
+    <UndefinedDocblockClass>
+      <code><![CDATA[$schema->getTable('office_wopi')]]></code>
+      <code><![CDATA[$table]]></code>
+      <code><![CDATA[$table]]></code>
+    </UndefinedDocblockClass>
+    <UnnecessaryVarAnnotation>
+      <code><![CDATA[ISchemaWrapper]]></code>
+    </UnnecessaryVarAnnotation>
+    <UnusedClass>
+      <code><![CDATA[Version1002Date20260523000000]]></code>
+    </UnusedClass>
+  </file>
+  <file src="lib/Service/DiscoveryService.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[DiscoveryService]]></code>
+    </ClassMustBeFinal>
+    <MixedAssignment>
+      <code><![CDATA[$name]]></code>
+    </MixedAssignment>
+    <MixedReturnStatement>
+      <code><![CDATA[$cached]]></code>
+    </MixedReturnStatement>
+    <PossiblyNullArgument>
+      <code><![CDATA[$url]]></code>
+    </PossiblyNullArgument>
+    <PossiblyNullArrayAccess>
+      <code><![CDATA[$actions[0]]]></code>
+      <code><![CDATA[$actions[0]['urlsrc']]]></code>
+    </PossiblyNullArrayAccess>
+    <PossiblyNullIterator>
+      <code><![CDATA[$names !== false ? $names : []]]></code>
+    </PossiblyNullIterator>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+      <code><![CDATA[resetCache]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="lib/Settings/Admin.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[Admin]]></code>
+    </ClassMustBeFinal>
+    <MissingOverrideAttribute>
+      <code><![CDATA[public function getForm(): TemplateResponse {]]></code>
+      <code><![CDATA[public function getPriority(): int {]]></code>
+      <code><![CDATA[public function getSection(): string {]]></code>
+    </MissingOverrideAttribute>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="lib/TokenManager.php">
+    <ClassMustBeFinal>
+      <code><![CDATA[TokenManager]]></code>
+    </ClassMustBeFinal>
+    <MissingDependency>
+      <code><![CDATA[$this->rootFolder]]></code>
+      <code><![CDATA[$this->rootFolder]]></code>
+      <code><![CDATA[private]]></code>
+    </MissingDependency>
+    <MixedAssignment>
+      <code><![CDATA[$ownerFolder]]></code>
+      <code><![CDATA[$userFolder]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[getFirstNodeById]]></code>
+      <code><![CDATA[getFirstNodeById]]></code>
+    </MixedMethodCall>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+</files>
