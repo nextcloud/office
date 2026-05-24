@@ -1,25 +1,134 @@
 # Office
 
-A template to get started with Nextcloud app development.
+A Nextcloud app that integrates Euro-Office as a WOPI host, providing a full-page
+editor and a document hub. Nextcloud acts as the WOPI host (file storage, token
+authority, lock manager); Euro-Office acts as the WOPI client (rendering, editing).
 
-## Usage
+The overview UI is developed in `feat/euro-office-overview`. This branch adds the
+WOPI backend on top of it. For combined local testing see `feat/overview-and-wopi`.
 
-- To get started easily use the [Appstore App generator](https://apps.nextcloud.com/developer/apps/generate) to
-  dynamically generate an App based on this repository with all the constants prefilled.
-- Alternatively you can use the "Use this template" button on the top of this page to create a new repository based on
-  this repository. Afterwards adjust all the necessary constants like App ID, namespace, descriptions etc.
+---
 
-Once your app is ready follow the [instructions](https://nextcloudappstore.readthedocs.io/en/latest/developer.html) to
-upload it to the Appstore.
+## Features
 
-## Resources
+- **Overview page** — browse, filter, search, and create office documents (see overview branch)
+- **Full-page editor** at `/apps/office/open?fileId=N`
+- **WOPI host implementation** — CheckFileInfo, GetFile, PutFile, Lock/Unlock/RefreshLock
+- **Files app integration** — DEFAULT file action for all MIME types advertised by the editor
+- **Public share support** — guest tokens for link-share access (Phase 3)
+- **Conflict-free close** — editor close returns the user to the overview via `history.back()`
 
-### Documentation for developers:
+---
 
-- General documentation and tutorials: https://nextcloud.com/developer
-- Technical documentation: https://docs.nextcloud.com/server/latest/developer_manual
+## Local development
 
-### Help for developers:
+### Requirements
 
-- Official community chat: https://cloud.nextcloud.com/call/xs25tz5y
-- Official community forum: https://help.nextcloud.com/c/dev/11
+- [nextcloud-docker-dev](https://github.com/juliushaertl/nextcloud-docker-dev)
+- NC ≥ 31
+- Node 24 / npm 11
+- Euro-Office server reachable from the NC container
+
+### 1. Mount the app into the container
+
+Add to `nextcloud-docker-dev/docker-compose.override.yml`:
+
+```yaml
+services:
+  nextcloud:
+    volumes:
+      - /path/to/office:/var/www/html/apps-extra/office
+```
+
+Restart the container after saving.
+
+### 2. Enable the app and disable eurooffice
+
+```bash
+docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
+  php occ app:enable office
+
+# Disable eurooffice so it does not compete for the DEFAULT file action
+docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
+  php occ app:disable eurooffice
+```
+
+### 3. Build the frontend
+
+```bash
+npm ci
+npm run build      # one-off build
+npm run watch      # rebuild on file changes
+```
+
+---
+
+## How it works
+
+### WOPI flow
+
+```
+Browser                  NC (WOPI host)                  Euro-Office (WOPI client)
+   |                          |                                   |
+   |  GET /apps/office/open   |                                   |
+   |------------------------->|                                   |
+   |                          | mint WOPI token (TokenManager)    |
+   |                          | build editor URL with wopisrc     |
+   |   editor iframe / page   |                                   |
+   |<-------------------------|                                   |
+   |                          |  GET /wopi/files/{id}?token=...  |
+   |                          |<----------------------------------|
+   |                          |  CheckFileInfo response           |
+   |                          |---------------------------------->|
+   |                          |  GET /wopi/files/{id}/contents   |
+   |                          |<----------------------------------|
+   |                          |  file bytes                       |
+   |                          |---------------------------------->|
+   |   ← editing session →    |                                   |
+   |                          |  POST /wopi/files/{id}/contents  |
+   |                          |<----------------------------------|
+   |                          |  204 No Content                   |
+   |                          |---------------------------------->|
+```
+
+### Key classes
+
+| Class | Responsibility |
+|---|---|
+| `EditorController` | Renders editor page; mints WOPI token; builds editor URL from discovery XML |
+| `WopiController` | WOPI protocol endpoint — handles all `/wopi/files/` requests |
+| `TokenManager` | Creates and validates WOPI tokens; manages token TTL and guest vs user access |
+| `DiscoveryService` | Fetches and caches the editor's discovery XML; resolves MIME → action URL |
+| `ShareController` | Issues guest tokens for public share links |
+| `WopiMapper` / `WopiLockMapper` | Persistence for WOPI tokens and file locks |
+| `CleanupJob` | Background job — expires stale locks and tokens |
+
+---
+
+## Public share support (Phase 3)
+
+Share link visitors (`/s/{token}`) receive a guest WOPI token via `ShareController`.
+File access, locking, and `CheckFileInfo` flags (`HideExportOption`, `DisablePrint`,
+`UserCanWrite`, etc.) are all derived from the share's permissions and `hide_download`
+flag at token-issue time.
+
+**Known gaps** — see `PHASE3_DECISIONS.md` for full context:
+
+- **KG1** — Password-protected shares: no redirect to `/s/{token}` password page yet.
+  Users must authenticate at `/s/{token}` before navigating to the editor.
+- **KG2** — Authenticated users through share links receive guest tokens.
+  Full user-token path deferred to Phase 4.
+- **KG3** — Federated/remote shares not tested.
+
+---
+
+## Architecture notes
+
+The WOPI token row (`oc_office_wopi`) is the authority for per-session flags
+(`canwrite`, `hideDownload`, `ownerUid`). Flags are stamped at token-generation
+time and not re-read on subsequent WOPI requests — this avoids a per-request
+`IShareManager` lookup on every CheckFileInfo heartbeat, matching the richdocuments
+pattern. Trade-off: share revocation mid-session is not enforced within the token TTL
+(10 h).
+
+Design decisions for Phase 3 are recorded in `PHASE3_DECISIONS.md`.
