@@ -178,7 +178,11 @@ class WopiController extends Controller {
 			return $this->getFileRange($file, $rangeHeader);
 		}
 
-		$response = new StreamResponse($file->fopen('rb'));
+		$resource = $file->fopen('rb');
+		if ($resource === false) {
+			return new JSONResponse(['message' => 'Could not open file for reading'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+		$response = new StreamResponse($resource);
 		$response->addHeader('Content-Type', 'application/octet-stream');
 		return $response;
 	}
@@ -252,7 +256,9 @@ class WopiController extends Controller {
 					return new JSONResponse(['message' => 'Not enough storage'], Http::STATUS_INSUFFICIENT_STORAGE);
 				}
 
-				$this->writeWithLock($wopi, $file, fn () => $file->putContent($content));
+				$this->writeWithLock($wopi, $file, static function () use ($file, $content): void {
+					$file->putContent($content);
+				});
 			} finally {
 				// putContent() may close the stream internally; guard to avoid a warning.
 				if (is_resource($content)) {
@@ -409,7 +415,9 @@ class WopiController extends Controller {
 		}
 
 		// Prefer nodes with write permission when multiple exist (e.g. same file mounted in several places)
-		usort($nodes, fn ($a, $b) => ($b->getPermissions() & \OCP\Constants::PERMISSION_UPDATE) <=> ($a->getPermissions() & \OCP\Constants::PERMISSION_UPDATE));
+		usort($nodes, static function (\OCP\Files\Node $a, \OCP\Files\Node $b): int {
+			return ($b->getPermissions() & \OCP\Constants::PERMISSION_UPDATE) <=> ($a->getPermissions() & \OCP\Constants::PERMISSION_UPDATE);
+		});
 
 		$node = array_shift($nodes);
 		if (!$node instanceof File) {
@@ -435,11 +443,21 @@ class WopiController extends Controller {
 				return $response;
 			}
 
-			$length = $end - $start + 1;
+			$length = (int)($end - $start + 1);
 
 			$fp = $file->fopen('rb');
+			if ($fp === false) {
+				$r = new Http\Response();
+				$r->setStatus(Http::STATUS_INTERNAL_SERVER_ERROR);
+				return $r;
+			}
 			try {
 				$rangeStream = fopen('php://temp', 'w+b');
+				if ($rangeStream === false) {
+					$r = new Http\Response();
+					$r->setStatus(Http::STATUS_INTERNAL_SERVER_ERROR);
+					return $r;
+				}
 				try {
 					stream_copy_to_stream($fp, $rangeStream, $length, $start);
 					fseek($rangeStream, 0);
@@ -460,7 +478,13 @@ class WopiController extends Controller {
 			}
 		}
 
-		$response = new StreamResponse($file->fopen('rb'));
+		$resource = $file->fopen('rb');
+		if ($resource === false) {
+			$r = new Http\Response();
+			$r->setStatus(Http::STATUS_INTERNAL_SERVER_ERROR);
+			return $r;
+		}
+		$response = new StreamResponse($resource);
 		$response->addHeader('Content-Type', 'application/octet-stream');
 		return $response;
 	}
