@@ -98,7 +98,7 @@ class DiscoveryService {
 			sprintf('//app/action[@ext="%s" and @name="%s"]', $extension, $action)
 		);
 
-		if (empty($actions)) {
+		if ($actions === false || $actions === []) {
 			return null;
 		}
 
@@ -125,8 +125,9 @@ class DiscoveryService {
 			return [];
 		}
 
+		$names = $parsed->xpath('//app/@name');
 		$mimes = [];
-		foreach ($parsed->xpath('//app/@name') as $name) {
+		foreach ($names !== false ? $names : [] as $name) {
 			$mime = (string)$name;
 			if ($mime !== '' && str_contains($mime, '/')) {
 				$mimes[] = $mime;

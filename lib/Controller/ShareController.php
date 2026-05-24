@@ -64,7 +64,7 @@ class ShareController extends Controller {
 		?int $fileId = null,
 		?string $path = null,
 		?string $guestName = null,
-	): TemplateResponse|JSONResponse {
+	): TemplateResponse|JSONResponse|RedirectResponse {
 		try {
 			$share = $this->shareManager->getShareByToken($shareToken);
 		} catch (ShareNotFound $e) {
@@ -76,7 +76,7 @@ class ShareController extends Controller {
 		// once the user has entered the password at /s/{token}. Check both legacy (string)
 		// and current (array of share IDs) formats, matching richdocuments' pattern.
 		// Authenticated users bypass the password check — they have a full NC session.
-		if ($share->getPassword() && !$this->userSession->isLoggedIn()) {
+		if ($share->getPassword() !== '' && !$this->userSession->isLoggedIn()) {
 			$authenticated = $this->session->get('public_link_authenticated');
 			$isAuthenticated = (is_array($authenticated) && in_array($share->getId(), $authenticated, true))
 				|| $authenticated === $share->getId();
@@ -157,7 +157,7 @@ class ShareController extends Controller {
 
 		$editorUrl = $this->discoveryService->buildEditorUrl($urlsrc, $wopiSrc, $wopi->getToken());
 
-		$response = new TemplateResponse(Application::APP_ID, 'editor', [], 'blank');
+		$response = new TemplateResponse(Application::APP_ID, 'editor', [], 'base');
 		$response->setParams([
 			'editorUrl' => $editorUrl,
 			'postMessageOrigin' => $wopi->getServerHost(),
