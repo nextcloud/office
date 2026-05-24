@@ -17,7 +17,6 @@ use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotPermittedException;
 use OCP\IURLGenerator;
-use Psr\Log\LoggerInterface;
 
 class TokenManager {
 	public function __construct(
@@ -25,7 +24,6 @@ class TokenManager {
 		private WopiMapper $wopiMapper,
 		private IURLGenerator $urlGenerator,
 		private IEventDispatcher $eventDispatcher,
-		private LoggerInterface $logger,
 		private ?string $userId,
 	) {
 	}

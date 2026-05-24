@@ -85,7 +85,7 @@ class EditorController extends Controller {
 			return new JSONResponse(['error' => 'Internal error'], \OCP\AppFramework\Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
-		$response = new TemplateResponse(Application::APP_ID, 'editor', [], 'blank');
+		$response = new TemplateResponse(Application::APP_ID, 'editor', [], 'base');
 		$response->setParams([
 			'editorUrl' => $editorUrl,
 			'postMessageOrigin' => $wopi->getServerHost(),

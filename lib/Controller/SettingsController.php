@@ -31,7 +31,7 @@ class SettingsController extends Controller {
 	/**
 	 * Return the current admin settings.
 	 */
-	#[AuthorizedAdminSetting(settings: Settings\Admin::class)]
+	#[AuthorizedAdminSetting(settings: \OCA\Office\Settings\Admin::class)]
 	#[NoCSRFRequired]
 	#[ApiRoute(verb: 'GET', url: '/settings/admin')]
 	public function getAdmin(): DataResponse {
@@ -44,12 +44,12 @@ class SettingsController extends Controller {
 	/**
 	 * Persist admin settings.
 	 */
-	#[AuthorizedAdminSetting(settings: Settings\Admin::class)]
+	#[AuthorizedAdminSetting(settings: \OCA\Office\Settings\Admin::class)]
 	#[ApiRoute(verb: 'POST', url: '/settings/admin')]
 	public function setAdmin(string $wopi_url, string $disable_certificate_verification = 'no'): DataResponse {
 		if ($wopi_url !== '') {
 			$parsed = parse_url($wopi_url);
-			if (!$parsed || !in_array($parsed['scheme'] ?? '', ['http', 'https'], true)) {
+			if ($parsed === false || !in_array($parsed['scheme'] ?? '', ['http', 'https'], true)) {
 				return new DataResponse(['error' => 'wopi_url must use the http or https scheme'], Http::STATUS_BAD_REQUEST);
 			}
 			if (isset($parsed['user']) || isset($parsed['pass'])) {
