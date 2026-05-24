@@ -19,7 +19,10 @@ class WopiLockMapper extends QBMapper {
 	// WOPI spec: locks are valid for 30 minutes; editor must refresh before expiry.
 	public const LOCK_TTL = 1800;
 
-	public function __construct(IDBConnection $db, private ITimeFactory $timeFactory) {
+	public function __construct(
+		IDBConnection $db,
+		private ITimeFactory $timeFactory,
+	) {
 		parent::__construct($db, 'office_wopi_locks', WopiLock::class);
 	}
 

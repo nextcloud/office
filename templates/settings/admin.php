@@ -7,8 +7,8 @@ use OCP\Util;
 
 /**
  * @var array $_ Template variables:
- *   - wopi_url                      string  Editor server base URL
- *   - disable_certificate_verification string  'yes' or 'no'
+ *            - wopi_url                      string  Editor server base URL
+ *            - disable_certificate_verification string  'yes' or 'no'
  */
 
 Util::addScript(Application::APP_ID, Application::APP_ID . '-settings-admin');
