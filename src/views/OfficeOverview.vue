@@ -8,6 +8,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { getCurrentUser } from '@nextcloud/auth'
 import { sortNodes } from '@nextcloud/files'
 import { translate as t } from '@nextcloud/l10n'
+import { loadState } from '@nextcloud/initial-state'
 import { generateUrl } from '@nextcloud/router'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
@@ -149,13 +150,20 @@ function getPreviewUrl(file: Node): string {
 	})
 }
 
+// Provided by PageController::index() — set to the editor open URL when a WOPI
+// backend is active, null otherwise.
+const editorUrl = loadState<string | null>('office', 'editor-url', null)
+
 function openFile(file: Node) {
-	// Navigate directly to the in-app editor. The older approach used the NC
-	// Viewer (OCA.Viewer.open) or the Files shortlink (/f/{fileid}), both of
-	// which route through the Files app and lose the overview as the referrer.
-	// If we ever need to fall back: OCA.Viewer.open({ path: file.path }) or
-	// window.location.href = generateUrl('/f/{fileid}', { fileid: file.fileid })
-	window.location.href = generateUrl('/apps/office/open') + '?fileId=' + encodeURIComponent(String(file.fileid))
+	if (editorUrl) {
+		// WOPI editor active: navigate directly so history.back() returns here.
+		window.location.href = editorUrl + '?fileId=' + encodeURIComponent(String(file.fileid))
+	} else {
+		// No WOPI backend: hand off to NC's file routing. The Files app will
+		// trigger whichever default file action is registered (e.g. eurooffice).
+		// Note: returning to the overview after close depends on the editor app.
+		window.location.href = generateUrl('/f/{fileid}', { fileid: file.fileid })
+	}
 }
 
 function openInFiles() {
@@ -269,7 +277,7 @@ fetchAll()
 				<NcEmptyContent v-if="creators.length === 0"
 					:name="t('office', 'No office suite installed')">
 					<template #icon>
-						<NcIconSvgWrapper :svg="mdiFileDocumentOutline" :size="48" />
+						<NcIconSvgWrapper :path="mdiFileDocumentOutline" :size="48" />
 					</template>
 				</NcEmptyContent>
 
@@ -320,8 +328,8 @@ fetchAll()
 								variant="tertiary"
 								@click="toggleViewMode">
 								<template #icon>
-									<NcIconSvgWrapper v-if="viewMode === 'list'" :svg="mdiViewGrid" :size="20" />
-									<NcIconSvgWrapper v-else :svg="mdiViewList" :size="20" />
+									<NcIconSvgWrapper v-if="viewMode === 'list'" :path="mdiViewGrid" :size="20" />
+									<NcIconSvgWrapper v-else :path="mdiViewList" :size="20" />
 								</template>
 							</NcButton>
 						</div>
@@ -329,7 +337,7 @@ fetchAll()
 						<NcEmptyContent v-if="files.length === 0"
 							:name="t('office', 'No {category} found', { category: activeCategoryName })">
 							<template #icon>
-								<NcIconSvgWrapper :svg="mdiFileDocumentOutline" :size="48" />
+								<NcIconSvgWrapper :path="mdiFileDocumentOutline" :size="48" />
 							</template>
 							<template v-if="activeFilter !== 'all'" #description>
 								{{ t('office', 'Switch to All to see every file you have access to') }}
@@ -348,7 +356,7 @@ fetchAll()
 										class="overview-file-preview"
 										@error="failedPreviews = { ...failedPreviews, [file.fileid]: true }">
 									<NcIconSvgWrapper v-else
-										:svg="mdiFileDocumentOutline"
+										:path="mdiFileDocumentOutline"
 										:size="48"
 										class="overview-file-icon" />
 								</template>
@@ -375,7 +383,7 @@ fetchAll()
 								@click="openFile(file)">
 								<template #indicator>
 									<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
-										:svg="mdiStar"
+										:path="mdiStar"
 										:size="16"
 										class="office-overview__favourite-icon" />
 								</template>
@@ -389,7 +397,7 @@ fetchAll()
 							<NcButton variant="tertiary" @click="openInFiles">
 								{{ searchQuery ? t('office', 'Search all in Files') : t('office', 'Show all in Files') }}
 								<template #icon>
-									<NcIconSvgWrapper :svg="mdiOpenInNew" :size="20" />
+									<NcIconSvgWrapper :path="mdiOpenInNew" :size="20" />
 								</template>
 							</NcButton>
 						</div>
