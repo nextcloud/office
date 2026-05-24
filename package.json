@@ -14,6 +14,10 @@
     "extends @nextcloud/browserslist-config"
   ],
   "dependencies": {
+    "@nextcloud/files": "^4.0.0",
+    "@nextcloud/initial-state": "^3.0.0",
+    "@nextcloud/router": "^3.1.0",
+    "@nextcloud/sharing": "^0.3.0",
     "@nextcloud/vue": "^9.3.1",
     "vue": "^3.5.25"
   },
