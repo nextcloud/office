@@ -103,28 +103,35 @@ class WopiController extends Controller {
 
 		$hideDownload = $wopi->getHideDownload();
 
+		$isGuest = $wopi->isGuest();
+
 		return new JSONResponse([
 			'BaseFileName' => $file->getName(),
 			'Size' => $file->getSize(),
 			'Version' => (string)$file->getMTime(),
-			'UserId' => $wopi->isGuest() ? 'Guest-' . substr(md5($wopi->getToken()), 0, 8) : $wopi->getEditorUid(),
+			'UserId' => $isGuest ? 'Guest-' . substr(md5($wopi->getToken()), 0, 8) : $wopi->getEditorUid(),
 			'OwnerId' => $wopi->getOwnerUid(),
 			'UserFriendlyName' => $displayName,
+			'IsAnonymousUser' => $isGuest,
 			'UserCanWrite' => $canWrite,
-			'UserCanNotWriteRelative' => $wopi->isGuest() || $hideDownload,
+			// PutRelativeFile (Save As) deferred to Phase 6.
+			'UserCanNotWriteRelative' => true,
 			'PostMessageOrigin' => $wopi->getServerHost(),
 			'LastModifiedTime' => $this->toISO8601($file->getMTime()),
-			'SupportsRename' => !$wopi->isGuest(),
-			'UserCanRename' => !$wopi->isGuest(),
-			'EnableInsertRemoteImage' => !$wopi->isGuest(),
-			'EnableShare' => !$wopi->isGuest(),
+			'SupportsUpdate' => true,
+			'SupportsLocks' => $this->lockManager->isLockProviderAvailable(),
+			'SupportsGetLock' => true,
+			'SupportsExtendedLockLength' => true,
+			'SupportsRename' => !$isGuest,
+			'UserCanRename' => !$isGuest,
+			'EnableInsertRemoteImage' => !$isGuest,
+			'EnableShare' => !$isGuest,
 			'HideExportOption' => $hideDownload,
 			'DisablePrint' => $hideDownload,
 			'DisableExport' => $hideDownload,
 			'HideUserList' => '',
-			'EnableOwnerTermination' => $canWrite && !$wopi->isGuest(),
+			'EnableOwnerTermination' => $canWrite && !$isGuest,
 			'HasContentRange' => true,
-			'SupportsLocks' => $this->lockManager->isLockProviderAvailable(),
 			// ServerPrivateInfo is intentionally empty — credentials must never travel via CheckFileInfo.
 			'ServerPrivateInfo' => [],
 		]);
@@ -317,6 +324,7 @@ class WopiController extends Controller {
 			'UNLOCK' => $this->handleUnlock($fileId, $lockId),
 			'REFRESH_LOCK' => $this->handleRefreshLock($fileId, $lockId),
 			'GET_LOCK' => $this->handleGetLock($fileId),
+			'RENAME_FILE' => $this->handleRenameFile($fileId, $wopi),
 			default => new JSONResponse(['error' => 'Unsupported WOPI operation'], Http::STATUS_NOT_IMPLEMENTED),
 		};
 	}
@@ -391,6 +399,72 @@ class WopiController extends Controller {
 		$response = new JSONResponse([]);
 		$response->addHeader('X-WOPI-Lock', $current);
 		return $response;
+	}
+
+	private function handleRenameFile(int $fileId, Wopi $wopi): Http\Response {
+		// Only authenticated users may rename; guests receive a 403.
+		if ($wopi->isGuest()) {
+			return new JSONResponse([], Http::STATUS_FORBIDDEN);
+		}
+
+		$requestedName = $this->request->getHeader('X-WOPI-RequestedName');
+		if ($requestedName === '') {
+			return new JSONResponse(['error' => 'X-WOPI-RequestedName is required'], Http::STATUS_BAD_REQUEST);
+		}
+
+		// X-WOPI-RequestedName is UTF-7 encoded; decode to UTF-8.
+		$newBaseName = (string)mb_convert_encoding($requestedName, 'UTF-8', 'UTF-7');
+
+		// Lock check: an active lock must be matched by the client's X-WOPI-Lock.
+		$lockId = $this->request->getHeader('X-WOPI-Lock');
+		$existing = $this->wopiLockMapper->findByFileId($fileId);
+		if ($existing !== null && !$existing->isExpired()) {
+			if ($lockId !== $existing->getLockId()) {
+				return $this->lockConflict($existing->getLockId(), 'File is locked');
+			}
+		}
+
+		try {
+			$file = $this->getFileForToken($wopi);
+		} catch (NotFoundException|NotPermittedException $e) {
+			$this->logger->warning($e->getMessage(), ['exception' => $e]);
+			return new JSONResponse([], Http::STATUS_NOT_FOUND);
+		}
+
+		$extension = pathinfo($file->getName(), PATHINFO_EXTENSION);
+		$newName = $extension !== '' ? $newBaseName . '.' . $extension : $newBaseName;
+
+		// Reject if a file with the requested name already exists in the same directory.
+		try {
+			$file->getParent()->get($newName);
+			$response = new JSONResponse([], Http::STATUS_BAD_REQUEST);
+			$response->addHeader('X-WOPI-InvalidFileNameError', 'A file with that name already exists');
+			return $response;
+		} catch (NotFoundException) {
+			// Target name is free — proceed with rename.
+		}
+
+		$newPath = $file->getParent()->getPath() . '/' . $newName;
+
+		try {
+			try {
+				$this->lockManager->runInScope(
+					new LockContext($file, \OCP\Files\Lock\ILock::TYPE_APP, 'office'),
+					static function () use (&$file, $newPath): void {
+						$file = $file->move($newPath);
+					},
+				);
+			} catch (NoLockProviderException|PreConditionNotMetException) {
+				$file = $file->move($newPath);
+			} catch (OwnerLockedException) {
+				return $this->lockConflict('', 'File is locked by another user');
+			}
+		} catch (\Throwable $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			return new JSONResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
+		return new JSONResponse(['Name' => $file->getName()]);
 	}
 
 	private function lockOkResponse(): JSONResponse {
