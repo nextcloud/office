@@ -4,18 +4,16 @@ A Nextcloud app that integrates Euro-Office as a WOPI host, providing a full-pag
 editor and a document hub. Nextcloud acts as the WOPI host (file storage, token
 authority, lock manager); Euro-Office acts as the WOPI client (rendering, editing).
 
-The overview UI is developed in `feat/euro-office-overview`. This branch adds the
-WOPI backend on top of it. For combined local testing see `feat/overview-and-wopi`.
-
 ---
 
 ## Features
 
-- **Overview page** — browse, filter, search, and create office documents (see overview branch)
 - **Full-page editor** at `/apps/office/open?fileId=N`
-- **WOPI host implementation** — CheckFileInfo, GetFile, PutFile, Lock/Unlock/RefreshLock
+- **Document overview** — browse, filter, search, and create office documents
+- **WOPI host implementation** — see [WOPI spec compliance](#wopi-spec-compliance) below
 - **Files app integration** — DEFAULT file action for all MIME types advertised by the editor
-- **Public share support** — guest tokens for link-share access (Phase 3)
+- **Public share support** — guest tokens for link-share access
+- **Range reads** — partial file delivery via HTTP Range for large documents
 - **Conflict-free close** — editor close returns the user to the overview via `history.back()`
 
 ---
@@ -26,7 +24,7 @@ WOPI backend on top of it. For combined local testing see `feat/overview-and-wop
 
 - [nextcloud-docker-dev](https://github.com/juliushaertl/nextcloud-docker-dev)
 - NC ≥ 31
-- Node 24 / npm 11
+- Node ≥ 24 / npm ≥ 11
 - Euro-Office server reachable from the NC container
 
 ### 1. Mount the app into the container
@@ -42,15 +40,17 @@ services:
 
 Restart the container after saving.
 
-### 2. Enable the app and disable eurooffice
+### 2. Enable the app
 
 ```bash
-docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
-  php occ app:enable office
+docker compose exec --user www-data nextcloud php occ app:enable office
+```
 
-# Disable eurooffice so it does not compete for the DEFAULT file action
-docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
-  php occ app:disable eurooffice
+If the Euro-Office connector app is also installed, disable it to prevent it from
+competing for the DEFAULT file action:
+
+```bash
+docker compose exec --user www-data nextcloud php occ app:disable eurooffice
 ```
 
 ### 3. Build the frontend
@@ -105,19 +105,56 @@ Browser                  NC (WOPI host)                  Euro-Office (WOPI clien
 
 ---
 
-## Public share support (Phase 3)
+## WOPI spec compliance
+
+### Operations
+
+| Operation | `X-WOPI-Override` | Status | Notes |
+|---|---|---|---|
+| CheckFileInfo | — | ✅ | `GET /wopi/files/{id}` |
+| GetFile | — | ✅ | `GET /wopi/files/{id}/contents`; HTTP Range supported |
+| PutFile | — | ✅ | `POST /wopi/files/{id}/contents`; lock-enforced, optimistic version check, quota check |
+| Lock | `LOCK` | ✅ | |
+| Unlock | `UNLOCK` | ✅ | |
+| RefreshLock | `REFRESH_LOCK` | ✅ | |
+| GetLock | `GET_LOCK` | ✅ | |
+| UnlockAndRelock | `LOCK` + `X-WOPI-OldLock` | ✅ | |
+| RenameFile | `RENAME_FILE` | ✅ | Authenticated users only; conflict returns 400 + `X-WOPI-InvalidFileNameError` |
+| PutRelativeFile | `PUT_RELATIVE_FILE` | ⏳ Phase 6 | `UserCanNotWriteRelative: true` suppresses Save As in the editor UI |
+| DeleteFile | `DELETE` | — | Deletion is handled by NC outside WOPI |
+
+### CheckFileInfo capability flags
+
+| Flag | Value | Notes |
+|---|---|---|
+| `SupportsUpdate` | `true` | PutFile is implemented |
+| `SupportsLocks` | dynamic | `true` when an NC lock provider is available |
+| `SupportsGetLock` | `true` | GetLock is implemented |
+| `SupportsExtendedLockLength` | `true` | `lock_id` column is `VARCHAR(1024)` |
+| `SupportsRename` | per session | `true` for authenticated users; `false` for guests |
+| `UserCanRename` | per session | `true` for authenticated users; `false` for guests |
+| `UserCanNotWriteRelative` | `true` | PutRelativeFile deferred to Phase 6 |
+| `UserCanWrite` | per token | stamped at token-issue time from file/share permissions |
+| `IsAnonymousUser` | per session | `true` for guest (share-link) sessions |
+| `HasContentRange` | `true` | partial file reads via HTTP Range are supported |
+| `HideExportOption` | per token | derived from share `hide_download` flag |
+| `DisablePrint` | per token | derived from share `hide_download` flag |
+| `DisableExport` | per token | derived from share `hide_download` flag |
+
+---
+
+## Public share support
 
 Share link visitors (`/s/{token}`) receive a guest WOPI token via `ShareController`.
 File access, locking, and `CheckFileInfo` flags (`HideExportOption`, `DisablePrint`,
 `UserCanWrite`, etc.) are all derived from the share's permissions and `hide_download`
 flag at token-issue time.
 
-**Known gaps** — see `PHASE3_DECISIONS.md` for full context:
+**Known gaps:**
 
-- **KG1** — Password-protected shares: no redirect to `/s/{token}` password page yet.
-  Users must authenticate at `/s/{token}` before navigating to the editor.
-- **KG2** — Authenticated users through share links receive guest tokens.
-  Full user-token path deferred to Phase 4.
+- **KG1** — Password-protected shares: users must authenticate at `/s/{token}` before
+  navigating to the editor.
+- **KG2** — Authenticated users arriving through share links receive guest tokens.
 - **KG3** — Federated/remote shares not tested.
 
 ---
@@ -130,5 +167,3 @@ time and not re-read on subsequent WOPI requests — this avoids a per-request
 `IShareManager` lookup on every CheckFileInfo heartbeat, matching the richdocuments
 pattern. Trade-off: share revocation mid-session is not enforced within the token TTL
 (10 h).
-
-Design decisions for Phase 3 are recorded in `PHASE3_DECISIONS.md`.
