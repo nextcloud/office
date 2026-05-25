@@ -321,8 +321,5 @@
       <code><![CDATA[getFirstNodeById]]></code>
       <code><![CDATA[getFirstNodeById]]></code>
     </MixedMethodCall>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
   </file>
 </files>
