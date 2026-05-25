@@ -4,10 +4,25 @@
     <ClassMustBeFinal>
       <code><![CDATA[Application]]></code>
     </ClassMustBeFinal>
+    <MissingDependency>
+      <code><![CDATA[IRootFolder]]></code>
+    </MissingDependency>
     <MissingOverrideAttribute>
       <code><![CDATA[public function boot(IBootContext $context): void {]]></code>
       <code><![CDATA[public function register(IRegistrationContext $context): void {]]></code>
     </MissingOverrideAttribute>
+    <MixedArgument>
+      <code><![CDATA[$c->get(IEventDispatcher::class)]]></code>
+      <code><![CDATA[$c->get(IRootFolder::class)]]></code>
+      <code><![CDATA[$c->get(IURLGenerator::class)]]></code>
+      <code><![CDATA[$c->get(IUserSession::class)->getUser()?->getUID()]]></code>
+      <code><![CDATA[$c->get(\OCA\Office\Db\WopiMapper::class)]]></code>
+      <code><![CDATA[IRootFolder::class]]></code>
+    </MixedArgument>
+    <MixedMethodCall>
+      <code><![CDATA[getUID]]></code>
+      <code><![CDATA[getUser]]></code>
+    </MixedMethodCall>
   </file>
   <file src="lib/BackgroundJob/CleanupJob.php">
     <ClassMustBeFinal>
@@ -199,15 +214,9 @@
     <ClassMustBeFinal>
       <code><![CDATA[LoadAdditionalScriptsListener]]></code>
     </ClassMustBeFinal>
-    <MixedArgument>
-      <code><![CDATA[Application::APP_ID]]></code>
-    </MixedArgument>
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
-    <UndefinedClass>
-      <code><![CDATA[Application]]></code>
-    </UndefinedClass>
   </file>
   <file src="lib/Migration/Version1000Date20260522000000.php">
     <ClassMustBeFinal>
@@ -241,6 +250,7 @@
       <code><![CDATA[Version1001Date20260523000000]]></code>
     </ClassMustBeFinal>
     <UndefinedDocblockClass>
+      <code><![CDATA[$schema->createTable('office_wopi_locks')]]></code>
       <code><![CDATA[$table]]></code>
       <code><![CDATA[$table]]></code>
       <code><![CDATA[$table]]></code>
@@ -326,8 +336,5 @@
       <code><![CDATA[getFirstNodeById]]></code>
       <code><![CDATA[getFirstNodeById]]></code>
     </MixedMethodCall>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
   </file>
 </files>

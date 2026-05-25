@@ -15,7 +15,6 @@ use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\IRootFolder;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
-use Psr\Log\LoggerInterface;
 
 class Application extends App implements IBootstrap {
 	public const APP_ID = 'office';
@@ -34,7 +33,6 @@ class Application extends App implements IBootstrap {
 				$c->get(\OCA\Office\Db\WopiMapper::class),
 				$c->get(IURLGenerator::class),
 				$c->get(IEventDispatcher::class),
-				$c->get(LoggerInterface::class),
 				$c->get(IUserSession::class)->getUser()?->getUID(),
 			);
 		});
