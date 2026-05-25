@@ -64,9 +64,24 @@ class WopiLockMapper extends QBMapper {
 		$lock->setFileid($fileId);
 		$lock->setLockId($lockId);
 		$lock->setExpiry($expiry);
-		/** @var WopiLock $inserted */
-		$inserted = $this->insert($lock);
-		return $inserted;
+
+		try {
+			/** @var WopiLock $inserted */
+			$inserted = $this->insert($lock);
+			return $inserted;
+		} catch (\OCP\DB\Exception $e) {
+			if ($e->getReason() !== \OCP\DB\Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION) {
+				throw $e;
+			}
+			// A concurrent request raced us between SELECT and INSERT; update the row they created.
+			$raced = $this->findByFileId($fileId);
+			if ($raced === null) {
+				throw $e;
+			}
+			$raced->setLockId($lockId);
+			$raced->setExpiry($expiry);
+			return $this->update($raced);
+		}
 	}
 
 	/**
