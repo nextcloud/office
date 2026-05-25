@@ -11,17 +11,17 @@ namespace OCA\Office\Listener;
 
 use OCA\Office\AppInfo\Application;
 use OCA\Office\Service\DiscoveryService;
+use OCP\AppFramework\Services\IInitialState;
 use OCP\Collaboration\Resources\LoadAdditionalScriptsEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
-use OCP\IInitialStateService;
 use OCP\Util;
 
 /** @template-implements IEventListener<LoadAdditionalScriptsEvent> */
 class LoadAdditionalScriptsListener implements IEventListener {
 	public function __construct(
 		private DiscoveryService $discoveryService,
-		private IInitialStateService $initialState,
+		private IInitialState $initialState,
 	) {
 	}
 
@@ -37,7 +37,7 @@ class LoadAdditionalScriptsListener implements IEventListener {
 			$mimes = [];
 		}
 
-		$this->initialState->provideInitialState(Application::APP_ID, 'supported-mimes', $mimes);
+		$this->initialState->provideInitialState('supported-mimes', $mimes);
 
 		Util::addInitScript(Application::APP_ID, 'office-file-actions');
 	}

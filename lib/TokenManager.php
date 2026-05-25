@@ -11,13 +11,12 @@ namespace OCA\Office;
 
 use OCA\Office\Db\Wopi;
 use OCA\Office\Db\WopiMapper;
-use OCP\Files\Events\Node\BeforeNodeReadEvent;
 use OCP\EventDispatcher\IEventDispatcher;
+use OCP\Files\Events\Node\BeforeNodeReadEvent;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
 use OCP\Files\NotPermittedException;
 use OCP\IURLGenerator;
-use Psr\Log\LoggerInterface;
 
 class TokenManager {
 	public function __construct(
@@ -25,7 +24,6 @@ class TokenManager {
 		private WopiMapper $wopiMapper,
 		private IURLGenerator $urlGenerator,
 		private IEventDispatcher $eventDispatcher,
-		private LoggerInterface $logger,
 		private ?string $userId,
 	) {
 	}
@@ -70,10 +68,10 @@ class TokenManager {
 	/**
 	 * Generate a WOPI token for a guest opening a file via a share link.
 	 *
-	 * @param int    $fileId          NC file ID (must be reachable via $ownerUid)
-	 * @param string $ownerUid        File owner whose storage is used for I/O
-	 * @param string $guestName       Display name shown in the editor
-	 * @param bool   $canWrite        Whether the share allows editing
+	 * @param int $fileId NC file ID (must be reachable via $ownerUid)
+	 * @param string $ownerUid File owner whose storage is used for I/O
+	 * @param string $guestName Display name shown in the editor
+	 * @param bool $canWrite Whether the share allows editing
 	 */
 	public function generateGuestToken(
 		int $fileId,

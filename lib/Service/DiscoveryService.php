@@ -72,7 +72,7 @@ class DiscoveryService {
 	 * Return the urlsrc template for the given file extension and action name.
 	 *
 	 * @param string $extension e.g. 'docx'
-	 * @param string $action    e.g. 'edit' or 'view'
+	 * @param string $action e.g. 'edit' or 'view'
 	 * @return string|null urlsrc template string, or null if not found
 	 */
 	public function getUrlSrc(string $extension, string $action = 'edit'): ?string {
@@ -98,7 +98,7 @@ class DiscoveryService {
 			sprintf('//app/action[@ext="%s" and @name="%s"]', $extension, $action)
 		);
 
-		if (empty($actions)) {
+		if ($actions === false || $actions === []) {
 			return null;
 		}
 
@@ -125,8 +125,9 @@ class DiscoveryService {
 			return [];
 		}
 
+		$names = $parsed->xpath('//app/@name');
 		$mimes = [];
-		foreach ($parsed->xpath('//app/@name') as $name) {
+		foreach ($names !== false ? $names : [] as $name) {
 			$mime = (string)$name;
 			if ($mime !== '' && str_contains($mime, '/')) {
 				$mimes[] = $mime;
@@ -143,9 +144,9 @@ class DiscoveryService {
 	 *   http://editor/hosting/wopi/word/edit?<wopisrc=WOPI_SOURCE&>&
 	 * This method replaces <wopisrc=WOPI_SOURCE&> with the actual WOPISrc value.
 	 *
-	 * @param string $urlsrc   Raw urlsrc from discovery XML
-	 * @param string $wopiSrc  The WOPI host URL (our CheckFileInfo endpoint)
-	 * @param string $token    WOPI access token
+	 * @param string $urlsrc Raw urlsrc from discovery XML
+	 * @param string $wopiSrc The WOPI host URL (our CheckFileInfo endpoint)
+	 * @param string $token WOPI access token
 	 */
 	public function buildEditorUrl(string $urlsrc, string $wopiSrc, string $token): string {
 		// Strip WOPI template placeholders like <wopisrc=WOPI_SOURCE&> leaving bare ? and & separators.
