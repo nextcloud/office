@@ -199,15 +199,9 @@
     <ClassMustBeFinal>
       <code><![CDATA[LoadAdditionalScriptsListener]]></code>
     </ClassMustBeFinal>
-    <MixedArgument>
-      <code><![CDATA[Application::APP_ID]]></code>
-    </MixedArgument>
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
-    <UndefinedClass>
-      <code><![CDATA[Application]]></code>
-    </UndefinedClass>
   </file>
   <file src="lib/Migration/Version1000Date20260522000000.php">
     <ClassMustBeFinal>
@@ -241,6 +235,7 @@
       <code><![CDATA[Version1001Date20260523000000]]></code>
     </ClassMustBeFinal>
     <UndefinedDocblockClass>
+      <code><![CDATA[$schema->createTable('office_wopi_locks')]]></code>
       <code><![CDATA[$table]]></code>
       <code><![CDATA[$table]]></code>
       <code><![CDATA[$table]]></code>
