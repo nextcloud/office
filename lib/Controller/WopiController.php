@@ -245,6 +245,11 @@ class WopiController extends Controller {
 			}
 		}
 
+		// Per WOPI spec §3.3.5.3: a non-empty file must be locked before it can be saved.
+		if (($existingLock === null || $existingLock->isExpired()) && $file->getSize() > 0) {
+			return $this->lockConflict('', 'A lock is required to save a non-empty file');
+		}
+
 		// Enforce optimistic version check: reject out-of-band edits that would be silently overwritten.
 		$clientVersion = $this->request->getHeader('X-WOPI-ItemVersion');
 		if ($clientVersion !== '' && $clientVersion !== (string)$file->getMTime()) {
@@ -414,6 +419,13 @@ class WopiController extends Controller {
 
 		// X-WOPI-RequestedName is UTF-7 encoded; decode to UTF-8.
 		$newBaseName = (string)mb_convert_encoding($requestedName, 'UTF-8', 'UTF-7');
+
+		// Reject names that contain path separators or null bytes (path traversal guard).
+		if ($newBaseName === '' || $newBaseName !== basename($newBaseName) || str_contains($newBaseName, "\0")) {
+			$resp = new JSONResponse([], Http::STATUS_BAD_REQUEST);
+			$resp->addHeader('X-WOPI-InvalidFileNameError', 'File name contains invalid characters');
+			return $resp;
+		}
 
 		// Lock check: an active lock must be matched by the client's X-WOPI-Lock.
 		$lockId = $this->request->getHeader('X-WOPI-Lock');
