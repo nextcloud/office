@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace OCA\Office\Listener;
 
+use OCA\Office\AppInfo\Application;
 use OCA\Office\Service\DiscoveryService;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Collaboration\Resources\LoadAdditionalScriptsEvent;
