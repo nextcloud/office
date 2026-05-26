@@ -89,13 +89,13 @@ docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
 
 ```
 /apps/office
-└── PageController::index()       Renders the SPA shell; injects editor-url initial state
+└── PageController::index()       Renders the SPA shell (no initial state injected)
     └── OfficeOverview.vue        Full Vue 3 SPA
         ├── officeFiles.ts        WebDAV file listing via @nextcloud/files
         ├── templates.ts          Template discovery and file creation
         └── config.ts             User preference persistence (grid/list view)
 ```
 
-The frontend reads `editor-url` from NC initial state on load. If null, it falls
-back to the `/f/{fileid}` shortlink. The backend sets this value to the WOPI
-editor route when the WOPI implementation is active.
+The frontend calls `loadState('office', 'editor-url', null)` on load. When the
+state is absent (default), it falls back to the `/f/{fileid}` shortlink. A WOPI
+backend branch injects a concrete editor route via `provideInitialState`.
