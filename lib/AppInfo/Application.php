@@ -9,7 +9,7 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
-class Application extends App implements IBootstrap {
+final class Application extends App implements IBootstrap {
 	public const APP_ID = 'office';
 
 	/** @psalm-suppress PossiblyUnusedMethod */
@@ -17,9 +17,11 @@ class Application extends App implements IBootstrap {
 		parent::__construct(self::APP_ID);
 	}
 
+	#[\Override]
 	public function register(IRegistrationContext $context): void {
 	}
 
+	#[\Override]
 	public function boot(IBootContext $context): void {
 	}
 }

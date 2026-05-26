@@ -16,7 +16,7 @@ use OCP\IRequest;
 /**
  * @psalm-suppress UnusedClass
  */
-class PageController extends Controller {
+final class PageController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
