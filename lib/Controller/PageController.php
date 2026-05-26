@@ -11,7 +11,6 @@ use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\OpenAPI;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Services\IInitialState;
 use OCP\IRequest;
 
 /**
@@ -21,7 +20,6 @@ class PageController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private IInitialState $initialState,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -31,9 +29,9 @@ class PageController extends Controller {
 	#[OpenAPI(OpenAPI::SCOPE_IGNORE)]
 	#[FrontpageRoute(verb: 'GET', url: '/')]
 	public function index(): TemplateResponse {
-		// Null until a WOPI backend branch provides a concrete editor route.
-		// The overview Vue component falls back to /f/{fileid} when this is null.
-		$this->initialState->provideInitialState('editor-url', null);
+		// editor-url is not provided here — OfficeOverview.vue calls
+		// loadState('office', 'editor-url', null) and falls back to /f/{fileid}
+		// when the state is absent. A WOPI backend branch injects a real URL.
 		return new TemplateResponse(
 			Application::APP_ID,
 			'index',
