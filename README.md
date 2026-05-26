@@ -57,31 +57,14 @@ npm run watch      # rebuild on file changes
 
 ## Editor integration
 
-The overview opens files using a URL provided by the backend at page load
-(`editor-url` via NC initial state). The behaviour depends on which editor
-is configured.
+The overview opens files via NC's file shortlink (`/f/{fileid}`), which
+redirects to the Files app and triggers the default file action for the
+installed office editor.
 
-### With the WOPI backend
-
-When the WOPI backend is active, `PageController` injects the editor's open
-route. Clicking a file navigates directly to the full-page editor, and closing
-the editor (`history.back()`) returns the user to the overview.
-
-See the `feat/wopi-phase-4` branch for the WOPI backend implementation.
-
-### With eurooffice (transitional)
-
-When no WOPI backend is present, the app falls back to NC's file shortlink
-(`/f/{fileid}`), which redirects to the Files app and triggers eurooffice's
-default file action. The editor opens in the Files app context — closing it
-returns the user to the Files app, not the overview.
-
-To prevent eurooffice from intercepting opens during testing:
-
-```bash
-docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
-  php occ app:disable eurooffice
-```
+To inject a custom editor URL, a backend component can call
+`provideInitialState('office', 'editor-url', $url)` before the page renders.
+The frontend reads this via `loadState('office', 'editor-url', null)` and, when
+present, navigates directly to that URL instead of `/f/{fileid}`.
 
 ---
 
@@ -89,13 +72,9 @@ docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
 
 ```
 /apps/office
-└── PageController::index()       Renders the SPA shell (no initial state injected)
+└── PageController::index()       Renders the SPA shell
     └── OfficeOverview.vue        Full Vue 3 SPA
         ├── officeFiles.ts        WebDAV file listing via @nextcloud/files
         ├── templates.ts          Template discovery and file creation
         └── config.ts             User preference persistence (grid/list view)
 ```
-
-The frontend calls `loadState('office', 'editor-url', null)` on load. When the
-state is absent (default), it falls back to the `/f/{fileid}` shortlink. A WOPI
-backend branch injects a concrete editor route via `provideInitialState`.
