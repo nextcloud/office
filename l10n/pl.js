@@ -1,0 +1,19 @@
+OC.L10N.register(
+    "office",
+    {
+    "Office" : "Biuro",
+    "Create new" : "Utwórz nowy",
+    "Blank" : "Pusty",
+    "Documents" : "Dokumenty",
+    "Spreadsheets" : "Arkusze kalkulacyjne",
+    "Presentations" : "Prezentacje",
+    "Search" : "Szukaj",
+    "Filename cannot be empty" : "Nazwa pliku nie może być pusta",
+    "All" : "Wszystkie",
+    "Shared with me" : "Udostępnione dla mnie",
+    "Switch to grid view" : "Przełącz na widok siatki",
+    "Switch to list view" : "Przełącz na widok listy",
+    "Create" : "Utwórz",
+    "Filename" : "Nazwa pliku"
+},
+"nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);");

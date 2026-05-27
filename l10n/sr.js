@@ -1,0 +1,19 @@
+OC.L10N.register(
+    "office",
+    {
+    "Office" : "Канцеларија",
+    "Create new" : "Направи нови",
+    "Blank" : "Празно",
+    "Documents" : "Документи",
+    "Spreadsheets" : "Табеле",
+    "Presentations" : "Презентације",
+    "Search" : "Претрага",
+    "Filename cannot be empty" : "Назив фајла не може бити празан",
+    "All" : "Све",
+    "Shared with me" : "Дељено са мном",
+    "Switch to grid view" : "Пређи на поглед мреже",
+    "Switch to list view" : "Пређи на поглед листе",
+    "Create" : "Креирање",
+    "Filename" : "Назив фајла"
+},
+"nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");

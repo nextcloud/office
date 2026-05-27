@@ -1,0 +1,6 @@
+{ "translations": {
+    "Search" : "ძიება",
+    "Filename cannot be empty" : "ფაილის სახელი ვერ იქნება ცარიელი",
+    "All" : "ყველა"
+},"pluralForm" :"nplurals=2; plural=(n!=1);"
+}

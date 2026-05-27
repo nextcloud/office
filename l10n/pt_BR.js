@@ -1,0 +1,20 @@
+OC.L10N.register(
+    "office",
+    {
+    "Office" : "Escritório",
+    "Create new" : "Criar novo",
+    "Blank" : "Vazio",
+    "Documents" : "Documentos",
+    "Spreadsheets" : "Planilhas",
+    "Presentations" : "Apresentações",
+    "Search" : "Pesquisa",
+    "Filename cannot be empty" : "O nome de arquivo não pode ser vazio",
+    "Failed to load files" : "Falha ao carregar os arquivos",
+    "All" : "Todos",
+    "Shared with me" : "Compartilhado comigo",
+    "Switch to grid view" : "Alternar para a visualização em grade",
+    "Switch to list view" : "Mudar para a visualização em lista",
+    "Create" : "Criar",
+    "Filename" : "Nome do arquivo"
+},
+"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");
