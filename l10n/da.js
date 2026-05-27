@@ -1,0 +1,19 @@
+OC.L10N.register(
+    "office",
+    {
+    "Office" : "Kontor",
+    "Create new" : "Opret ny",
+    "Blank" : "Tom",
+    "Documents" : "Dokumenter",
+    "Spreadsheets" : "Regneark",
+    "Presentations" : "Præsentationer",
+    "Search" : "Søg",
+    "Filename cannot be empty" : "Filnavnet kan ikke stå tomt.",
+    "All" : "Alle",
+    "Shared with me" : "Delt med mig",
+    "Switch to grid view" : "Skift til gittervisning",
+    "Switch to list view" : "Skift til listevisning",
+    "Create" : "Opret",
+    "Filename" : "Filnavn"
+},
+"nplurals=2; plural=(n != 1);");

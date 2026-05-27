@@ -1,0 +1,19 @@
+OC.L10N.register(
+    "office",
+    {
+    "Office" : "Офис",
+    "Create new" : "Създай нов",
+    "Blank" : "Празен",
+    "Documents" : "Документи",
+    "Spreadsheets" : "Електронни таблици",
+    "Presentations" : "Презентации",
+    "Search" : "Търсене",
+    "Filename cannot be empty" : "Името на файла не може да бъде празно",
+    "All" : "Всички",
+    "Shared with me" : "Споделено с мен",
+    "Switch to grid view" : "Превключване към мрежов изглед",
+    "Switch to list view" : "Превключване към изглед на списък",
+    "Create" : "Създаване",
+    "Filename" : "Име на файла"
+},
+"nplurals=2; plural=(n != 1);");

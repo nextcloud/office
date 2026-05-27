@@ -1,0 +1,19 @@
+OC.L10N.register(
+    "office",
+    {
+    "Office" : "Γραφείο",
+    "Create new" : "Δημιουργία νέου",
+    "Blank" : "Κενό",
+    "Documents" : "Έγγραφα",
+    "Spreadsheets" : "Υπολογιστικά φύλλα",
+    "Presentations" : "Παρουσιάσεις",
+    "Search" : "Αναζήτηση",
+    "Filename cannot be empty" : "Το όνομα αρχείου δεν μπορεί να είναι κενό",
+    "All" : "Όλα",
+    "Shared with me" : "Κοινόχρηστα μαζί μου",
+    "Switch to grid view" : "Εναλλαγή σε προβολή πλέγματος",
+    "Switch to list view" : "Αλλαγή σε προβολή λίστας",
+    "Create" : "Δημιουργία",
+    "Filename" : "Όνομα αρχείου"
+},
+"nplurals=2; plural=(n != 1);");

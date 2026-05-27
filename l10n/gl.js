@@ -2,15 +2,19 @@ OC.L10N.register(
     "office",
     {
     "Office" : "Oficina",
+    "Create new" : "Crear novo",
     "Blank" : "Baleiro",
+    "Documents" : "Documentos",
     "Spreadsheets" : "Follas de cálculo",
     "Presentations" : "Presentacións",
+    "Search" : "Buscar",
     "Filename cannot be empty" : "O nome de ficheiro non pode estar baleiro",
     "Failed to load files" : "Produciuse un fallo ao cargar os ficheiros",
     "All" : "Todo",
     "Shared with me" : "Compartido comigo",
     "Switch to grid view" : "Cambiar á vista de grade",
     "Switch to list view" : "Cambiar á vista de lista",
+    "Create" : "Crear",
     "Filename" : "Nome de ficheiro"
 },
 "nplurals=2; plural=(n != 1);");
