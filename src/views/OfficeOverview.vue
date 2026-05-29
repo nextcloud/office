@@ -58,6 +58,12 @@ const MIME_CATEGORIES: Record<string, string> = {
 	'application/vnd.oasis.opendocument.graphics-template': t('office', 'Diagrams'),
 }
 
+// Every office mimetype we can open, regardless of the configured create format
+// (doc_format). richdocuments only advertises the create-format mimes per creator
+// (e.g. OOXML when doc_format=ooxml), so we drive the search and category filtering
+// from this full set instead — otherwise existing ODF files would never be found.
+const ALL_OFFICE_MIMES = Object.keys(MIME_CATEGORIES)
+
 const currentUid = getCurrentUser()?.uid ?? null
 
 const creators = ref<TemplateCreator[]>([])
@@ -92,7 +98,7 @@ const searchLabel = computed(() =>
 const filteredFiles = computed(() => {
 	if (!activeCreator.value) return []
 
-	const byCategory = filterByMimes(allFiles.value, activeCreator.value.mimetypes)
+	const byCategory = filterByMimes(allFiles.value, categoryMimes(activeCreator.value))
 
 	let filtered = byCategory
 	if (activeFilter.value === 'mine') {
@@ -128,6 +134,16 @@ function categoryName(creator: TemplateCreator): string {
 		if (MIME_CATEGORIES[mime]) return MIME_CATEGORIES[mime]
 	}
 	return creator.label
+}
+
+// All mimetypes belonging to the creator's category (both ODF and OOXML), so a
+// category shows every openable file regardless of the configured create format.
+// The creator's own mimes are always kept, so anything it advertises beyond our
+// static map (and any creator mapping to no known category) is still covered.
+function categoryMimes(creator: TemplateCreator): string[] {
+	const category = categoryName(creator)
+	const fromCategory = ALL_OFFICE_MIMES.filter(mime => MIME_CATEGORIES[mime] === category)
+	return [...new Set([...fromCategory, ...creator.mimetypes])]
 }
 
 function setCreator(creator: TemplateCreator) {
@@ -234,7 +250,12 @@ async function fetchAll() {
 		activeCreator.value = creators.value[0] ?? null
 
 		if (creators.value.length > 0) {
-			const allMimes = creators.value.flatMap(c => c.mimetypes)
+			// Union our full static set (ODF + OOXML) with whatever the creators
+			// actually advertise, so we never drop a mime the server supports.
+			const allMimes = [...new Set([
+				...ALL_OFFICE_MIMES,
+				...creators.value.flatMap(c => c.mimetypes),
+			])]
 			allFiles.value = await getAllOfficeFiles(allMimes)
 		}
 	} catch {
