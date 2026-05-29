@@ -6,11 +6,10 @@
 import type { Node } from '@nextcloud/files'
 import { getClient, getDavNameSpaces, getDavProperties, getRootPath, resultToNode } from '@nextcloud/files/dav'
 
-// TODO: This DAV SEARCH is unpaginated (depth: infinity). For users with very large
-// file collections the full result set is transferred over the wire before we slice it.
-// MAX_DISPLAY_FILES only guards the rendered list; it does not reduce network cost.
-// A proper solution requires a server-side cursor/limit API.
-export const MAX_DISPLAY_FILES = 200
+// The DAV SEARCH is capped server-side via <d:limit> to MAX_DISPLAY_FILES and ordered
+// newest-first via <d:orderby>, so the server only returns (and we only transfer) the
+// most recently modified results rather than the full collection.
+export const MAX_DISPLAY_FILES = 500
 
 function buildOfficeMimeSearch(mimes: string[]): string {
 	const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -37,6 +36,17 @@ function buildOfficeMimeSearch(mimes: string[]): string {
 ${conditions}
 			</d:or>
 		</d:where>
+		<d:orderby>
+			<d:order>
+				<d:prop>
+					<d:getlastmodified/>
+				</d:prop>
+				<d:descending/>
+			</d:order>
+		</d:orderby>
+		<d:limit>
+			<d:nresults>${MAX_DISPLAY_FILES}</d:nresults>
+		</d:limit>
 	</d:basicsearch>
 </d:searchrequest>`
 }
