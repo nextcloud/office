@@ -312,7 +312,7 @@ fetchAll()
 
 					<section v-else-if="activeCreator" class="office-overview__files" aria-labelledby="files-section-heading">
 						<div role="status" class="sr-only">
-							{{ t('office', '{count} {category} found', { count: files.length, category: activeCategoryName }) }}
+							{{ t('office', '{count} found in {category}', { count: files.length, category: activeCategoryName }) }}
 						</div>
 
 						<div class="office-overview__files-header">
@@ -361,7 +361,7 @@ fetchAll()
 								<NcIconSvgWrapper :path="mdiFileDocumentOutline" :size="48" />
 							</template>
 							<template v-if="activeFilter !== 'all'" #description>
-								{{ t('office', 'Switch to All to see every file you have access to') }}
+								{{ t('office', 'Switch to "All" to see every file you have access to') }}
 							</template>
 						</NcEmptyContent>
 
