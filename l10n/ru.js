@@ -7,6 +7,7 @@ OC.L10N.register(
     "Documents" : "Документы",
     "Spreadsheets" : "Таблицы",
     "Presentations" : "Презентации",
+    "Search {category}" : "Поиск {category}",
     "Search" : "Поиск",
     "Filename cannot be empty" : "Имя файла не может быть пустым",
     "Failed to load files" : "Не удалось загрузить файлы",
@@ -14,6 +15,7 @@ OC.L10N.register(
     "Shared with me" : "Поделились с вами",
     "Switch to grid view" : "Переключиться на режим просмотра сеткой",
     "Switch to list view" : "Переключение в режим просмотра списка",
+    "No {category} found" : "Объектов «{category}» не найдено",
     "Create" : "Создать",
     "Filename" : "Имя файла"
 },

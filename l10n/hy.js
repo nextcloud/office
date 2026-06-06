@@ -1,7 +1,6 @@
 OC.L10N.register(
     "office",
     {
-    "Search" : "Search",
-    "All" : "সবাই"
+    "Search" : "Search"
 },
 "nplurals=2; plural=(n != 1);");

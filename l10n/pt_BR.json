@@ -5,6 +5,7 @@
     "Documents" : "Documentos",
     "Spreadsheets" : "Planilhas",
     "Presentations" : "Apresentações",
+    "Search {category}" : "Busca {category}",
     "Search" : "Pesquisa",
     "Filename cannot be empty" : "O nome de arquivo não pode ser vazio",
     "Failed to load files" : "Falha ao carregar os arquivos",
@@ -12,6 +13,7 @@
     "Shared with me" : "Compartilhado comigo",
     "Switch to grid view" : "Alternar para a visualização em grade",
     "Switch to list view" : "Mudar para a visualização em lista",
+    "No {category} found" : "Nenhum {category} encontrado",
     "Create" : "Criar",
     "Filename" : "Nome do arquivo"
 },"pluralForm" :"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"

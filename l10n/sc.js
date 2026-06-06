@@ -11,6 +11,7 @@ OC.L10N.register(
     "Shared with me" : "Cumpartzidos cun megus",
     "Switch to grid view" : "Càmbia a vista de mosàicu",
     "Switch to list view" : "Càmbia a sa vista de s'elencu",
+    "No {category} found" : "Perunu {category} agatadu",
     "Create" : "Crea",
     "Filename" : "Nùmene de s'archìviu"
 },

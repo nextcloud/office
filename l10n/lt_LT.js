@@ -7,6 +7,7 @@ OC.L10N.register(
     "Documents" : "Dokumentai",
     "Spreadsheets" : "Skaičiuoklės",
     "Presentations" : "Pateiktys",
+    "Search {category}" : "Ieškoti {category}",
     "Search" : "Paieška",
     "Filename cannot be empty" : "Failo pavadinimas negali būti tuščias",
     "Failed to load files" : "Nepavyko įkelti failų",

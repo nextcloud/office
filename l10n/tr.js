@@ -7,6 +7,7 @@ OC.L10N.register(
     "Documents" : "Belgeler",
     "Spreadsheets" : "Elektronik tablolar",
     "Presentations" : "Sunumlar",
+    "Search {category}" : "{category} arama",
     "Search" : "Ara",
     "Filename cannot be empty" : "Dosya adı boş olamaz",
     "Failed to load files" : "Dosyalar yüklenemedi",
@@ -14,6 +15,7 @@ OC.L10N.register(
     "Shared with me" : "Benimle paylaşılanlar",
     "Switch to grid view" : "Tablo görünümüne geç",
     "Switch to list view" : "Liste görünümüne geç",
+    "No {category} found" : "Herhangi bir {category} bulunamadı",
     "Create" : "Oluşturma",
     "Filename" : "Dosya adı"
 },

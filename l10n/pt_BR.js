@@ -7,6 +7,7 @@ OC.L10N.register(
     "Documents" : "Documentos",
     "Spreadsheets" : "Planilhas",
     "Presentations" : "Apresentações",
+    "Search {category}" : "Busca {category}",
     "Search" : "Pesquisa",
     "Filename cannot be empty" : "O nome de arquivo não pode ser vazio",
     "Failed to load files" : "Falha ao carregar os arquivos",
@@ -14,6 +15,7 @@ OC.L10N.register(
     "Shared with me" : "Compartilhado comigo",
     "Switch to grid view" : "Alternar para a visualização em grade",
     "Switch to list view" : "Mudar para a visualização em lista",
+    "No {category} found" : "Nenhum {category} encontrado",
     "Create" : "Criar",
     "Filename" : "Nome do arquivo"
 },

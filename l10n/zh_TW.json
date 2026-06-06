@@ -5,6 +5,7 @@
     "Documents" : "文件",
     "Spreadsheets" : "試算表",
     "Presentations" : "簡報",
+    "Search {category}" : "搜尋 {category}",
     "Search" : "搜尋",
     "Filename cannot be empty" : "檔案名稱不可為空白",
     "Failed to load files" : "無法載入檔案",
@@ -12,6 +13,7 @@
     "Shared with me" : "與我分享",
     "Switch to grid view" : "切換到格狀檢視",
     "Switch to list view" : "切換至列表檢視",
+    "No {category} found" : "找不到 {category}",
     "Create" : "建立",
     "Filename" : "檔案名稱"
 },"pluralForm" :"nplurals=1; plural=0;"

@@ -4,6 +4,7 @@ OC.L10N.register(
     "Office" : "Escritório",
     "Create new" : "Criar novo",
     "Documents" : "Documentos",
+    "Search {category}" : "Pesquisar {category}",
     "Search" : "Pesquisa sobre",
     "Filename cannot be empty" : "O ficheiro não pode estar vazio",
     "All" : "Todos",
