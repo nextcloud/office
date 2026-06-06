@@ -1,10 +1,4 @@
 { "translations": {
-    "Office" : "Oficejo",
-    "Create new" : "Krei nove",
-    "Documents" : "Dokumentoj",
-    "Search" : "Serĉi",
-    "Filename cannot be empty" : "Dosieronomo ne povas esti malplena",
-    "All" : "Ĉiuj",
-    "Filename" : "Dosiernomo"
+    "Office" : "Oficejo"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

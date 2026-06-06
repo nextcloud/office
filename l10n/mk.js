@@ -12,6 +12,7 @@ OC.L10N.register(
     "All" : "Сите",
     "Switch to grid view" : "Прикажи поглед во мрежа",
     "Switch to list view" : "Прикажи поглед во листа",
+    "No {category} found" : "Не е пронајдено {category}",
     "Create" : "Креирај",
     "Filename" : "Име на датотека"
 },

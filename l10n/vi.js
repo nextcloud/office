@@ -7,6 +7,7 @@ OC.L10N.register(
     "Documents" : "Tài liệu",
     "Spreadsheets" : "Bảng tính",
     "Presentations" : "Bản trình chiếu",
+    "Search {category}" : "Tìm kiếm {category}",
     "Search" : "Tìm kiếm",
     "Filename cannot be empty" : "Tên tập tin không thể trống",
     "All" : "Tất cả",

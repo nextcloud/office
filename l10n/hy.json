@@ -1,6 +1,4 @@
 { "translations": {
-    "Search" : "Buscar",
-    "All" : "Tot",
-    "Create" : "Crear"
+    "Search" : "Search"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

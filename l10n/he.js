@@ -3,10 +3,10 @@ OC.L10N.register(
     {
     "Office" : "משרד",
     "Create new" : "יצירת חדש",
-    "Documents" : "מסמכים",
+    "Search {category}" : "חיפוש ב{category}",
     "Search" : "חיפוש",
     "Filename cannot be empty" : "שם הקובץ לא יכול להישאר ריק",
-    "All" : "הכול",
+    "No {category} found" : "לא נמצא {category}",
     "Create" : "יצירה",
     "Filename" : "שם קובץ"
 },

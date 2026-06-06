@@ -2,7 +2,6 @@ OC.L10N.register(
     "office",
     {
     "Create new" : "Cruthaich fear ùr",
-    "Documents" : "Sgrìobhainnean",
     "Search" : "Lorg",
     "Filename cannot be empty" : "Chan fhaod ainm an fhaidhle a bhith bàn",
     "Create" : "Cruthaich",

@@ -14,6 +14,7 @@ OC.L10N.register(
     "Shared with me" : "與我分享",
     "Switch to grid view" : "切換到網格檢視",
     "Switch to list view" : "切換到列表檢視",
+    "No {category} found" : "找不到 {category}",
     "Create" : "創建",
     "Filename" : "檔案名"
 },

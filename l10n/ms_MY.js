@@ -1,6 +1,6 @@
 OC.L10N.register(
     "office",
     {
-    "Search" : "ស្វែងរក"
+    "Search" : "Search"
 },
 "nplurals=1; plural=0;");

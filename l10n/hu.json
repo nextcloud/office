@@ -4,13 +4,13 @@
     "Blank" : "Üres",
     "Documents" : "Dokumentumok",
     "Spreadsheets" : "Munkafüzetek",
-    "Presentations" : "Bemutatók",
+    "Search {category}" : "Keresés: {category}",
     "Search" : "Keresés",
     "Filename cannot be empty" : "A fájlnév nem lehet üres",
-    "All" : "Összes",
     "Shared with me" : "Megosztva velem",
     "Switch to grid view" : "Váltás rácsnézetre",
     "Switch to list view" : "Váltás listanézetre",
+    "No {category} found" : "{category} nem található",
     "Create" : "Létrehozás",
     "Filename" : "Fájlnév"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"

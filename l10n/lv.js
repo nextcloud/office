@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Office" : "Birojs",
     "Create new" : "Izveidot jaunu",
+    "Search {category}" : "Meklēt {category}",
     "Search" : "Meklēt",
     "Filename cannot be empty" : "Datnes nosaukums nevar būt tukšs",
     "All" : "Visi",
