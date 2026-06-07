@@ -7,6 +7,7 @@ OC.L10N.register(
     "Documents" : "Documents",
     "Search" : "ძებნა",
     "Filename cannot be empty" : "Filename cannot be empty",
+    "All" : "All",
     "Shared with me" : "Shared with me",
     "Switch to grid view" : "Switch to grid view",
     "Switch to list view" : "Switch to list view",

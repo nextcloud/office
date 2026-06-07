@@ -1,4 +1,5 @@
 { "translations": {
-    "Search" : "Search"
+    "Search" : "Search",
+    "All" : "সবাই"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }
