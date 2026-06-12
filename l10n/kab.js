@@ -1,10 +1,13 @@
 OC.L10N.register(
     "office",
     {
+    "Office" : "Tanarit",
     "Create new" : "Snulfu-d amaynut",
+    "Blank" : "Ilem",
     "Documents" : "Isemliyen",
     "Search" : "Nadi",
     "Filename cannot be empty" : "Isem n ufaylu ulamek ara yili d ilem",
+    "All" : "Akk",
     "Create" : "Snulfu-d",
     "Filename" : "Isem n ufaylu"
 },
