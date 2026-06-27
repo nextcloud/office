@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Search {category}" : "{category} ძებნა",
     "Search" : "ძიება",
-    "Filename cannot be empty" : "ფაილის სახელი ვერ იქნება ცარიელი"
+    "Filename cannot be empty" : "ფაილის სახელი ვერ იქნება ცარიელი",
+    "All" : "ყველა"
 },
 "nplurals=2; plural=(n!=1);");
