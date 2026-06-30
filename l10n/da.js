@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search {category}" : "Søg i {category}",
     "Search" : "Søg",
     "Filename cannot be empty" : "Filnavnet kan ikke stå tomt.",
+    "Failed to load files" : "Kunne ikke indlæse filer",
     "All" : "Alle",
     "Shared with me" : "Delt med mig",
     "Switch to grid view" : "Skift til gittervisning",
