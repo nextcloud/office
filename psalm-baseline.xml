@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="6.16.1@f1f5de594dc76faf8784e02d3dc4716c91c6f6ac">
-  <file src="lib/AppInfo/Application.php">
-    <ClassMustBeFinal>
-      <code><![CDATA[Application]]></code>
-    </ClassMustBeFinal>
-    <MissingOverrideAttribute>
-      <code><![CDATA[public function boot(IBootContext $context): void {]]></code>
-      <code><![CDATA[public function register(IRegistrationContext $context): void {]]></code>
-    </MissingOverrideAttribute>
-  </file>
   <file src="lib/BackgroundJob/CleanupJob.php">
     <ClassMustBeFinal>
       <code><![CDATA[CleanupJob]]></code>
     </ClassMustBeFinal>
+    <MissingClassConstType>
+      <code><![CDATA[BATCH_SIZE = 500]]></code>
+    </MissingClassConstType>
     <MissingOverrideAttribute>
       <code><![CDATA[protected function run(mixed $argument): void {]]></code>
     </MissingOverrideAttribute>
@@ -20,33 +14,13 @@
       <code><![CDATA[CleanupJob]]></code>
     </UnusedClass>
   </file>
-  <file src="lib/Controller/ApiController.php">
-    <ClassMustBeFinal>
-      <code><![CDATA[ApiController]]></code>
-    </ClassMustBeFinal>
-  </file>
   <file src="lib/Controller/EditorController.php">
     <ClassMustBeFinal>
       <code><![CDATA[EditorController]]></code>
     </ClassMustBeFinal>
-    <MissingDependency>
-      <code><![CDATA[$this->rootFolder]]></code>
-      <code><![CDATA[private]]></code>
-    </MissingDependency>
-    <MixedAssignment>
-      <code><![CDATA[$userFolder]]></code>
-    </MixedAssignment>
-    <MixedMethodCall>
-      <code><![CDATA[getFirstNodeById]]></code>
-    </MixedMethodCall>
     <UnusedClass>
       <code><![CDATA[EditorController]]></code>
     </UnusedClass>
-  </file>
-  <file src="lib/Controller/PageController.php">
-    <ClassMustBeFinal>
-      <code><![CDATA[PageController]]></code>
-    </ClassMustBeFinal>
   </file>
   <file src="lib/Controller/SettingsController.php">
     <ClassMustBeFinal>
@@ -80,20 +54,6 @@
       <code><![CDATA[$size - 1]]></code>
       <code><![CDATA[$size - 1]]></code>
     </InvalidOperand>
-    <MissingDependency>
-      <code><![CDATA[$this->rootFolder]]></code>
-      <code><![CDATA[private]]></code>
-    </MissingDependency>
-    <MixedArgument>
-      <code><![CDATA[$nodes]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$nodes]]></code>
-      <code><![CDATA[$userFolder]]></code>
-    </MixedAssignment>
-    <MixedMethodCall>
-      <code><![CDATA[getById]]></code>
-    </MixedMethodCall>
     <PossiblyFalseArgument>
       <code><![CDATA[$content]]></code>
     </PossiblyFalseArgument>
@@ -108,6 +68,10 @@
     <ClassMustBeFinal>
       <code><![CDATA[Wopi]]></code>
     </ClassMustBeFinal>
+    <MissingClassConstType>
+      <code><![CDATA[TOKEN_TYPE_GUEST = 1]]></code>
+      <code><![CDATA[TOKEN_TYPE_USER = 0]]></code>
+    </MissingClassConstType>
     <PossiblyUnusedProperty>
       <code><![CDATA[$canwrite]]></code>
       <code><![CDATA[$fileid]]></code>
@@ -139,6 +103,9 @@
     <ClassMustBeFinal>
       <code><![CDATA[WopiLockMapper]]></code>
     </ClassMustBeFinal>
+    <MissingClassConstType>
+      <code><![CDATA[LOCK_TTL = 1800]]></code>
+    </MissingClassConstType>
     <MixedReturnTypeCoercion>
       <code><![CDATA[array_column($qb->executeQuery()->fetchAll(), 'id')]]></code>
       <code><![CDATA[int[]]]></code>
@@ -159,16 +126,13 @@
     <ClassMustBeFinal>
       <code><![CDATA[WopiMapper]]></code>
     </ClassMustBeFinal>
-    <MixedArgument>
-      <code><![CDATA[$row]]></code>
-    </MixedArgument>
-    <MixedArrayAssignment>
-      <code><![CDATA[$safeRow['token']]]></code>
-    </MixedArrayAssignment>
-    <MixedAssignment>
-      <code><![CDATA[$row]]></code>
-      <code><![CDATA[$safeRow]]></code>
-    </MixedAssignment>
+    <DeprecatedMethod>
+      <code><![CDATA[generate]]></code>
+      <code><![CDATA[generate]]></code>
+    </DeprecatedMethod>
+    <MissingClassConstType>
+      <code><![CDATA[TOKEN_TTL = 36000]]></code>
+    </MissingClassConstType>
     <MixedReturnTypeCoercion>
       <code><![CDATA[array_column($qb->executeQuery()->fetchAll(), 'id')]]></code>
       <code><![CDATA[int[]]]></code>
@@ -207,22 +171,6 @@
     <ClassMustBeFinal>
       <code><![CDATA[Version1000Date20260522000000]]></code>
     </ClassMustBeFinal>
-    <UndefinedDocblockClass>
-      <code><![CDATA[$schema->createTable('office_wopi')]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-    </UndefinedDocblockClass>
     <UnnecessaryVarAnnotation>
       <code><![CDATA[ISchemaWrapper]]></code>
     </UnnecessaryVarAnnotation>
@@ -234,15 +182,6 @@
     <ClassMustBeFinal>
       <code><![CDATA[Version1001Date20260523000000]]></code>
     </ClassMustBeFinal>
-    <UndefinedDocblockClass>
-      <code><![CDATA[$schema->createTable('office_wopi_locks')]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-    </UndefinedDocblockClass>
     <UnnecessaryVarAnnotation>
       <code><![CDATA[ISchemaWrapper]]></code>
     </UnnecessaryVarAnnotation>
@@ -254,11 +193,6 @@
     <ClassMustBeFinal>
       <code><![CDATA[Version1002Date20260523000000]]></code>
     </ClassMustBeFinal>
-    <UndefinedDocblockClass>
-      <code><![CDATA[$schema->getTable('office_wopi')]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-    </UndefinedDocblockClass>
     <UnnecessaryVarAnnotation>
       <code><![CDATA[ISchemaWrapper]]></code>
     </UnnecessaryVarAnnotation>
@@ -270,6 +204,10 @@
     <ClassMustBeFinal>
       <code><![CDATA[DiscoveryService]]></code>
     </ClassMustBeFinal>
+    <MissingClassConstType>
+      <code><![CDATA[CACHE_KEY = 'discovery']]></code>
+      <code><![CDATA[CACHE_TTL = 3600]]></code>
+    </MissingClassConstType>
     <MixedAssignment>
       <code><![CDATA[$name]]></code>
     </MixedAssignment>
@@ -308,18 +246,8 @@
     <ClassMustBeFinal>
       <code><![CDATA[TokenManager]]></code>
     </ClassMustBeFinal>
-    <MissingDependency>
-      <code><![CDATA[$this->rootFolder]]></code>
-      <code><![CDATA[$this->rootFolder]]></code>
-      <code><![CDATA[private]]></code>
-    </MissingDependency>
-    <MixedAssignment>
-      <code><![CDATA[$ownerFolder]]></code>
-      <code><![CDATA[$userFolder]]></code>
-    </MixedAssignment>
-    <MixedMethodCall>
-      <code><![CDATA[getFirstNodeById]]></code>
-      <code><![CDATA[getFirstNodeById]]></code>
-    </MixedMethodCall>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
   </file>
 </files>
