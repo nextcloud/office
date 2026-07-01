@@ -7,6 +7,8 @@ import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 
 interface AdminData {
 	wopi_url: string
+	public_wopi_url: string
+	callback_url: string
 	disable_certificate_verification: string
 }
 
@@ -15,6 +17,8 @@ const initial: AdminData = JSON.parse(
 )
 
 const wopiUrl = ref(initial.wopi_url ?? '')
+const publicWopiUrl = ref(initial.public_wopi_url ?? '')
+const callbackUrl = ref(initial.callback_url ?? '')
 const disableCertVerification = ref(initial.disable_certificate_verification === 'yes')
 const saving = ref(false)
 const error = ref('')
@@ -31,6 +35,8 @@ async function save(): Promise<void> {
 			headers: { 'Content-Type': 'application/json', requesttoken: (window as any).OC.requestToken },
 			body: JSON.stringify({
 				wopi_url: wopiUrl.value,
+				public_wopi_url: publicWopiUrl.value,
+				callback_url: callbackUrl.value,
 				disable_certificate_verification: disableCertVerification.value ? 'yes' : 'no',
 			}),
 		})
@@ -63,6 +69,21 @@ async function save(): Promise<void> {
 			v-model="wopiUrl"
 			:label="t('office', 'Editor server URL')"
 			:placeholder="t('office', 'https://editor.example.com')"
+			:helper-text="t('office', 'Address Nextcloud uses to reach the editor server')"
+			type="url" />
+
+		<NcInputField
+			v-model="publicWopiUrl"
+			:label="t('office', 'Editor server URL for browsers')"
+			:placeholder="t('office', 'https://editor.example.com')"
+			:helper-text="t('office', 'Only needed if browsers reach the editor at a different address than Nextcloud does')"
+			type="url" />
+
+		<NcInputField
+			v-model="callbackUrl"
+			:label="t('office', 'Nextcloud URL for editor callbacks')"
+			:placeholder="t('office', 'https://cloud.example.com')"
+			:helper-text="t('office', 'Only needed if the editor server reaches Nextcloud at a different address than browsers do')"
 			type="url" />
 
 		<NcCheckboxRadioSwitch v-model="disableCertVerification">
