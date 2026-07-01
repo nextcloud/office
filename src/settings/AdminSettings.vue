@@ -11,7 +11,7 @@ interface AdminData {
 }
 
 const initial: AdminData = JSON.parse(
-	document.getElementById('office-admin-data')?.textContent ?? '{}'
+	document.getElementById('office-admin-data')?.textContent ?? '{}',
 )
 
 const wopiUrl = ref(initial.wopi_url ?? '')
@@ -28,7 +28,7 @@ async function save(): Promise<void> {
 	try {
 		const response = await fetch('/index.php/apps/office/settings/admin', {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json', 'requesttoken': (window as any).OC.requestToken },
+			headers: { 'Content-Type': 'application/json', requesttoken: (window as any).OC.requestToken },
 			body: JSON.stringify({
 				wopi_url: wopiUrl.value,
 				disable_certificate_verification: disableCertVerification.value ? 'yes' : 'no',
@@ -63,8 +63,7 @@ async function save(): Promise<void> {
 			v-model="wopiUrl"
 			:label="t('office', 'Editor server URL')"
 			:placeholder="t('office', 'https://editor.example.com')"
-			type="url"
-		/>
+			type="url" />
 
 		<NcCheckboxRadioSwitch v-model="disableCertVerification">
 			{{ t('office', 'Disable TLS certificate verification (development only)') }}
@@ -73,8 +72,7 @@ async function save(): Promise<void> {
 		<NcButton
 			:disabled="saving"
 			type="primary"
-			@click="save"
-		>
+			@click="save">
 			{{ t('office', 'Save') }}
 		</NcButton>
 	</div>
