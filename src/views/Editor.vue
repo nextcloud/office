@@ -9,7 +9,7 @@ interface EditorData {
 }
 
 const data: EditorData = JSON.parse(
-	document.getElementById('office-editor-data')?.textContent ?? '{}'
+	document.getElementById('office-editor-data')?.textContent ?? '{}',
 )
 
 const iframeRef = ref<HTMLIFrameElement | null>(null)
@@ -63,8 +63,7 @@ onUnmounted(() => {
 		:src="data.editorUrl"
 		:title="data.fileName"
 		allow="clipboard-read; clipboard-write"
-		allowfullscreen
-	/>
+		allowfullscreen />
 </template>
 
 <style scoped>
