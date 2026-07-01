@@ -23,6 +23,8 @@ class Admin implements ISettings {
 	public function getForm(): TemplateResponse {
 		return new TemplateResponse(Application::APP_ID, 'settings/admin', [
 			'wopi_url' => $this->appConfig->getValueString(Application::APP_ID, 'wopi_url', ''),
+			'public_wopi_url' => $this->appConfig->getValueString(Application::APP_ID, 'public_wopi_url', ''),
+			'callback_url' => $this->appConfig->getValueString(Application::APP_ID, 'callback_url', ''),
 			'disable_certificate_verification' => $this->appConfig->getValueString(Application::APP_ID, 'disable_certificate_verification', 'no'),
 		]);
 	}
