@@ -149,6 +149,29 @@ class DiscoveryService {
 	 * @param string $token WOPI access token
 	 */
 	public function buildEditorUrl(string $urlsrc, string $wopiSrc, string $token): string {
+		// Rewrite the internal wopi_url origin to the public_wopi_url origin so browsers can reach the editor.
+		// NC server fetches discovery via the internal Docker hostname (wopi_url); the browser must use the
+		// public hostname (public_wopi_url).  Mirrors the eurooffice DocumentServerInternalUrl/DocumentServerUrl split.
+		$internalUrl = $this->getEditorUrl();
+		$publicUrl = rtrim($this->appConfig->getValueString('office', 'public_wopi_url', ''), '/');
+		if ($publicUrl !== '' && $internalUrl !== '' && str_starts_with($urlsrc, $internalUrl)) {
+			$urlsrc = $publicUrl . substr($urlsrc, strlen($internalUrl));
+		}
+
+		// Rewrite the WOPISrc origin to the callback_url origin so the editor server can reach
+		// Nextcloud for WOPI requests. WOPISrc is generated from the browser-facing request host,
+		// which may not be resolvable from inside the editor container. Mirrors the eurooffice
+		// "server address for internal requests" setting.
+		$callbackUrl = rtrim($this->appConfig->getValueString('office', 'callback_url', ''), '/');
+		if ($callbackUrl !== '') {
+			$parts = parse_url($wopiSrc);
+			if (is_array($parts) && isset($parts['host'])) {
+				$origin = ($parts['scheme'] ?? 'http') . '://' . $parts['host']
+					. (isset($parts['port']) ? ':' . $parts['port'] : '');
+				$wopiSrc = $callbackUrl . substr($wopiSrc, strlen($origin));
+			}
+		}
+
 		// Strip WOPI template placeholders like <wopisrc=WOPI_SOURCE&> leaving bare ? and & separators.
 		$url = preg_replace('/<[^>]+>/', '', $urlsrc);
 		$url = rtrim($url, '?&');
