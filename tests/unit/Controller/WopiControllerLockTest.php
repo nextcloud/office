@@ -450,28 +450,14 @@ final class WopiControllerLockTest extends TestCase {
 		}
 	}
 
-	public function testRenameFileDoesNotRejectBackslashTraversal(): void {
-		// Documenting current behavior, NOT asserting it is safe: basename() only
-		// treats '/' as a path separator on non-Windows PHP builds (verified:
-		// basename('..\..\evil.docx') === '..\..\evil.docx' on this build), so
-		// the guard in testRenameFileRejectsPathTraversalSlashOrNullByte() above
-		// does not catch a backslash-based name. Whether this is exploitable
-		// depends on how Nextcloud's storage layer resolves the resulting path
-		// (it splits on '/', not '\') - out of scope to fix here, see
+	public function testRenameFileRejectsBackslashTraversal(): void {
+		// Fixed (was testRenameFileDoesNotRejectBackslashTraversal, documenting
+		// a gap): basename() only treats '/' as a path separator on non-Windows
+		// PHP builds, so a backslash-based name used to slip past the guard.
+		// WopiController now checks str_contains($newBaseName, '\\') explicitly
+		// alongside the slash/null-byte checks - see
 		// wopi-spec-matrix.php row RENAME-backslash-not-rejected-by-basename-guard.
 		$this->wopiMapper->method('getWopiForToken')->willReturn($this->wopi());
-		$this->wopiLockMapper->method('findByFileId')->willReturn(null);
-
-		$originalFile = $this->fileForRename('Original.docx');
-		$renamedFile = $this->fileForRename('..\\..\\evil.docx');
-		$originalFile->method('move')->willReturn($renamedFile);
-
-		$parent = $this->createMock(Folder::class);
-		$parent->method('get')->willThrowException(new NotFoundException());
-		$parent->method('getPath')->willReturn('/admin/files');
-		$originalFile->method('getParent')->willReturn($parent);
-
-		$this->mockFileLookup($originalFile);
 
 		$controller = $this->controller([
 			'X-WOPI-Override' => 'RENAME_FILE',
@@ -479,7 +465,8 @@ final class WopiControllerLockTest extends TestCase {
 		]);
 		$response = $controller->executeOperation(82, 'tok123');
 
-		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame(Http::STATUS_BAD_REQUEST, $response->getStatus());
+		$this->assertNotEmpty($this->header($response, 'X-WOPI-InvalidFileNameError'));
 	}
 
 	public function testRenameFileNameCollisionReturns400(): void {
