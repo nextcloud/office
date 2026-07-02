@@ -76,7 +76,10 @@ class ShareController extends Controller {
 		// once the user has entered the password at /s/{token}. Check both legacy (string)
 		// and current (array of share IDs) formats, matching richdocuments' pattern.
 		// Authenticated users bypass the password check — they have a full NC session.
-		if ($share->getPassword() !== '' && !$this->userSession->isLoggedIn()) {
+		// getPassword() returns null (not '') for a share with no password at all - both
+		// must be treated as "no password", or every passwordless share incorrectly
+		// redirects unauthenticated guests away instead of letting them through.
+		if ($share->getPassword() !== null && $share->getPassword() !== '' && !$this->userSession->isLoggedIn()) {
 			$authenticated = $this->session->get('public_link_authenticated');
 			$isAuthenticated = (is_array($authenticated) && in_array($share->getId(), $authenticated, true))
 				|| $authenticated === $share->getId();

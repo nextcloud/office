@@ -8,17 +8,19 @@ declare(strict_types=1);
  *
  * Share/guest token flow (ShareController::openShare + TokenManager::generateGuestToken).
  *
- * BUG found while writing this suite, documented not fixed (see hard rule 5 -
- * do not modify lib/): ShareController::openShare() guards the password
- * challenge with `$share->getPassword() !== ''`. OCP\Share\IShare::getPassword()
- * is documented (and verified live here) to return `string|null`, and a share
+ * FIXED (validator-authorized follow-up, see wopi-test-suite-FEEDBACK.md Task A):
+ * ShareController::openShare() used to guard the password challenge with
+ * `$share->getPassword() !== ''`. OCP\Share\IShare::getPassword() is
+ * documented (and verified live here) to return `string|null`, and a share
  * with NO password set returns null, not ''. `null !== ''` is true, so the
- * guard fires for password-LESS shares too: any unauthenticated guest hitting
- * a share link that was never password-protected gets redirected to the
- * generic Nextcloud share page instead of ever reaching the WOPI editor.
- * An authenticated visitor skips the whole branch (`!isLoggedIn()` is false)
- * and is unaffected. See wopi-spec-matrix.php row
- * SHARE-guest-blocked-by-password-check-bug and wopi-test-suite-RESULTS.md.
+ * guard fired for password-LESS shares too: any unauthenticated guest hitting
+ * a share link that was never password-protected got redirected to the
+ * generic Nextcloud share page instead of ever reaching the WOPI editor - and
+ * it masked every branch after it for unauthenticated requests, including the
+ * READ-permission check. Fixed in ShareController.php:79 to treat null and ''
+ * both as "no password". See wopi-spec-matrix.php row
+ * SHARE-guest-blocked-by-password-check-bug (now `tested`, renamed) and
+ * wopi-test-suite-RESULTS.md.
  */
 
 namespace OCA\Office\Tests\Integration;
@@ -50,28 +52,34 @@ class ShareGuestTokenTest extends IntegrationTestCase {
 		$this->assertSame(404, $response->getStatusCode());
 	}
 
-	public function testOpenShareRedirectsUnauthenticatedGuestEvenWithoutPassword(): void {
+	public function testOpenShareLetsUnauthenticatedGuestProceedWithoutPassword(): void {
 		$file = $this->createTestFile('share-no-password.docx');
 		$share = $this->createLinkShare($file, Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE);
-		$this->assertNull($share->getPassword(), 'precondition: share must have no password for this to demonstrate the bug');
+		$this->assertNull($share->getPassword(), 'precondition: share must have no password to exercise the fixed guard');
 
 		$response = static::$http->get('/index.php/apps/office/open/share/' . $share->getToken() . '?guestName=Probe', [
 			'allow_redirects' => false,
 		]);
 
-		// BUG (see class docblock): should be 200 with an editor TemplateResponse
-		// for a passwordless share. Documenting actual current behavior.
-		$this->assertSame(303, $response->getStatusCode());
-		$this->assertStringContainsString('/s/' . $share->getToken(), $response->getHeaderLine('Location'));
+		// Fixed behavior: an unauthenticated guest on a passwordless share is no
+		// longer redirected (was 303 before the fix) - it now proceeds past the
+		// password guard into the discovery-dependent editor-URL lookup, which
+		// currently 415s for the same EO-zero-actions reason as
+		// EditorControllerTest::testOpenReturns415GivenEosCurrentZeroActionDiscovery.
+		// That 415 (not the historical 200) is the correct observable result in
+		// THIS environment - it proves the guest reached real application logic
+		// instead of being bounced by the password guard.
+		$this->assertSame(415, $response->getStatusCode());
 	}
 
 	public function testOpenShareAuthenticatedUserBypassesPasswordCheckButHitsEoDiscoveryLimitation(): void {
 		$file = $this->createTestFile('share-authenticated-visit.docx');
 		$share = $this->createLinkShare($file, Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE);
 
-		// A logged-in visitor skips the buggy password branch entirely
-		// (`!isLoggedIn()` is false) and reaches the discovery-dependent code -
-		// which then 415s for the same EO-zero-actions reason as
+		// A logged-in visitor skips the password-check branch entirely
+		// (`!isLoggedIn()` is false, by design - this was already correct even
+		// before the passwordless-guest fix) and reaches the discovery-dependent
+		// code, which then 415s for the same EO-zero-actions reason as
 		// EditorControllerTest::testOpenReturns415GivenEosCurrentZeroActionDiscovery.
 		$response = static::$http->get('/index.php/apps/office/open/share/' . $share->getToken(), [
 			'auth' => ['admin', 'admin'],
@@ -81,7 +89,7 @@ class ShareGuestTokenTest extends IntegrationTestCase {
 		$this->assertSame(415, $response->getStatusCode());
 	}
 
-	public function testOpenShareReturns403ForUnreadableShare(): void {
+	public function testOpenShareReturns403ForUnreadableShareAsUnauthenticatedGuest(): void {
 		$file = $this->createTestFile('share-no-read.docx');
 		// A share with neither READ nor UPDATE is nonsensical but the controller
 		// guards it explicitly - exercise that guard.
@@ -92,13 +100,11 @@ class ShareGuestTokenTest extends IntegrationTestCase {
 			$this->markTestSkipped('This Nextcloud version always includes PERMISSION_READ on link shares.');
 		}
 
-		// Authenticated, not guest: the password-check bug documented above
-		// fires for ANY unauthenticated request to a passwordless share and
-		// masks every branch after it, including this permission check - an
-		// unauthenticated guest here would get 303, not 403 (verified live).
-		// Only an authenticated visitor reaches the READ-permission guard at all.
+		// Before the password-guard fix, this branch was unreachable for an
+		// unauthenticated guest on a passwordless share (the buggy guard fired
+		// first and returned 303). Now that it's fixed, an unauthenticated
+		// guest reaches the READ-permission check directly - no auth needed.
 		$response = static::$http->get('/index.php/apps/office/open/share/' . $share->getToken(), [
-			'auth' => ['admin', 'admin'],
 			'allow_redirects' => false,
 		]);
 
