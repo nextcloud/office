@@ -10,12 +10,12 @@ declare(strict_types=1);
 namespace OCA\Office\Controller;
 
 use OCA\Office\AppInfo\Application;
+use OCA\Office\Service\DiscoveryService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
+use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
-use OCA\Office\Service\DiscoveryService;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\IAppConfig;
 use OCP\IRequest;
