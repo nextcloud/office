@@ -421,7 +421,11 @@ class WopiController extends Controller {
 		$newBaseName = (string)mb_convert_encoding($requestedName, 'UTF-8', 'UTF-7');
 
 		// Reject names that contain path separators or null bytes (path traversal guard).
-		if ($newBaseName === '' || $newBaseName !== basename($newBaseName) || str_contains($newBaseName, "\0")) {
+		// basename() only treats '/' as a separator on non-Windows PHP, so a
+		// backslash is checked explicitly too - Windows-separator names have no
+		// legitimate use in a rename, and NC storage treats '\' as an ordinary
+		// character rather than a path component.
+		if ($newBaseName === '' || $newBaseName !== basename($newBaseName) || str_contains($newBaseName, "\0") || str_contains($newBaseName, '\\')) {
 			$resp = new JSONResponse([], Http::STATUS_BAD_REQUEST);
 			$resp->addHeader('X-WOPI-InvalidFileNameError', 'File name contains invalid characters');
 			return $resp;
