@@ -226,7 +226,6 @@
     </PossiblyNullIterator>
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
-      <code><![CDATA[resetCache]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="lib/Settings/Admin.php">
