@@ -35,34 +35,13 @@ import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, filterByMimes, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
+import { categoryName, categoryMimes, ALL_OFFICE_MIMES } from '../utils/fileCategories.ts'
+import { validateFilename } from '../utils/validateFilename.ts'
 import type { TemplateCreator, TemplateFile, CreatedFile, OcsErrorResponse } from '../services/templates.ts'
 import type { Node } from '@nextcloud/files'
 
 type Filter = 'all' | 'mine' | 'shared'
 type ViewMode = 'list' | 'grid'
-
-const MIME_CATEGORIES: Record<string, string> = {
-	'application/vnd.oasis.opendocument.text': t('office', 'Documents'),
-	'application/vnd.oasis.opendocument.text-template': t('office', 'Documents'),
-	'application/msword': t('office', 'Documents'),
-	'application/vnd.openxmlformats-officedocument.wordprocessingml.document': t('office', 'Documents'),
-	'application/vnd.oasis.opendocument.spreadsheet': t('office', 'Spreadsheets'),
-	'application/vnd.oasis.opendocument.spreadsheet-template': t('office', 'Spreadsheets'),
-	'application/vnd.ms-excel': t('office', 'Spreadsheets'),
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': t('office', 'Spreadsheets'),
-	'application/vnd.oasis.opendocument.presentation': t('office', 'Presentations'),
-	'application/vnd.oasis.opendocument.presentation-template': t('office', 'Presentations'),
-	'application/vnd.ms-powerpoint': t('office', 'Presentations'),
-	'application/vnd.openxmlformats-officedocument.presentationml.presentation': t('office', 'Presentations'),
-	'application/vnd.oasis.opendocument.graphics': t('office', 'Diagrams'),
-	'application/vnd.oasis.opendocument.graphics-template': t('office', 'Diagrams'),
-}
-
-// Every office mimetype we can open, regardless of the configured create format
-// (doc_format). richdocuments only advertises the create-format mimes per creator
-// (e.g. OOXML when doc_format=ooxml), so we drive the search and category filtering
-// from this full set instead — otherwise existing ODF files would never be found.
-const ALL_OFFICE_MIMES = Object.keys(MIME_CATEGORIES)
 
 const currentUid = getCurrentUser()?.uid ?? null
 
@@ -132,23 +111,6 @@ const activeCategoryName = computed(() =>
 	activeCreator.value ? categoryName(activeCreator.value) : '',
 )
 
-function categoryName(creator: TemplateCreator): string {
-	for (const mime of (creator.mimetypes ?? [])) {
-		if (MIME_CATEGORIES[mime]) return MIME_CATEGORIES[mime]
-	}
-	return creator.label
-}
-
-// All mimetypes belonging to the creator's category (both ODF and OOXML), so a
-// category shows every openable file regardless of the configured create format.
-// The creator's own mimes are always kept, so anything it advertises beyond our
-// static map (and any creator mapping to no known category) is still covered.
-function categoryMimes(creator: TemplateCreator): string[] {
-	const category = categoryName(creator)
-	const fromCategory = ALL_OFFICE_MIMES.filter(mime => MIME_CATEGORIES[mime] === category)
-	return [...new Set([...fromCategory, ...creator.mimetypes])]
-}
-
 function setCreator(creator: TemplateCreator) {
 	activeCreator.value = creator
 }
@@ -210,13 +172,6 @@ function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | nul
 		component?.$el?.querySelector<HTMLInputElement>('input')
 			?.setSelectionRange(0, newFileName.value.length - creator.extension.length)
 	})
-}
-
-function validateFilename(name: string): string | null {
-	const trimmed = name.trim()
-	if (!trimmed) return t('office', 'Filename cannot be empty')
-	if (/[/\\]/.test(trimmed) || trimmed.includes('\x00')) return t('office', 'Filename contains invalid characters')
-	return null
 }
 
 async function doCreateFromTemplate() {
