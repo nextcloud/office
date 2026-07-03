@@ -6,7 +6,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { getCurrentUser } from '@nextcloud/auth'
-import { sortNodes } from '@nextcloud/files'
 import { translate as t } from '@nextcloud/l10n'
 import { loadState } from '@nextcloud/initial-state'
 import { generateUrl } from '@nextcloud/router'
@@ -32,15 +31,16 @@ import {
 } from '@mdi/js'
 import FileCard from '../components/FileCard.vue'
 import TemplateSection from '../components/TemplateSection.vue'
-import { getAllOfficeFiles, filterByMimes, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
+import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
 import { categoryName, categoryMimes, ALL_OFFICE_MIMES } from '../utils/fileCategories.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
+import { filterFiles } from '../utils/fileFilters.ts'
+import type { Filter } from '../utils/fileFilters.ts'
 import type { TemplateCreator, TemplateFile, CreatedFile, OcsErrorResponse } from '../services/templates.ts'
 import type { Node } from '@nextcloud/files'
 
-type Filter = 'all' | 'mine' | 'shared'
 type ViewMode = 'list' | 'grid'
 
 const currentUid = getCurrentUser()?.uid ?? null
@@ -77,30 +77,11 @@ const searchLabel = computed(() =>
 const filteredFiles = computed(() => {
 	if (!activeCreator.value) return []
 
-	const byCategory = filterByMimes(allFiles.value, categoryMimes(activeCreator.value))
-
-	let filtered = byCategory
-	if (activeFilter.value === 'mine') {
-		filtered = byCategory.filter(f =>
-			f.owner === currentUid
-			// External storage has no reliable single owner — most backends'
-			// getOwner() defaults to whoever is currently browsing, so treat
-			// it like group/shared mounts and exclude it from "Mine".
-			&& !['group', 'shared', 'external', 'external-session'].includes(f.attributes?.['nc:mount-type'] as string),
-		)
-	} else if (activeFilter.value === 'shared') {
-		filtered = byCategory.filter(f => f.attributes?.['nc:mount-type'] === 'shared')
-	}
-
-	if (searchQuery.value) {
-		const q = searchQuery.value.toLowerCase()
-		filtered = filtered.filter(f => f.basename.toLowerCase().includes(q))
-	}
-
-	return sortNodes(filtered, {
-		sortFavoritesFirst: true,
-		sortingMode: 'mtime',
-		sortingOrder: 'desc',
+	return filterFiles(allFiles.value, {
+		activeFilter: activeFilter.value,
+		currentUid,
+		searchQuery: searchQuery.value,
+		category: categoryMimes(activeCreator.value),
 	})
 })
 
