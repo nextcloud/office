@@ -7,6 +7,7 @@
     "build": "vite build",
     "dev": "vite --mode development build",
     "lint": "eslint src",
+    "prepare": "git config core.hooksPath .githooks || true",
     "stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
