@@ -53,6 +53,22 @@ npm run build      # one-off build
 npm run watch      # rebuild on file changes
 ```
 
+Always build with `npm ci` (not `npm install`) so your local bundle matches
+the committed `package-lock.json`. `npm install` can pull newer transitive
+deps and make a trivial change churn unrelated `@nextcloud/vue` CSS.
+
+### 4. Committing changes
+
+Commit **source only** (`src/`, `lib/`, …) — do **not** commit the built
+`js/`+`css/` bundle. `npm run build`/`watch` regenerates those locally for
+testing; leave them uncommitted (`git add src/…`, then `git restore js css`
+when you're done).
+
+CI (`npm-build`) will fail your PR with *"Please recompile and commit the
+assets"* — that's expected for a source-only PR. A maintainer then comments
+`/compile` on the PR and the `nextcloud-command` bot builds and pushes the
+recompiled assets as a `chore(assets): Recompile assets` commit.
+
 ---
 
 ## Editor integration
