@@ -1,5 +1,6 @@
 import { File } from '@nextcloud/files'
 import type { Node } from '@nextcloud/files'
+import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
 
 let sourceCounter = 0
 
@@ -35,4 +36,22 @@ export function makeNode({
 			...(favorite ? { favorite: 1 } : {}),
 		},
 	})
+}
+
+interface MakeCreatorOptions {
+	app?: string
+	label?: string
+	extension?: string
+	mimetypes?: string[]
+	templates?: TemplateFile[]
+}
+
+export function makeCreator({
+	app = 'richdocuments',
+	label = 'Document',
+	extension = '.odt',
+	mimetypes = ['application/vnd.oasis.opendocument.text'],
+	templates = [],
+}: MakeCreatorOptions = {}): TemplateCreator {
+	return { app, label, extension, mimetypes, templates }
 }
