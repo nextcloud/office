@@ -12,11 +12,9 @@ interface MakeNodeOptions {
 	basename?: string
 }
 
-/**
- * Build a Node for tests. Owner/mount-type are the two axes that decide
- * whether a file counts as "mine", "shared" or external in the Mine filter —
- * pass them explicitly per case rather than relying on the defaults.
- */
+// Owner/mount-type are the two axes that decide whether a file counts as
+// "mine", "shared" or external in the Mine filter — pass them explicitly
+// per case rather than relying on the defaults.
 export function makeNode({
 	owner = 'alice',
 	mountType,

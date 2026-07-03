@@ -35,9 +35,11 @@ vi.mock('@nextcloud/router', () => ({
 }))
 
 class ResizeObserverStub {
+
 	observe() {}
 	unobserve() {}
 	disconnect() {}
+
 }
 
 globalThis.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver
