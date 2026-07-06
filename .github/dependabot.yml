@@ -31,3 +31,18 @@ updates:
       # do not do breaking changes on stable branches
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+  - package-ecosystem: composer
+    directories:
+      - "/"
+      - "/vendor-bin/*"
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "03:00"
+      timezone: Europe/Paris
+    target-branch: stable34
+    open-pull-requests-limit: 10
+    ignore:
+      # do not do breaking changes on stable branches
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
