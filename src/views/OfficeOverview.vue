@@ -104,7 +104,10 @@ const filteredFiles = computed(() => {
 	if (activeFilter.value === 'mine') {
 		filtered = byCategory.filter(f =>
 			f.owner === currentUid
-			&& !['group', 'shared'].includes(f.attributes?.['nc:mount-type'] as string),
+			// External storage has no reliable single owner — most backends'
+			// getOwner() defaults to whoever is currently browsing, so treat
+			// it like group/shared mounts and exclude it from "Mine".
+			&& !['group', 'shared', 'external', 'external-session'].includes(f.attributes?.['nc:mount-type'] as string),
 		)
 	} else if (activeFilter.value === 'shared') {
 		filtered = byCategory.filter(f => f.attributes?.['nc:mount-type'] === 'shared')
