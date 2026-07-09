@@ -57,12 +57,31 @@ Always build with `npm ci` (not `npm install`) so your local bundle matches
 the committed `package-lock.json`. `npm install` can pull newer transitive
 deps and make a trivial change churn unrelated `@nextcloud/vue` CSS.
 
-### 4. Committing changes
+### 4. Running tests
+
+```bash
+nvm use             # pins Node 24 — Node 25's native localStorage global
+                     # silently breaks jsdom under Vitest
+npm run test:unit         # one-off run
+npm run test:unit:watch   # watch mode
+```
+
+Vitest + `@vue/test-utils` + jsdom, configured in `vitest.config.ts`
+(standalone from `vite.config.ts` — no shared build config to keep in
+sync). `vitest.setup.ts` provides shared mocks for the Nextcloud globals
+every component needs outside a running NC page
+(`@nextcloud/l10n`/`auth`/`initial-state`/`router`) plus a `ResizeObserver`
+stub. `src/test-utils/fixtures.ts` has `makeNode()`/`makeCreator()` factories
+for building test data. CI runs the suite on PRs via `test-unit.yml`.
+
+### 5. Committing changes
 
 Commit **source only** (`src/`, `lib/`, …) — do **not** commit the built
 `js/`+`css/` bundle. `npm run build`/`watch` regenerates those locally for
 testing; leave them uncommitted (`git add src/…`, then `git restore js css`
-when you're done).
+when you're done). A pre-commit hook (`.githooks/pre-commit`, wired via the
+`prepare` npm script — run `npm install`/`npm ci` at least once to activate
+it) blocks staged `js/`/`css/` changes locally as a safety net.
 
 CI (`npm-build`) will fail your PR with *"Please recompile and commit the
 assets"* — that's expected for a source-only PR. A maintainer then comments
@@ -89,8 +108,15 @@ present, navigates directly to that URL instead of `/f/{fileid}`.
 ```
 /apps/office
 └── PageController::index()       Renders the SPA shell
-    └── OfficeOverview.vue        Full Vue 3 SPA
-        ├── officeFiles.ts        WebDAV file listing via @nextcloud/files
-        ├── templates.ts          Template discovery and file creation
-        └── config.ts             User preference persistence (grid/list view)
+    └── App.vue
+        └── OfficeOverview.vue    Rendering states + wiring (the "launchpad")
+            ├── TemplateSection.vue   Template picker, scrollable card list
+            ├── FileCard.vue          Grid-view file card
+            ├── officeFiles.ts        WebDAV file listing via @nextcloud/files
+            ├── templates.ts          Template discovery and file creation
+            ├── config.ts             User preference persistence (grid/list view)
+            └── utils/
+                ├── fileFilters.ts     Mine/shared/all + search + sort (pure)
+                ├── fileCategories.ts  Mime → category mapping (pure)
+                └── validateFilename.ts
 ```
