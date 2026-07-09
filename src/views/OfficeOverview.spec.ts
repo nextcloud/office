@@ -66,7 +66,7 @@ async function mountOverview() {
 			stubs: {
 				NcDialog: NC_DIALOG_STUB,
 				NcAppNavigation: stubRenderingAllSlots('NcAppNavigation'),
-				NcEmptyContent: stubRenderingAllSlots('NcEmptyContent', ['name', 'description']),
+				NcEmptyContent: stubRenderingAllSlots('NcEmptyContent', ['name']),
 			},
 		},
 	})
