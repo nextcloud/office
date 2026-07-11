@@ -1,7 +1,7 @@
 OC.L10N.register(
     "office",
     {
-    "Office" : "Semana de colaboradores",
+    "Office" : "Office",
     "Create new" : "Crear nuevo",
     "Blank" : "En blanco",
     "Documents" : "Documentos",
