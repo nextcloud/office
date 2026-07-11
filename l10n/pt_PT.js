@@ -1,7 +1,7 @@
 OC.L10N.register(
     "office",
     {
-    "Office" : "OFFICE",
+    "Office" : "Office",
     "Office overview" : "Visão geral do OFFICE",
     "Office overview app for Nextcloud" : "Aplicação de visão geral do OFFICE para Nextcloud",
     "Create new" : "Criar novo",
