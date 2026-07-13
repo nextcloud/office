@@ -340,7 +340,7 @@ fetchAll()
 								<NcIconSvgWrapper :path="mdiFileDocumentOutline" :size="48" />
 							</template>
 							<template v-if="activeFilter !== 'all'" #description>
-								{{ t('office', 'Switch to All to see every file you have access to') }}
+								{{ t('office', 'Switch to "All" to see every file you have access to') }}
 							</template>
 						</NcEmptyContent>
 
