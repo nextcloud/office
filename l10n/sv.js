@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Visa alla i filer",
     "Create" : "Skapa",
     "Filename" : "Filnamn",
-    "{count} {category} found" : "{count} {category} hittades",
-    "Switch to All to see every file you have access to" : "Byt till Alla för att se alla filer du har tillgång till."
+    "{count} {category} found" : "{count} {category} hittades"
 },
 "nplurals=2; plural=(n != 1);");

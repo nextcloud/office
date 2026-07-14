@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Mostrar tudo em Arquivos",
     "Create" : "Criar",
     "Filename" : "Nome de arquivo",
-    "{count} {category} found" : "{count} {category} encontrados",
-    "Switch to All to see every file you have access to" : "Mude para “Todos” para ver todos os arquivos aos quais você tem acesso"
+    "{count} {category} found" : "{count} {category} encontrados"
 },
 "nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

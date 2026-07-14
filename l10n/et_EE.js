@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Näita neid kõiki failirakenduses",
     "Create" : "Lisa",
     "Filename" : "Failinimi",
-    "{count} {category} found" : "Leidus {count} „{category}“ kategooria",
-    "Switch to All to see every file you have access to" : "Vali „Kõik“ ja näed kõiki faile, millele sul on ligipääs"
+    "{count} {category} found" : "Leidus {count} „{category}“ kategooria"
 },
 "nplurals=2; plural=(n != 1);");

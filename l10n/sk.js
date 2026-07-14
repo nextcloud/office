@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Zobraziť všetko v Súboroch",
     "Create" : "Vytvoriť",
     "Filename" : "Názov súboru",
-    "{count} {category} found" : "{count} {category} nájdené",
-    "Switch to All to see every file you have access to" : "Prepnúť na Všetko, aby ste zobrazili všetky súbory, ku ktorým máte prístup."
+    "{count} {category} found" : "{count} {category} nájdené"
 },
 "nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);");

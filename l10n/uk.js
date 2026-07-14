@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Показати все у Файлах",
     "Create" : "Додати",
     "Filename" : "Ім'я файлу",
-    "{count} {category} found" : "Знайдено {count}{category}",
-    "Switch to All to see every file you have access to" : "Перемкніть у \"Всі\", щоби побачити всі доступні файли"
+    "{count} {category} found" : "Знайдено {count}{category}"
 },
 "nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);");

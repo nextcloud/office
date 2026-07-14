@@ -28,12 +28,11 @@ OC.L10N.register(
     "Switch to grid view" : "Zur Kachelansicht wechseln",
     "Switch to list view" : "Zur Listenansicht wechseln",
     "No {category} found" : "Kein {category} gefunden",
-    "Switch to \"All\" to see every file you have access to" : "Wechseln zu \"Alle“, um alle Dateien anzuzeigen, auf die die du Zugriff hast.",
+    "Switch to \"All\" to see every file you have access to" : "Wechseln zu \"Alle“, um alle Dateien anzuzeigen, auf die die Sie Zugriff haben.",
     "Search all in Files" : "In allen Dateien suchen",
     "Show all in Files" : "Alle Dateien anzeigen",
     "Create" : "Erstellen",
     "Filename" : "Dateiname",
-    "{count} {category} found" : "{count} {category} gefunden",
-    "Switch to All to see every file you have access to" : "Wechseln zu \"Alle“, um alle Dateien anzuzeigen, auf die die Sie Zugriff haben."
+    "{count} {category} found" : "{count} {category} gefunden"
 },
 "nplurals=2; plural=(n != 1);");

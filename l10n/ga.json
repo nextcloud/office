@@ -31,7 +31,6 @@
     "Show all in Files" : "Taispeáin gach rud i gComhaid",
     "Create" : "Cruthaigh",
     "Filename" : "Ainm comhaid",
-    "{count} {category} found" : "{count} {category} aimsithe",
-    "Switch to All to see every file you have access to" : "Athraigh go Gach ceann chun gach comhad a bhfuil rochtain agat air a fheiceáil"
+    "{count} {category} found" : "{count} {category} aimsithe"
 },"pluralForm" :"nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);"
 }

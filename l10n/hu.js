@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Összes megjelenítése a Fájlokban",
     "Create" : "Létrehozás",
     "Filename" : "Fájlnév",
-    "{count} {category} found" : "{count} {category} található",
-    "Switch to All to see every file you have access to" : "Váltson az „Összes” lehetőségre, hogy az összes elérhető fájlt lássa"
+    "{count} {category} found" : "{count} {category} található"
 },
 "nplurals=2; plural=(n != 1);");

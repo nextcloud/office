@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Tümünü Dosyalar uygulamasında görüntüle",
     "Create" : "Oluştur",
     "Filename" : "Dosya adı",
-    "{count} {category} found" : "{count} {category} bulundu",
-    "Switch to All to see every file you have access to" : "Erişiminiz olan tüm dosyaları görmek için Tümü olarak seçin"
+    "{count} {category} found" : "{count} {category} bulundu"
 },
 "nplurals=2; plural=(n > 1);");
