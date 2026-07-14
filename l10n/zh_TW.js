@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "在檔案中顯示全部",
     "Create" : "建立",
     "Filename" : "檔案名稱",
-    "{count} {category} found" : "找到 {count} {category}",
-    "Switch to All to see every file you have access to" : "切換至全部以檢視您有權存取的每個檔案"
+    "{count} {category} found" : "找到 {count} {category}"
 },
 "nplurals=1; plural=0;");

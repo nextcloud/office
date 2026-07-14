@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "نمایش همه در فایل‌ها",
     "Create" : "ایجاد",
     "Filename" : "نام فایل",
-    "{count} {category} found" : "{count} {category} یافت شد",
-    "Switch to All to see every file you have access to" : "برای دیدن تمام فایل‌هایی که به آن دسترسی دارید، به «همه» تغییر دهید"
+    "{count} {category} found" : "{count} {category} یافت شد"
 },
 "nplurals=2; plural=(n > 1);");

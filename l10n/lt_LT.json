@@ -31,7 +31,6 @@
     "Show all in Files" : "Rodyti viską Failuose",
     "Create" : "Sukurti",
     "Filename" : "Failo pavadinimas",
-    "{count} {category} found" : "Rasta {count} {category}",
-    "Switch to All to see every file you have access to" : "Perjunkite į „Visi“, kad matytumėte visus failus, prie kurių turite prieigą"
+    "{count} {category} found" : "Rasta {count} {category}"
 },"pluralForm" :"nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? 1 : n % 1 != 0 ? 2: 3);"
 }

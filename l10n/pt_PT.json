@@ -31,7 +31,6 @@
     "Show all in Files" : "Mostrar tudo na app FILES",
     "Create" : "Criar",
     "Filename" : "Nome do ficheiro",
-    "{count} {category} found" : "{count} {category} encontrado",
-    "Switch to All to see every file you have access to" : "Selecione TODOS para ver todos os ficheiros aos quais  tem acesso."
+    "{count} {category} found" : "{count} {category} encontrado"
 },"pluralForm" :"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

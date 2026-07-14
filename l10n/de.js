@@ -33,7 +33,6 @@ OC.L10N.register(
     "Show all in Files" : "Alle Dateien anzeigen",
     "Create" : "Erstellen",
     "Filename" : "Dateiname",
-    "{count} {category} found" : "{count} {category} gefunden",
-    "Switch to All to see every file you have access to" : "Wechseln zu \"Alle“, um alle Dateien anzuzeigen, auf die die du Zugriff hast."
+    "{count} {category} found" : "{count} {category} gefunden"
 },
 "nplurals=2; plural=(n != 1);");
