@@ -7,6 +7,7 @@ OC.L10N.register(
     "Documents" : "文件",
     "Spreadsheets" : "試算表",
     "Presentations" : "簡報",
+    "Search {category}" : "搜尋{category}",
     "Search" : "搜尋",
     "Filename cannot be empty" : "檔案名不可為空白",
     "Failed to load files" : "載入檔案失敗",
