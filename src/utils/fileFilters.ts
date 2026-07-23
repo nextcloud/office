@@ -38,6 +38,8 @@ export function filterFiles(files: Node[], { activeFilter, currentUid, searchQue
 	return sortNodes(filtered, {
 		sortFavoritesFirst: true,
 		sortingMode: 'mtime',
-		sortingOrder: 'desc',
+		// Counterintuitive but correct: sortNodes inverts the order for mtime
+		// ('asc' = most recently modified first). 'desc' would show oldest first.
+		sortingOrder: 'asc',
 	})
 }
