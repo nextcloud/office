@@ -161,12 +161,12 @@ function toggleViewMode() {
 	setOverviewGridView(mode === 'grid')
 }
 
-function getPreviewUrl(file: Node): string {
+function getPreviewUrl(file: Node, size: number = 300): string {
 	const etag = (file.attributes?.etag as string | undefined ?? '').slice(0, 6)
 	return generateUrl('/core/preview?fileId={fileid}&x={x}&y={y}&v={v}&a=1&mimeFallback=true', {
 		fileid: file.fileid,
-		x: 300,
-		y: 300,
+		x: size,
+		y: size,
 		v: etag,
 	})
 }
@@ -407,6 +407,19 @@ fetchAll()
 								:name="file.basename"
 								:active="false"
 								@click="openFile(file)">
+								<template #icon>
+									<!-- 80px requested for crisp rendering at 40px on hidpi screens -->
+									<img v-if="!failedPreviews[file.fileid]"
+										:src="getPreviewUrl(file, 80)"
+										alt=""
+										loading="lazy"
+										class="office-overview__list-thumb"
+										@error="failedPreviews = { ...failedPreviews, [file.fileid]: true }">
+									<NcIconSvgWrapper v-else
+										:path="mdiFileDocumentOutline"
+										:size="32"
+										class="office-overview__list-thumb office-overview__list-thumb--fallback" />
+								</template>
 								<template #indicator>
 									<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
 										:path="mdiStar"
@@ -528,6 +541,19 @@ fetchAll()
 	display: flex;
 	justify-content: center;
 	padding: calc(var(--default-grid-baseline) * 3) calc(var(--default-grid-baseline) * 4);
+}
+
+.office-overview__list-thumb {
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: var(--border-radius);
+	background-color: var(--color-background-dark);
+	flex-shrink: 0;
+}
+
+.office-overview__list-thumb--fallback {
+	color: var(--color-text-maxcontrast);
 }
 
 .office-overview__favourite-icon {
