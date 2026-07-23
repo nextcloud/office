@@ -73,10 +73,9 @@ describe('filterFiles > category', () => {
 describe('filterFiles > sort', () => {
 	// Pins the real @nextcloud/files sortNodes() behaviour, not an assumption:
 	// with sortingMode 'mtime', it internally flips sortingOrder (see its own
-	// "reverse if sorting by mtime" comment), so our 'desc' call actually
-	// produces oldest-first among non-favourites. Surprising, but this is
-	// what main already does — characterizing it, not endorsing it.
-	it('sorts favourites first, then oldest-first among the rest (real sortNodes)', () => {
+	// "reverse if sorting by mtime" comment), so our 'asc' call actually
+	// produces newest-first among non-favourites.
+	it('sorts favourites first, then newest-first among the rest (real sortNodes)', () => {
 		const older = makeNode({ owner: 'alice', basename: 'older.odt', mtime: new Date('2024-01-01') })
 		const newer = makeNode({ owner: 'alice', basename: 'newer.odt', mtime: new Date('2024-06-01') })
 		const favouriteButOld = makeNode({
@@ -88,6 +87,6 @@ describe('filterFiles > sort', () => {
 
 		const result = filterFiles([older, newer, favouriteButOld], { ...baseOptions, activeFilter: 'all' })
 
-		expect(result.map(f => f.basename)).toEqual(['favourite.odt', 'older.odt', 'newer.odt'])
+		expect(result.map(f => f.basename)).toEqual(['favourite.odt', 'newer.odt', 'older.odt'])
 	})
 })

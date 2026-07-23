@@ -305,6 +305,33 @@ describe('OfficeOverview > openInFiles', () => {
 	})
 })
 
+describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
+	// Regression test for the newest-first fix: filterFiles() sorts before
+	// OfficeOverview slices to MAX_DISPLAY_FILES (200), so which 200 survive
+	// the cap depends entirely on sort direction. Distinct, strictly
+	// increasing mtimes (unlike openInFiles' manyFiles() above, which only
+	// needs a count) let this test tell newest from oldest.
+	function filesWithIncreasingMtime(count: number) {
+		return Array.from({ length: count }, (_, i) => makeNode({
+			owner: 'alice',
+			basename: `report-${i}.odt`,
+			mtime: new Date(2024, 0, 1 + i),
+		}))
+	}
+
+	it('keeps the newest files, not the oldest, when more than MAX_DISPLAY_FILES match', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(filesWithIncreasingMtime(201))
+
+		const wrapper = await mountOverview()
+
+		const renderedNames = wrapper.findAllComponents({ name: 'NcListItem' }).map(item => item.props('name'))
+		expect(renderedNames).toHaveLength(200)
+		expect(renderedNames).toContain('report-200.odt') // newest (highest index/mtime)
+		expect(renderedNames).not.toContain('report-0.odt') // oldest, pushed out by the cap
+	})
+})
+
 describe('OfficeOverview > toggleViewMode', () => {
 	it('flips list/grid and persists the new mode', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
