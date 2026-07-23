@@ -32,7 +32,7 @@ import {
 } from '@mdi/js'
 import FileCard from '../components/FileCard.vue'
 import TemplateSection from '../components/TemplateSection.vue'
-import { getAllOfficeFiles, filterByMimes, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
+import { getAllOfficeFiles, filterByMimes, invalidateOfficeFilesCache } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
 import type { TemplateCreator, TemplateFile, CreatedFile, OcsErrorResponse } from '../services/templates.ts'
@@ -69,6 +69,7 @@ const currentUid = getCurrentUser()?.uid ?? null
 const creators = ref<TemplateCreator[]>([])
 const activeCreator = ref<TemplateCreator | null>(null)
 const allFiles = ref<Node[]>([])
+const totalFiles = ref(0)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const viewMode = ref<ViewMode>(getOverviewGridView() ? 'grid' : 'list')
@@ -125,8 +126,9 @@ const filteredFiles = computed(() => {
 	})
 })
 
-const files = computed(() => filteredFiles.value.slice(0, MAX_DISPLAY_FILES))
-const hasMoreFiles = computed(() => filteredFiles.value.length > MAX_DISPLAY_FILES)
+const files = computed(() => filteredFiles.value)
+// The server caps the result set, so more files may exist than were returned.
+const hasMoreFiles = computed(() => totalFiles.value > allFiles.value.length)
 
 const activeCategoryName = computed(() =>
 	activeCreator.value ? categoryName(activeCreator.value) : '',
@@ -253,17 +255,15 @@ async function fetchAll() {
 		activeCreator.value = creators.value[0] ?? null
 
 		if (creators.value.length > 0) {
-			// Union our full static set (ODF + OOXML) with whatever the creators
-			// actually advertise, so we never drop a mime the server supports.
-			const allMimes = [...new Set([
-				...ALL_OFFICE_MIMES,
-				...creators.value.flatMap(c => c.mimetypes),
-			])]
-			allFiles.value = await getAllOfficeFiles(allMimes)
+			const allMimes = creators.value.flatMap(c => c.mimetypes)
+			const result = await getAllOfficeFiles(allMimes)
+			allFiles.value = result.nodes
+			totalFiles.value = result.total
 		}
 	} catch {
 		error.value = t('office', 'Failed to load files')
 		allFiles.value = []
+		totalFiles.value = 0
 	} finally {
 		loading.value = false
 	}
