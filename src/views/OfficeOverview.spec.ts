@@ -58,7 +58,10 @@ const NC_DIALOG_STUB = {
 // lookups below always match by { name } rather than by imported reference:
 // an object-identity match (e.g. findComponent(NcButton)) silently fails
 // because "our" NcButton import and OfficeOverview's are different instances.
-async function mountOverview() {
+// extraStubs merges in on top of the defaults below — used by tests that need
+// a named slot rendered on a component that's normally left as a plain
+// shallow stub (e.g. NcListItem's #icon, FileCard's #preview).
+async function mountOverview(extraStubs: Record<string, unknown> = {}) {
 	vi.resetModules()
 	const { default: OfficeOverview } = await import('./OfficeOverview.vue')
 	const wrapper = shallowMount(OfficeOverview, {
@@ -67,6 +70,7 @@ async function mountOverview() {
 				NcDialog: NC_DIALOG_STUB,
 				NcAppNavigation: stubRenderingAllSlots('NcAppNavigation'),
 				NcEmptyContent: stubRenderingAllSlots('NcEmptyContent', ['name']),
+				...extraStubs,
 			},
 		},
 	})
@@ -197,6 +201,49 @@ describe('OfficeOverview > rendering states', () => {
 
 		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(true)
 		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(false)
+	})
+})
+
+describe('OfficeOverview > preview thumbnails', () => {
+	// FilePreview's own rendering (image src, error-to-icon fallback) is
+	// covered by FilePreview.spec.ts in isolation. These tests are wiring
+	// only: does each view pass FilePreview the props it's supposed to?
+	// NcListItem/FileCard's default shallow stub only renders the default
+	// slot (see stubRenderingAllSlots' comment above), so their #icon/#preview
+	// named slots — where FilePreview lives — need it rendered explicitly.
+	const LIST_ITEM_STUB = stubRenderingAllSlots('NcListItem', ['name', 'active'])
+	const FILE_CARD_STUB = stubRenderingAllSlots('FileCard', [])
+
+	it('passes list view a small thumbnail size and the file, decorative (no alt)', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
+		getAllOfficeFilesMock.mockResolvedValue([file])
+
+		const wrapper = await mountOverview({ NcListItem: LIST_ITEM_STUB })
+
+		const preview = wrapper.findComponent({ name: 'FilePreview' })
+		// Vue wraps allFiles.value in a reactive proxy, so the prop is a proxied
+		// copy, not the exact same reference as `file` — compare by fileid.
+		expect(preview.props('file').fileid).toBe(file.fileid)
+		expect(preview.props('size')).toBe(96)
+		expect(preview.props('fallbackIconSize')).toBe(32)
+		expect(preview.props('alt')).toBeFalsy()
+		expect(preview.classes()).toContain('office-overview__list-thumb')
+	})
+
+	it('passes grid view the file\'s basename as alt text (not decorative)', async () => {
+		localStorage.setItem('office.overview.gridView', 'true')
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
+		getAllOfficeFilesMock.mockResolvedValue([file])
+
+		const wrapper = await mountOverview({ FileCard: FILE_CARD_STUB })
+
+		const preview = wrapper.findComponent({ name: 'FilePreview' })
+		// Vue wraps allFiles.value in a reactive proxy, so the prop is a proxied
+		// copy, not the exact same reference as `file` — compare by fileid.
+		expect(preview.props('file').fileid).toBe(file.fileid)
+		expect(preview.props('alt')).toBe('report.odt')
 	})
 })
 
