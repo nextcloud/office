@@ -17,5 +17,13 @@ module.exports = {
 				parser: '@typescript-eslint/parser',
 			},
 		},
+		{
+			// Spec files import test-only devDependencies (vitest, @vue/test-utils)
+			// that never ship in the production bundle.
+			files: ['**/*.spec.ts'],
+			rules: {
+				'n/no-unpublished-import': 'off',
+			},
+		},
 	],
 }

@@ -7,7 +7,10 @@
     "build": "vite build",
     "dev": "vite --mode development build",
     "lint": "eslint src",
+    "prepare": "git config core.hooksPath .githooks || true",
     "stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "watch": "vite --mode development build --watch"
   },
   "browserslist": [
@@ -29,9 +32,13 @@
     "@nextcloud/eslint-config": "^8.4.2",
     "@nextcloud/stylelint-config": "^3.1.1",
     "@nextcloud/vite-config": "^2.5.2",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
+    "jsdom": "^29.1.1",
     "typescript": "^5.9.3",
-    "vite": "^7.2.7"
+    "vite": "^7.2.7",
+    "vitest": "^4.1.9"
   },
   "engines": {
     "node": "^24.0.0",

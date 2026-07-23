@@ -1,0 +1,30 @@
+#!/usr/bin/env sh
+# Block hand-committed build artifacts.
+#
+# js/ and css/ are generated bundles. They are recompiled and committed by the
+# `nextcloud-command` bot via the `/compile` PR command in CI — never by hand.
+# Committing a local build risks bytes that differ from CI's (Node-version drift
+# etc.) and produces noisy, conflict-prone diffs. See README "Committing changes".
+#
+# The bot commits assets from CI, where GitHub Actions sets CI=true, so this
+# guard steps aside there and only ever fires on a developer's machine.
+
+[ -n "$CI" ] && exit 0
+
+staged=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^(js|css)/' || true)
+
+if [ -n "$staged" ]; then
+	echo "✖ Refusing to commit generated build assets:"
+	echo "$staged" | sed 's/^/      /'
+	echo
+	echo "  js/ and css/ are built output — commit source only."
+	echo "  Unstage them and re-run your commit:"
+	echo
+	echo "      git restore --staged js css"
+	echo
+	echo "  CI (npm-build) will then fail the PR asking for a recompile — that is"
+	echo "  expected. A maintainer comments /compile and the bot commits the assets."
+	echo
+	echo "  To bypass deliberately: git commit --no-verify"
+	exit 1
+fi
