@@ -114,6 +114,16 @@ so check the list above by hand before the PR.
 - A new dependency pays its way in bundle size: check what an import drags in
   before adding it.
 
+## When the call is contestable, ask
+
+Two defensible seams from the naming test, a cleanup that would grow the PR,
+a security attribute you can justify but a reviewer might not accept, a
+dependency whose bundle cost is arguable — anywhere a reviewer could
+reasonably want the other option, put the choice to the human driving the
+session before committing to it; unattended, take the narrower option — the
+one that's easier to reverse in review. Either way, flag the call in the PR
+description.
+
 ## Before opening a PR
 
 ```bash
