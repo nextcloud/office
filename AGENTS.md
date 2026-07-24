@@ -8,14 +8,19 @@ For AI coding agents. Human contributors: see `README.md`.
 git fetch origin && git checkout -b <branch> origin/main
 ```
 
-A stale base fails CI's `npm-build` "Check build changes" job or DCO, and a
-refactor may have moved the code you're about to edit. You'll re-check `main`
-before opening the PR too — see below.
+CI builds your branch merged with current `main`, so a stale base can fail the
+`npm-build` "Check build changes" job even after a recompile, and a refactor
+may have moved the code you're about to edit. You'll re-check `main` before
+opening the PR too — see below.
 
-## One concern per commit, signed off
+## Commit discipline
 
-`git commit -s` — CI enforces DCO. A functional change, a cleanup, and a docs
-update are three commits.
+One concern per commit: a functional change, a cleanup, and a docs update are
+three commits. A reviewer can verify a single-concern diff; a mixed one can
+only be trusted.
+
+CI checks every commit: conventional-format headline (`fix:`, `feat:`,
+`docs:`, ...) and DCO sign-off — `git commit -s`.
 
 Confident AI output still needs splitting: a flawless-looking helper and a real
 bug can come from the same commit.
@@ -30,9 +35,9 @@ git restore --staged js css
 ```
 
 `js/` and `css/` are build output; the `nextcloud-command` bot compiles and
-commits them to your branch after someone comments `/compile` on the PR — say in
-the description that it's still needed. `.githooks/pre-commit` is a backstop,
-not a plan.
+commits them to your branch after a maintainer comments `/compile` on the PR —
+say in the description that it's still needed. `.githooks/pre-commit` is a
+backstop, not a plan.
 
 ## Reuse before you write
 
@@ -75,8 +80,23 @@ Two things follow:
 
 ```bash
 git fetch origin && git log --oneline HEAD..origin/main   # rebase if non-empty
+```
+
+If the change touches `src/` (JS/Vue/CSS):
+
+```bash
 npm run lint
 npm run stylelint
 npm run test:unit
 npm run build   # then unstage js/ css/
+```
+
+If the change touches PHP:
+
+```bash
+composer lint
+composer cs:check
+composer psalm
+composer openapi   # if controllers or routes changed
+                   # commit openapi*.json — unlike js/css, this one is tracked
 ```
