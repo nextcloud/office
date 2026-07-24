@@ -100,6 +100,17 @@ alone, and anything clickable is keyboard-reachable with visible focus.
 Nothing enforces this yet — `npm run lint` carries no accessibility rules —
 so check the list above by hand before the PR.
 
+## Bound work and memory
+
+- No unbounded reads: cap or paginate anything that grows with a user's file
+  count, in queries and in rendered rows.
+- Release what you register: listeners, timers, and observers added in a
+  component are removed in `onUnmounted` — see `TemplateSection.vue`.
+- Stream file contents; never read a whole document into memory — office
+  files have no upper size.
+- A new dependency pays its way in bundle size: check what an import drags in
+  before adding it.
+
 ## Before opening a PR
 
 ```bash
