@@ -6,14 +6,8 @@
     "Scroll left" : "Прокрутити ліворуч",
     "Scroll right" : "Прокрутити праворуч",
     "Blank" : "Порожній",
-    "Documents" : "Документи",
-    "Spreadsheets" : "Електронні таблиці",
-    "Presentations" : "Презентації",
-    "Diagrams" : "Діаграми",
     "Search {category}" : "Шукати {category}",
     "Search" : "Пошук",
-    "Filename cannot be empty" : "Ім'я файлу не може бути порожнім",
-    "Filename contains invalid characters" : "Ім'я файлу містить неприпустимий символ",
     "Failed to create file" : "Не вдалося створити файл",
     "Failed to load files" : "Не вдалося завантажити файл",
     "No office suite installed" : "Не встановлено офісний пакет",
@@ -31,6 +25,12 @@
     "Show all in Files" : "Показати все у Файлах",
     "Create" : "Додати",
     "Filename" : "Ім'я файлу",
+    "Documents" : "Документи",
+    "Spreadsheets" : "Електронні таблиці",
+    "Presentations" : "Презентації",
+    "Diagrams" : "Діаграми",
+    "Filename cannot be empty" : "Ім'я файлу не може бути порожнім",
+    "Filename contains invalid characters" : "Ім'я файлу містить неприпустимий символ",
     "{count} {category} found" : "Знайдено {count}{category}"
 },"pluralForm" :"nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);"
 }

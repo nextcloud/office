@@ -4,16 +4,16 @@ OC.L10N.register(
     "Office" : "ຫ້ອງການ",
     "Create new" : "ສ້າງໃຫມ່",
     "Blank" : "Blank",
-    "Documents" : "ເອກະສານ",
-    "Spreadsheets" : "Spreadsheets",
-    "Presentations" : "Presentations",
     "Search" : "ຄົ້ນຫາ",
-    "Filename cannot be empty" : "ຊື່ຟາຍ ບໍ່ສາມາດເປົ່າວ່າງໄດ້",
     "All" : "ທັງໝົດ",
     "Shared with me" : "Shared with me",
     "Switch to grid view" : "ປ່ຽນເປັນມຸມມອງແບບຕາຂ່າຍ",
     "Switch to list view" : "ປ່ຽນເປັນມຸມມອງລາຍການ",
     "Create" : "ສ້າງ",
-    "Filename" : "ຊື່ຟາຍ"
+    "Filename" : "ຊື່ຟາຍ",
+    "Documents" : "ເອກະສານ",
+    "Spreadsheets" : "Spreadsheets",
+    "Presentations" : "Presentations",
+    "Filename cannot be empty" : "ຊື່ຟາຍ ບໍ່ສາມາດເປົ່າວ່າງໄດ້"
 },
 "nplurals=1; plural=0;");

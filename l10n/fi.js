@@ -6,14 +6,8 @@ OC.L10N.register(
     "Scroll left" : "Vieritä vasemmalle",
     "Scroll right" : "Vieritä oikealle",
     "Blank" : "Tyhjä",
-    "Documents" : "Asiakirjat",
-    "Spreadsheets" : "Laskentataulukot",
-    "Presentations" : "Esitykset",
-    "Diagrams" : "Kaaviot",
     "Search {category}" : "Etsi {category}",
     "Search" : "Etsi",
-    "Filename cannot be empty" : "Tiedoston nimi ei voi olla tyhjä",
-    "Filename contains invalid characters" : "Tiedostonimi sisältää virheellisiä merkkejä",
     "Failed to create file" : "Tiedoston luominen epäonnistui",
     "Failed to load files" : "Tiedostojen lataaminen epäonnistui",
     "No office suite installed" : "Toimisto-ohjelmistokokonaisuutta ei ole asennettu",
@@ -24,6 +18,12 @@ OC.L10N.register(
     "Switch to grid view" : "Vaihda ruudukkonäkymään",
     "Switch to list view" : "Vaihda taulukkonäkymään",
     "Create" : "Luo",
-    "Filename" : "Tiedostonimi"
+    "Filename" : "Tiedostonimi",
+    "Documents" : "Asiakirjat",
+    "Spreadsheets" : "Laskentataulukot",
+    "Presentations" : "Esitykset",
+    "Diagrams" : "Kaaviot",
+    "Filename cannot be empty" : "Tiedoston nimi ei voi olla tyhjä",
+    "Filename contains invalid characters" : "Tiedostonimi sisältää virheellisiä merkkejä"
 },
 "nplurals=2; plural=(n != 1);");

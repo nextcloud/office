@@ -6,14 +6,8 @@
     "Scroll left" : "Rolar para a esquerda",
     "Scroll right" : "Rolar para a direita",
     "Blank" : "Vazio",
-    "Documents" : "Documentos",
-    "Spreadsheets" : "Planilhas",
-    "Presentations" : "Apresentações",
-    "Diagrams" : "Diagramas",
     "Search {category}" : "Pesquisar {category}",
     "Search" : "Pesquisa",
-    "Filename cannot be empty" : "O nome de arquivo não pode ser vazio",
-    "Filename contains invalid characters" : "O nome do arquivo contém caracteres inválidos.",
     "Failed to create file" : "Falha ao criar o arquivo",
     "Failed to load files" : "Falha ao carregar os arquivos",
     "No office suite installed" : "Nenhuma suíte de escritório instalada",
@@ -31,6 +25,12 @@
     "Show all in Files" : "Mostrar tudo em Arquivos",
     "Create" : "Criar",
     "Filename" : "Nome de arquivo",
+    "Documents" : "Documentos",
+    "Spreadsheets" : "Planilhas",
+    "Presentations" : "Apresentações",
+    "Diagrams" : "Diagramas",
+    "Filename cannot be empty" : "O nome de arquivo não pode ser vazio",
+    "Filename contains invalid characters" : "O nome do arquivo contém caracteres inválidos.",
     "{count} {category} found" : "{count} {category} encontrados"
 },"pluralForm" :"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

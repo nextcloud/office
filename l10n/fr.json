@@ -6,14 +6,8 @@
     "Scroll left" : "Faire défiler vers la gauche",
     "Scroll right" : "Faire défiler vers la droite",
     "Blank" : "Vide",
-    "Documents" : "Documents",
-    "Spreadsheets" : "Feuilles de calcul",
-    "Presentations" : "Présentations",
-    "Diagrams" : "Diagrammes",
     "Search {category}" : "Rechercher {category}",
     "Search" : "Rechercher",
-    "Filename cannot be empty" : "Le nom du fichier ne peut pas être vide",
-    "Filename contains invalid characters" : "Le nom du fichier contient des caractères non valides",
     "Failed to create file" : "Impossible de créer le fichier",
     "Failed to load files" : "Impossible de charger les fichiers",
     "No office suite installed" : "Aucune suite office n'est installée",
@@ -31,6 +25,12 @@
     "Show all in Files" : "Afficher tous les fichiers",
     "Create" : "Créer",
     "Filename" : "Nom du fichier",
+    "Documents" : "Documents",
+    "Spreadsheets" : "Feuilles de calcul",
+    "Presentations" : "Présentations",
+    "Diagrams" : "Diagrammes",
+    "Filename cannot be empty" : "Le nom du fichier ne peut pas être vide",
+    "Filename contains invalid characters" : "Le nom du fichier contient des caractères non valides",
     "{count} {category} found" : "{count} {category} trouvé(s)"
 },"pluralForm" :"nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;"
 }

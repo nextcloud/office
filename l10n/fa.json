@@ -6,14 +6,8 @@
     "Scroll left" : "پیمایش به چپ",
     "Scroll right" : "پیمایش به راست",
     "Blank" : "خالی",
-    "Documents" : "اسناد",
-    "Spreadsheets" : "صفحات گسترده",
-    "Presentations" : "ارائه‌ها",
-    "Diagrams" : "نمودارها",
     "Search {category}" : "جستجوی {category}",
     "Search" : "جستجو",
-    "Filename cannot be empty" : "نام فایل نمی‌تواند خالی باشد",
-    "Filename contains invalid characters" : "نام فایل شامل کاراکترهای نامعتبر است",
     "Failed to create file" : "ایجاد فایل با شکست مواجه شد",
     "Failed to load files" : "بارگیری فایل‌ها با شکست مواجه شد",
     "No office suite installed" : "هیچ مجموعه اداری نصب نشده است",
@@ -31,6 +25,12 @@
     "Show all in Files" : "نمایش همه در فایل‌ها",
     "Create" : "ایجاد",
     "Filename" : "نام فایل",
+    "Documents" : "اسناد",
+    "Spreadsheets" : "صفحات گسترده",
+    "Presentations" : "ارائه‌ها",
+    "Diagrams" : "نمودارها",
+    "Filename cannot be empty" : "نام فایل نمی‌تواند خالی باشد",
+    "Filename contains invalid characters" : "نام فایل شامل کاراکترهای نامعتبر است",
     "{count} {category} found" : "{count} {category} یافت شد"
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }

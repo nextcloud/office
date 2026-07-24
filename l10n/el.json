@@ -6,14 +6,8 @@
     "Scroll left" : "Κύλιση αριστερά",
     "Scroll right" : "Κύλιση δεξιά",
     "Blank" : "Κενό",
-    "Documents" : "Έγγραφα",
-    "Spreadsheets" : "Υπολογιστικά φύλλα",
-    "Presentations" : "Παρουσιάσεις",
-    "Diagrams" : "Διαγράμματα",
     "Search {category}" : "Αναζήτηση {category}",
     "Search" : "Αναζήτηση",
-    "Filename cannot be empty" : "Το όνομα αρχείου δεν μπορεί να είναι κενό",
-    "Filename contains invalid characters" : "Το όνομα αρχείου περιέχει μη έγκυρους χαρακτήρες",
     "Failed to create file" : "Αποτυχία δημιουργίας αρχείου",
     "Failed to load files" : "Αποτυχία φόρτωσης αρχείων",
     "No office suite installed" : "Δεν υπάρχει εγκατεστημένη σουίτα γραφείου",
@@ -31,6 +25,12 @@
     "Show all in Files" : "Εμφάνιση όλων στα Αρχεία",
     "Create" : "Δημιουργία",
     "Filename" : "Όνομα αρχείου",
+    "Documents" : "Έγγραφα",
+    "Spreadsheets" : "Υπολογιστικά φύλλα",
+    "Presentations" : "Παρουσιάσεις",
+    "Diagrams" : "Διαγράμματα",
+    "Filename cannot be empty" : "Το όνομα αρχείου δεν μπορεί να είναι κενό",
+    "Filename contains invalid characters" : "Το όνομα αρχείου περιέχει μη έγκυρους χαρακτήρες",
     "{count} {category} found" : "Βρέθηκαν {count} {category}"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }
