@@ -88,6 +88,18 @@ No tokens, secrets, or user file paths in logs or error messages. Render
 user-controlled strings as text, never markup. Psalm findings get fixed, not
 baselined.
 
+## Accessibility is a gate, not polish
+
+Enterprise deployments audit it; regressions block releases.
+
+`@nextcloud/vue` components ship accessible semantics — one more reason
+hand-rolled markup loses. On top of that: every interactive element gets an
+accessible name (icon-only buttons need `aria-label`), state is never colour
+alone, and anything clickable is keyboard-reachable with visible focus.
+
+Nothing enforces this yet — `npm run lint` carries no accessibility rules —
+so check the list above by hand before the PR.
+
 ## Before opening a PR
 
 ```bash
