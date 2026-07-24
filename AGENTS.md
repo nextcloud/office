@@ -22,6 +22,9 @@ only be trusted.
 CI checks every commit: conventional-format headline (`fix:`, `feat:`,
 `docs:`, ...) and DCO sign-off — `git commit -s`.
 
+A new unit lands with its `.spec.ts` sibling in the same commit —
+`src/utils/` and `src/components/` pair each unit with one; follow that.
+
 Confident AI output still needs splitting: a flawless-looking helper and a real
 bug can come from the same commit.
 
