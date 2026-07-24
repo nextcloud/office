@@ -76,6 +76,18 @@ Two things follow:
   responsibilities that predate your change. A unit that exists only because of
   the feature you're building belongs in the feature commit.
 
+## Never loosen a security check
+
+Auth here is deliberate: `#[NoAdminRequired]` and `#[NoCSRFRequired]` on a
+controller method are security decisions, not boilerplate — adding one to fix
+a 403 needs a reason a reviewer can check. The same goes for widening a token
+TTL, scope, or validation to make a test or client pass: that is the
+authentication being loosened.
+
+No tokens, secrets, or user file paths in logs or error messages. Render
+user-controlled strings as text, never markup. Psalm findings get fixed, not
+baselined.
+
 ## Before opening a PR
 
 ```bash
