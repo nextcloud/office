@@ -4,17 +4,17 @@ OC.L10N.register(
     "Office" : "Skrifstofa",
     "Create new" : "Búa til nýjan",
     "Blank" : "Tóm",
-    "Documents" : "Skjöl",
-    "Spreadsheets" : "Töflureiknar",
-    "Presentations" : "Kynningar",
     "Search {category}" : "Leita í {category}",
     "Search" : "Search",
-    "Filename cannot be empty" : "Skráarheiti má ekki vera tómt",
     "All" : "Allt",
     "Switch to grid view" : "Skipta yfir í reitasýn",
     "Switch to list view" : "Skipta yfir í listasýn",
     "No {category} found" : "Ekkert {category} fannst",
     "Create" : "Búa til",
-    "Filename" : "Skráarheiti"
+    "Filename" : "Skráarheiti",
+    "Documents" : "Skjöl",
+    "Spreadsheets" : "Töflureiknar",
+    "Presentations" : "Kynningar",
+    "Filename cannot be empty" : "Skráarheiti má ekki vera tómt"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

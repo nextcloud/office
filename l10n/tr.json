@@ -6,14 +6,8 @@
     "Scroll left" : "Sola kaydır",
     "Scroll right" : "Sağa kaydır",
     "Blank" : "Boş",
-    "Documents" : "Belgeler",
-    "Spreadsheets" : "Elektronik tablolar",
-    "Presentations" : "Sunumlar",
-    "Diagrams" : "Şemalar",
     "Search {category}" : "{category} arama",
     "Search" : "Ara",
-    "Filename cannot be empty" : "Dosya adı boş olamaz",
-    "Filename contains invalid characters" : "Dosya adı içinde geçersiz karakterler var",
     "Failed to create file" : "Dosya oluşturulamadı",
     "Failed to load files" : "Dosyalar yüklenemedi",
     "No office suite installed" : "Herhangi bir ofis paketi kurulmamış",
@@ -31,6 +25,12 @@
     "Show all in Files" : "Tümünü Dosyalar uygulamasında görüntüle",
     "Create" : "Oluştur",
     "Filename" : "Dosya adı",
+    "Documents" : "Belgeler",
+    "Spreadsheets" : "Elektronik tablolar",
+    "Presentations" : "Sunumlar",
+    "Diagrams" : "Şemalar",
+    "Filename cannot be empty" : "Dosya adı boş olamaz",
+    "Filename contains invalid characters" : "Dosya adı içinde geçersiz karakterler var",
     "{count} {category} found" : "{count} {category} bulundu"
 },"pluralForm" :"nplurals=2; plural=(n > 1);"
 }

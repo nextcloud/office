@@ -6,14 +6,8 @@
     "Scroll left" : "Scroll left",
     "Scroll right" : "Scroll right",
     "Blank" : "Blank",
-    "Documents" : "Documents",
-    "Spreadsheets" : "Spreadsheets",
-    "Presentations" : "Presentations",
-    "Diagrams" : "Diagrams",
     "Search {category}" : "Search {category}",
     "Search" : "Search",
-    "Filename cannot be empty" : "Filename cannot be empty",
-    "Filename contains invalid characters" : "Filename contains invalid characters",
     "Failed to create file" : "Failed to create file",
     "Failed to load files" : "Failed to load files",
     "No office suite installed" : "No office suite installed",
@@ -31,6 +25,12 @@
     "Show all in Files" : "Show all in Files",
     "Create" : "Create",
     "Filename" : "Filename",
+    "Documents" : "Documents",
+    "Spreadsheets" : "Spreadsheets",
+    "Presentations" : "Presentations",
+    "Diagrams" : "Diagrams",
+    "Filename cannot be empty" : "Filename cannot be empty",
+    "Filename contains invalid characters" : "Filename contains invalid characters",
     "{count} {category} found" : "{count} {category} found"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

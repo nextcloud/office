@@ -3,11 +3,11 @@ OC.L10N.register(
     {
     "Office" : "Oficejo",
     "Create new" : "Krei nove",
-    "Documents" : "Dokumentoj",
     "Search {category}" : "Serĉi {category}",
     "Search" : "Serĉi",
-    "Filename cannot be empty" : "Dosieronomo ne povas esti malplena",
     "All" : "Ĉiuj",
-    "Filename" : "Dosiernomo"
+    "Filename" : "Dosiernomo",
+    "Documents" : "Dokumentoj",
+    "Filename cannot be empty" : "Dosieronomo ne povas esti malplena"
 },
 "nplurals=2; plural=(n != 1);");

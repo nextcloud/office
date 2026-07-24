@@ -4,17 +4,17 @@ OC.L10N.register(
     "Office" : "오피스",
     "Create new" : "새로 만들기",
     "Blank" : "여백",
-    "Documents" : "문서",
-    "Spreadsheets" : "스프레드시트",
-    "Presentations" : "프레젠테이션",
     "Search {category}" : "{category}에서 검색",
     "Search" : "검색",
-    "Filename cannot be empty" : "파일 이름이 비어 있을 수 없음",
     "All" : "모두",
     "Switch to grid view" : "바둑판식 보기로 전환",
     "Switch to list view" : "목록 보기로 전환",
     "No {category} found" : "{category}을 찾을 수 없음",
     "Create" : "생성",
-    "Filename" : "파일 이름"
+    "Filename" : "파일 이름",
+    "Documents" : "문서",
+    "Spreadsheets" : "스프레드시트",
+    "Presentations" : "프레젠테이션",
+    "Filename cannot be empty" : "파일 이름이 비어 있을 수 없음"
 },
 "nplurals=1; plural=0;");

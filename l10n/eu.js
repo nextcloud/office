@@ -4,18 +4,18 @@ OC.L10N.register(
     "Office" : "Bulegoa",
     "Create new" : "Sortu berria",
     "Blank" : "Hutsik",
-    "Documents" : "Dokumentuak",
-    "Spreadsheets" : "kalkulu-orriak",
-    "Presentations" : "Aurkezpenak",
     "Search {category}" : "{category} bilatu",
     "Search" : "Bilatu",
-    "Filename cannot be empty" : "Fitxategi-izena ezin da hutsik egon",
     "All" : "Denak",
     "Shared with me" : "Nirekin partekatuta",
     "Switch to grid view" : "Aldatu sareta ikuspegira",
     "Switch to list view" : "Aldatu zerrenda ikuspegira",
     "No {category} found" : "{category} ez da aurkitu",
     "Create" : "Sortu",
-    "Filename" : "Fitxategi-izena"
+    "Filename" : "Fitxategi-izena",
+    "Documents" : "Dokumentuak",
+    "Spreadsheets" : "kalkulu-orriak",
+    "Presentations" : "Aurkezpenak",
+    "Filename cannot be empty" : "Fitxategi-izena ezin da hutsik egon"
 },
 "nplurals=2; plural=(n != 1);");

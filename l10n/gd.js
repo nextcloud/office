@@ -2,10 +2,10 @@ OC.L10N.register(
     "office",
     {
     "Create new" : "Cruthaich fear ùr",
-    "Documents" : "Sgrìobhainnean",
     "Search" : "Lorg",
-    "Filename cannot be empty" : "Chan fhaod ainm an fhaidhle a bhith bàn",
     "Create" : "Cruthaich",
-    "Filename" : "Ainm an fhaidhle"
+    "Filename" : "Ainm an fhaidhle",
+    "Documents" : "Sgrìobhainnean",
+    "Filename cannot be empty" : "Chan fhaod ainm an fhaidhle a bhith bàn"
 },
 "nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : (n > 2 && n < 20) ? 2 : 3;");
