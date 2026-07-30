@@ -3,7 +3,7 @@ OC.L10N.register(
     {
     "Office" : "Biuras",
     "Office overview" : "Biuro apžvalga",
-    "Office overview app for Nextcloud" : "Nextcloud skirta Biuro apžvalgos programėlė",
+    "Office overview app for Nextcloud" : "„Nextcloud“ skirta biuro apžvalgos programėlė",
     "Create new" : "Sukurti naują",
     "Scroll left" : "Slinkite kairėn",
     "Scroll right" : "Slinkite dešinėn",
