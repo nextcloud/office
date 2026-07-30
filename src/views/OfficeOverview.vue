@@ -251,11 +251,13 @@ fetchAll()
 
 					<section v-else-if="activeCreator" class="office-overview__files" aria-labelledby="files-section-heading">
 						<div role="status" class="sr-only">
-							{{ t('office', '{count} found in {category}', { count: files.length, category: activeCategoryName }) }}
+							<!-- TRANSLATORS: number of Documents/Spreadsheets/Presentations/Diagrams found -->
+							{{ n('office', '{count} found in {category}', '{count} found in {category}', files.length, { count: files.length, category: activeCategoryName }) }}
 						</div>
 
 						<div class="office-overview__files-header">
 							<h2 id="files-section-heading" class="office-overview__files-title">
+								<!-- TRANSLATORS: category is Documents/Spreadsheets/Presentations/Diagrams -->
 								{{ t('office', 'Recent {category}', { category: activeCategoryName }) }}
 							</h2>
 						</div>
