@@ -8,7 +8,7 @@ OC.L10N.register(
     "Scroll left" : "Sola kaydır",
     "Scroll right" : "Sağa kaydır",
     "Blank" : "Boş",
-    "Search {category}" : "{category} arama",
+    "Search {category}" : "{category} ara",
     "Search" : "Ara",
     "Failed to create file" : "Dosya oluşturulamadı",
     "Failed to load files" : "Dosyalar yüklenemedi",
