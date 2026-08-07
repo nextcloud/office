@@ -37,6 +37,7 @@ import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
 import { categoryName, categoryMimes, ALL_OFFICE_MIMES } from '../utils/fileCategories.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
+import { groupFilesByAge } from '../utils/fileGroups.ts'
 import type { Filter } from '../utils/fileFilters.ts'
 import type { TemplateCreator, TemplateFile, CreatedFile, OcsErrorResponse } from '../services/templates.ts'
 import type { Node } from '@nextcloud/files'
@@ -87,6 +88,12 @@ const filteredFiles = computed(() => {
 
 const files = computed(() => filteredFiles.value.slice(0, MAX_DISPLAY_FILES))
 const hasMoreFiles = computed(() => filteredFiles.value.length > MAX_DISPLAY_FILES)
+
+// Date boundaries are resolved once per render pass rather than on a timer:
+// a page left open across midnight keeps yesterday's headings until the next
+// navigation, which is a better trade than re-rendering the whole list on an
+// interval nobody is watching.
+const fileGroups = computed(() => groupFilesByAge(files.value))
 
 const activeCategoryName = computed(() =>
 	activeCreator.value ? categoryName(activeCreator.value) : '',
@@ -304,54 +311,65 @@ fetchAll()
 							</template>
 						</NcEmptyContent>
 
-						<div v-else-if="viewMode === 'grid'" class="office-overview__grid">
-							<FileCard v-for="file in files"
-								:key="file.fileid"
-								@click="openFile(file)">
-								<template #preview>
-									<img v-if="!failedPreviews[file.fileid]"
-										:src="getPreviewUrl(file)"
-										:alt="file.basename"
-										loading="lazy"
-										class="overview-file-preview"
-										@error="failedPreviews = { ...failedPreviews, [file.fileid]: true }">
-									<NcIconSvgWrapper v-else
-										:path="mdiFileDocumentOutline"
-										:size="48"
-										class="overview-file-icon" />
-								</template>
+						<template v-else>
+							<section v-for="group in fileGroups"
+								:key="group.id"
+								class="office-overview__group"
+								:aria-labelledby="`group-heading-${group.id}`">
+								<h3 :id="`group-heading-${group.id}`" class="office-overview__group-heading">
+									{{ group.label }}
+								</h3>
 
-								<template #icon>
-									<NcIconSvgWrapper :svg="activeCreator.iconSvgInline ?? ''" :size="20" />
-								</template>
+								<div v-if="viewMode === 'grid'" class="office-overview__grid">
+									<FileCard v-for="file in group.files"
+										:key="file.fileid"
+										@click="openFile(file)">
+										<template #preview>
+											<img v-if="!failedPreviews[file.fileid]"
+												:src="getPreviewUrl(file)"
+												:alt="file.basename"
+												loading="lazy"
+												class="overview-file-preview"
+												@error="failedPreviews = { ...failedPreviews, [file.fileid]: true }">
+											<NcIconSvgWrapper v-else
+												:path="mdiFileDocumentOutline"
+												:size="48"
+												class="overview-file-icon" />
+										</template>
 
-								<template #name>
-									{{ file.basename }}
-								</template>
+										<template #icon>
+											<NcIconSvgWrapper :svg="activeCreator.iconSvgInline ?? ''" :size="20" />
+										</template>
 
-								<template #subname>
-									<NcDateTime :timestamp="file.mtime" />
-								</template>
-							</FileCard>
-						</div>
+										<template #name>
+											{{ file.basename }}
+										</template>
 
-						<div v-else class="office-overview__list">
-							<NcListItem v-for="file in files"
-								:key="file.fileid"
-								:name="file.basename"
-								:active="false"
-								@click="openFile(file)">
-								<template #indicator>
-									<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
-										:path="mdiStar"
-										:size="16"
-										class="office-overview__favourite-icon" />
-								</template>
-								<template #subname>
-									<NcDateTime :timestamp="file.mtime" />
-								</template>
-							</NcListItem>
-						</div>
+										<template #subname>
+											<NcDateTime :timestamp="file.mtime" />
+										</template>
+									</FileCard>
+								</div>
+
+								<div v-else class="office-overview__list">
+									<NcListItem v-for="file in group.files"
+										:key="file.fileid"
+										:name="file.basename"
+										:active="false"
+										@click="openFile(file)">
+										<template #indicator>
+											<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
+												:path="mdiStar"
+												:size="16"
+												class="office-overview__favourite-icon" />
+										</template>
+										<template #subname>
+											<NcDateTime :timestamp="file.mtime" />
+										</template>
+									</NcListItem>
+								</div>
+							</section>
+						</template>
 
 						<div v-if="hasMoreFiles" class="office-overview__more">
 							<NcButton variant="tertiary" @click="openInFiles">
@@ -394,7 +412,24 @@ fetchAll()
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 	gap: calc(var(--default-grid-baseline) * 3);
-	padding: calc(var(--default-grid-baseline) * 4);
+	/* Tighter above than below: the group heading already separates this grid
+	   from whatever precedes it. */
+	padding: calc(var(--default-grid-baseline) * 2) calc(var(--default-grid-baseline) * 4) calc(var(--default-grid-baseline) * 4);
+}
+
+.office-overview__group + .office-overview__group {
+	margin-top: calc(var(--default-grid-baseline) * 2);
+}
+
+.office-overview__group-heading {
+	/* !important overrides the global heading margin from server styles. */
+	margin: 0 !important;
+	padding: calc(var(--default-grid-baseline) * 2) calc(var(--default-grid-baseline) * 4);
+	font-size: var(--font-size-small, 13px);
+	font-weight: 600;
+	/* Deliberately not text-transform: uppercase — it mangles locales with
+	   locale-specific casing rules, and these labels are translated. */
+	color: var(--color-text-maxcontrast);
 }
 
 .overview-file-preview {
