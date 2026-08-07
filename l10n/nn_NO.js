@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Search" : "Søk",
     "All" : "Alle",
+    "Create" : "Opprett",
     "Filename" : "Filnamn",
     "Documents" : "Dokument"
 },
