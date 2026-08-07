@@ -1,6 +1,7 @@
 { "translations": {
     "Search" : "Søk",
     "All" : "Alle",
+    "Create" : "Opprett",
     "Filename" : "Filnamn",
     "Documents" : "Dokument"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
