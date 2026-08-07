@@ -6,12 +6,34 @@
 import type { Node } from '@nextcloud/files'
 import { getClient, getDavNameSpaces, getDavProperties, getRootPath, resultToNode } from '@nextcloud/files/dav'
 
-// TODO: This DAV SEARCH is unpaginated (depth: infinity). For users with very large
-// file collections the full result set is transferred over the wire before we slice it.
-// MAX_DISPLAY_FILES only guards the rendered list; it does not reduce network cost.
-// A proper solution requires a server-side cursor/limit API.
+// Upper bound on files rendered per category, after client-side category and
+// ownership filtering.
 export const MAX_DISPLAY_FILES = 200
 
+// Upper bound on rows requested from the server, across every category at once.
+// Deliberately well above MAX_DISPLAY_FILES: a single search feeds all categories
+// and is narrowed further by the Mine/Shared filters, so the fetched set has to be
+// large enough that one category is not starved by the others.
+//
+// This must stay explicit. Without a <d:limit> the server applies its own default
+// of 100 rows (FileSearchBackend::transformQuery()), which is far too small to fill
+// four categories.
+export const SEARCH_RESULT_LIMIT = 500
+
+export interface OfficeFilesResult {
+	nodes: Node[]
+	/**
+	 * True when the server returned a full page, meaning office files older than
+	 * the oldest node in `nodes` exist but were not fetched. Callers should offer
+	 * a way out to the Files app rather than implying the list is complete.
+	 */
+	truncated: boolean
+}
+
+// The <d:orderby> is what makes the result set the *newest* files rather than an
+// arbitrary one. The server only adds an ORDER BY when the request asks for it; with
+// no ordering the limit above would cut the result set at 500 rows in database order,
+// so a recently edited document could be missing from "Recent" entirely.
 function buildOfficeMimeSearch(mimes: string[]): string {
 	const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 	const conditions = mimes
@@ -37,6 +59,15 @@ function buildOfficeMimeSearch(mimes: string[]): string {
 ${conditions}
 			</d:or>
 		</d:where>
+		<d:orderby>
+			<d:order>
+				<d:prop><d:getlastmodified/></d:prop>
+				<d:descending/>
+			</d:order>
+		</d:orderby>
+		<d:limit>
+			<d:nresults>${SEARCH_RESULT_LIMIT}</d:nresults>
+		</d:limit>
 	</d:basicsearch>
 </d:searchrequest>`
 }
@@ -44,11 +75,11 @@ ${conditions}
 // Single flat cache for all office files. Safe because the sole caller (fetchAll)
 // always passes the full union of every creator's mimes. If a partial-mime caller
 // is ever added this must be keyed by the mimes set.
-let cachedNodes: Node[] | null = null
+let cachedResult: OfficeFilesResult | null = null
 
-export async function getAllOfficeFiles(mimes: string[]): Promise<Node[]> {
-	if (cachedNodes) {
-		return cachedNodes
+export async function getAllOfficeFiles(mimes: string[]): Promise<OfficeFilesResult> {
+	if (cachedResult) {
+		return cachedResult
 	}
 
 	const client = getClient()
@@ -57,15 +88,22 @@ export async function getAllOfficeFiles(mimes: string[]): Promise<Node[]> {
 		data: buildOfficeMimeSearch(mimes),
 	}) as { data: { results: object[] } }
 
-	cachedNodes = response.data.results
-		.map(item => resultToNode(item as Parameters<typeof resultToNode>[0]))
-		.filter(node => node.type === 'file')
+	const results = response.data.results
 
-	return cachedNodes
+	cachedResult = {
+		nodes: results
+			.map(item => resultToNode(item as Parameters<typeof resultToNode>[0]))
+			.filter(node => node.type === 'file'),
+		// A full page back means the limit, not the collection, ended the result set.
+		// Measured on the raw rows: the folder filter below can only shrink the count.
+		truncated: results.length >= SEARCH_RESULT_LIMIT,
+	}
+
+	return cachedResult
 }
 
 export function invalidateOfficeFilesCache(): void {
-	cachedNodes = null
+	cachedResult = null
 }
 
 export function filterByMimes(files: Node[], mimes: string[]): Node[] {
