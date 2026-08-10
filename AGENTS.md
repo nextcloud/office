@@ -31,6 +31,14 @@ function name across `src/**/*.spec.ts` before considering the commit
 finished. `npm run test:unit` (see the checklist below) will catch the ones
 you miss, but only if you run it before opening the PR, not after.
 
+A red test means the code is wrong or the behavior it pins changed on
+purpose — never fix it by loosening what it checks. Skipping (`.skip`,
+`.todo`), deleting a case, or dulling a matcher (`toEqual` → `toBeTruthy`,
+dropping an assertion) to turn a failure green makes the test stop proving
+anything; it's the bug staying in, with the evidence removed. If behavior
+did change on purpose, update the expectation and say in the commit why the
+new value is correct — not just that it now matches what the code outputs.
+
 Confident AI output still needs splitting: a flawless-looking helper and a real
 bug can come from the same commit.
 
