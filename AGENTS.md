@@ -22,6 +22,14 @@ only be trusted.
 CI checks every commit: conventional-format headline (`fix:`, `feat:`,
 `docs:`, ...) and DCO sign-off — `git commit -s`.
 
+Commit messages are written for a public reviewer who has only the diff —
+not for your own notes. If a sentence only makes sense with context outside
+this repo, it doesn't belong in the message.
+
+Commits substantially written by an AI agent carry a `Co-Authored-By:`
+trailer naming the tool, alongside `Signed-off-by` — use `git commit -s`
+so git supplies your identity instead of guessing it.
+
 A new unit lands with its `.spec.ts` sibling in the same commit —
 `src/utils/` and `src/components/` pair each unit with one; follow that.
 
@@ -158,8 +166,10 @@ so check the list above by hand before the PR.
   component are removed in `onUnmounted` — see `TemplateSection.vue`.
 - Stream file contents; never read a whole document into memory — office
   files have no upper size.
-- A new dependency pays its way in bundle size: check what an import drags in
-  before adding it.
+- A new dependency pays its way in bundle size and upkeep: check what an
+  import drags in, that it's actively maintained (recent releases, no pile
+  of unanswered issues), and that its license is compatible — before adding
+  it. An abandoned package is a security patch nobody ships.
 
 ## When the call is contestable, ask
 
