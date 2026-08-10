@@ -76,9 +76,9 @@ Preference order, before writing new logic of any kind:
    `composer require-dev` vendors the full stub tree, so it's local and
    searchable even though OCP isn't a runtime dependency of this app. For
    protocol-level features with no OCP interface — DAV `SEARCH`'s
-   `orderby`/`limit` is one, see #100 — there's nothing to grep; if you're
-   not sure the server already supports what you need, ask rather than
-   assume it doesn't.
+   `orderby`/`limit` is one — there's nothing to grep; if you're not sure
+   the server already supports what you need, ask rather than assume it
+   doesn't.
 2. An `@nextcloud/*` package for the behaviour, not just `@nextcloud/vue`
    for UI. Check `package.json` for what's already a dependency, then the
    wider `@nextcloud/*` npm scope (dialogs, upload, and more) for what
