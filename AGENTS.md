@@ -37,13 +37,18 @@ as the fix. Without one, nothing stops the bug from coming back next time
 this code is touched, and the fix reads as untested even in a file that
 already has specs.
 
-A red test means the code is wrong or the behavior it pins changed on
-purpose — never fix it by loosening what it checks. Skipping (`.skip`,
-`.todo`), deleting a case, or dulling a matcher (`toEqual` → `toBeTruthy`,
-dropping an assertion) to turn a failure green makes the test stop proving
-anything; it's the bug staying in, with the evidence removed. If behavior
-did change on purpose, update the expectation and say in the commit why the
-new value is correct — not just that it now matches what the code outputs.
+A red test means one of three things: the code is wrong, the behavior it
+pins changed on purpose, or the test itself is wrong — asserting on a mock
+instead of real behavior, or flaky. Only the last two justify touching the
+test, and both require the commit message to say which it is and why, not
+just that the failure went away. Deciding a test is wrong is itself a
+contestable call (see below) — if you're not certain, ask rather than
+deleting the evidence.
+
+Skipping (`.skip`, `.todo`), deleting a case, or dulling a matcher
+(`toEqual` → `toBeTruthy`, dropping an assertion) to turn a failure green
+without that justification makes the test stop proving anything; it's the
+bug staying in, with the evidence removed.
 
 Confident AI output still needs splitting: a flawless-looking helper and a real
 bug can come from the same commit.
