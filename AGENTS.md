@@ -31,6 +31,12 @@ function name across `src/**/*.spec.ts` before considering the commit
 finished. `npm run test:unit` (see the checklist below) will catch the ones
 you miss, but only if you run it before opening the PR, not after.
 
+Fixing a bug in existing logic — same signature, different behavior — still
+needs a regression test pinning the corrected behavior, in the same commit
+as the fix. Without one, nothing stops the bug from coming back next time
+this code is touched, and the fix reads as untested even in a file that
+already has specs.
+
 A red test means the code is wrong or the behavior it pins changed on
 purpose — never fix it by loosening what it checks. Skipping (`.skip`,
 `.todo`), deleting a case, or dulling a matcher (`toEqual` → `toBeTruthy`,
