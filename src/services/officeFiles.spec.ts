@@ -13,7 +13,7 @@ vi.mock('@nextcloud/files/dav', () => ({
 	resultToNode: vi.fn((item: unknown) => item),
 }))
 
-const { getAllOfficeFiles, invalidateOfficeFilesCache, filterByMimes } = await import('./officeFiles.ts')
+const { getAllOfficeFiles, invalidateOfficeFilesCache, filterByMimes, SEARCH_RESULT_LIMIT } = await import('./officeFiles.ts')
 
 describe('filterByMimes', () => {
 	it('keeps files whose mime is in the list and drops the rest', () => {
@@ -48,7 +48,35 @@ describe('getAllOfficeFiles', () => {
 
 		const result = await getAllOfficeFiles(['application/vnd.oasis.opendocument.text'])
 
-		expect(result).toEqual([file])
+		expect(result).toEqual({ nodes: [file], truncated: false })
+	})
+
+	it('orders by mtime descending and requests SEARCH_RESULT_LIMIT rows', async () => {
+		searchMock.mockResolvedValue({ data: { results: [] } })
+
+		await getAllOfficeFiles(['application/vnd.oasis.opendocument.text'])
+
+		const body = searchMock.mock.calls[0][1].data as string
+		expect(body).toContain('<d:prop><d:getlastmodified/></d:prop>')
+		expect(body).toContain('<d:descending/>')
+		expect(body).toContain(`<d:nresults>${SEARCH_RESULT_LIMIT}</d:nresults>`)
+	})
+
+	it('reports truncated when the server returns a full page', async () => {
+		const fullPage = Array.from({ length: SEARCH_RESULT_LIMIT }, () => makeNode())
+		searchMock.mockResolvedValue({ data: { results: fullPage } })
+
+		const result = await getAllOfficeFiles(['application/vnd.oasis.opendocument.text'])
+
+		expect(result.truncated).toBe(true)
+	})
+
+	it('reports not truncated when the server returns fewer than the limit', async () => {
+		searchMock.mockResolvedValue({ data: { results: [makeNode()] } })
+
+		const result = await getAllOfficeFiles(['application/vnd.oasis.opendocument.text'])
+
+		expect(result.truncated).toBe(false)
 	})
 
 	it('caches the result across calls, even with a different mimes argument', async () => {

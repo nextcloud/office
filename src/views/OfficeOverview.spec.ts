@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
 import { makeCreator, makeNode } from '../test-utils/fixtures.ts'
+import type { Node } from '@nextcloud/files'
 
 const getTemplatesMock = vi.fn()
 const createFromTemplateMock = vi.fn()
@@ -74,6 +75,12 @@ async function mountOverview() {
 	return wrapper
 }
 
+// getAllOfficeFiles now resolves { nodes, truncated } rather than a bare array —
+// this wraps a node list in that shape so existing mocks don't have to repeat it.
+function officeFilesResult(nodes: Node[], truncated = false) {
+	return { nodes, truncated }
+}
+
 function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, text: string) {
 	const button = wrapper.findAllComponents({ name: 'NcButton' }).find(b => b.text() === text)
 	if (!button) throw new Error(`No NcButton with text "${text}" found`)
@@ -109,7 +116,7 @@ beforeEach(() => {
 describe('OfficeOverview > rendering states', () => {
 	it('shows the loading spinner while fetchAll is in flight', async () => {
 		getTemplatesMock.mockReturnValue(new Promise(() => {})) // never resolves
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 
 		vi.resetModules()
 		const { default: OfficeOverview } = await import('./OfficeOverview.vue')
@@ -121,7 +128,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('shows "No office suite installed" when there are zero creators', async () => {
 		getTemplatesMock.mockResolvedValue([])
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 
 		const wrapper = await mountOverview()
 
@@ -157,7 +164,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('shows "No {category} found" with a switch-to-All hint when the mine filter has no matches', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([]) // nothing matches "mine" (the default filter)
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([])) // nothing matches "mine" (the default filter)
 
 		const wrapper = await mountOverview()
 
@@ -168,7 +175,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('does not show the switch-to-All hint when the active filter is already "all"', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 
 		const wrapper = await mountOverview()
 		await findButtonByText(wrapper, 'All').vm.$emit('click')
@@ -180,7 +187,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('renders files in list view by default (grid view not persisted)', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([makeNode({ owner: 'alice', basename: 'report.odt' })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
 
 		const wrapper = await mountOverview()
 
@@ -191,7 +198,7 @@ describe('OfficeOverview > rendering states', () => {
 	it('renders files in grid view when persisted via localStorage', async () => {
 		localStorage.setItem('office.overview.gridView', 'true')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([makeNode({ owner: 'alice', basename: 'report.odt' })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
 
 		const wrapper = await mountOverview()
 
@@ -205,7 +212,7 @@ describe('OfficeOverview > openFile', () => {
 		vi.mocked(loadState).mockReturnValue('/apps/office/editor')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
-		getAllOfficeFilesMock.mockResolvedValue([file])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
 
 		const wrapper = await mountOverview()
 		await wrapper.findComponent({ name: 'NcListItem' }).vm.$emit('click', new MouseEvent('click'))
@@ -216,7 +223,7 @@ describe('OfficeOverview > openFile', () => {
 	it('navigates to /f/{fileid} when no WOPI editor is configured', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
-		getAllOfficeFilesMock.mockResolvedValue([file])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
 
 		const wrapper = await mountOverview()
 		await wrapper.findComponent({ name: 'NcListItem' }).vm.$emit('click', new MouseEvent('click'))
@@ -237,7 +244,7 @@ describe('OfficeOverview > openInFiles', () => {
 
 	it('navigates to the recent-files URL when there is no search query', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(manyFiles(201))
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(manyFiles(201)))
 
 		const wrapper = await mountOverview()
 		await findButtonByText(wrapper, 'Show all in Files').vm.$emit('click')
@@ -247,7 +254,7 @@ describe('OfficeOverview > openInFiles', () => {
 
 	it('navigates to the files search URL with the query when a search is active', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(manyFiles(201))
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(manyFiles(201)))
 
 		const wrapper = await mountOverview()
 		await wrapper.findComponent({ name: 'NcAppNavigationSearch' }).vm.$emit('update:modelValue', 'report')
@@ -274,7 +281,7 @@ describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
 
 	it('keeps the newest files, not the oldest, when more than MAX_DISPLAY_FILES match', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(filesWithIncreasingMtime(201))
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(filesWithIncreasingMtime(201)))
 
 		const wrapper = await mountOverview()
 
@@ -285,10 +292,34 @@ describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
 	})
 })
 
+describe('OfficeOverview > truncated server results', () => {
+	// Regression test for the DAV SEARCH orderby/limit fix: a truncated server
+	// response means office files older than what's shown exist but were never
+	// fetched, which is exactly the "there's more" case "Show all in Files" is
+	// for — even when the fetched set is well under MAX_DISPLAY_FILES.
+	it('shows "Show all in Files" when the server search was truncated, even under MAX_DISPLAY_FILES', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' })], true))
+
+		const wrapper = await mountOverview()
+
+		expect(() => findButtonByText(wrapper, 'Show all in Files')).not.toThrow()
+	})
+
+	it('does not show "Show all in Files" when the result is small and not truncated', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' })], false))
+
+		const wrapper = await mountOverview()
+
+		expect(() => findButtonByText(wrapper, 'Show all in Files')).toThrow()
+	})
+})
+
 describe('OfficeOverview > toggleViewMode', () => {
 	it('flips list/grid and persists the new mode', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([makeNode({ owner: 'alice' })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' })]))
 
 		const wrapper = await mountOverview()
 		expect(localStorage.getItem('office.overview.gridView')).toBeNull()
@@ -306,7 +337,7 @@ describe('OfficeOverview > doCreateFromTemplate', () => {
 	async function mountWithDialogOpen() {
 		const creator = makeCreator()
 		getTemplatesMock.mockResolvedValue([creator])
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 		const wrapper = await mountOverview()
 
 		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
