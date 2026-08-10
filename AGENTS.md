@@ -25,6 +25,12 @@ CI checks every commit: conventional-format headline (`fix:`, `feat:`,
 A new unit lands with its `.spec.ts` sibling in the same commit —
 `src/utils/` and `src/components/` pair each unit with one; follow that.
 
+Changing what an existing function returns or accepts isn't done until every
+`.spec.ts` that mocks or asserts on it reflects the new shape — `grep` the
+function name across `src/**/*.spec.ts` before considering the commit
+finished. `npm run test:unit` (see the checklist below) will catch the ones
+you miss, but only if you run it before opening the PR, not after.
+
 Confident AI output still needs splitting: a flawless-looking helper and a real
 bug can come from the same commit.
 
