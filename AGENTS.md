@@ -22,6 +22,14 @@ only be trusted.
 CI checks every commit: conventional-format headline (`fix:`, `feat:`,
 `docs:`, ...) and DCO sign-off — `git commit -s`.
 
+Commit messages are written for a public reviewer who has only the diff —
+not for your own notes. If a sentence only makes sense with context outside
+this repo, it doesn't belong in the message.
+
+Commits substantially written by an AI agent carry a `Co-Authored-By:`
+trailer naming the tool, alongside `Signed-off-by` — use `git commit -s`
+so git supplies your identity instead of guessing it.
+
 A new unit lands with its `.spec.ts` sibling in the same commit —
 `src/utils/` and `src/components/` pair each unit with one; follow that.
 
@@ -69,11 +77,33 @@ backstop, not a plan.
 
 ## Reuse before you write
 
-Preference order: an existing `@nextcloud/vue` component, an existing design
-token, an existing pattern in `src/`.
+Preference order, before writing new logic of any kind:
 
-Each keeps you on the design system the library already maintains; hand-rolled
-equivalents drift from it and duplicate maintenance.
+1. A feature the server already exposes. Grep `vendor/nextcloud/ocp/OCP/`
+   for an existing interface — OCP is Nextcloud's public server API, and
+   `composer require-dev` vendors the full stub tree, so it's local and
+   searchable even though OCP isn't a runtime dependency of this app. For
+   protocol-level features with no OCP interface — DAV `SEARCH`'s
+   `orderby`/`limit` is one — there's nothing to grep; if you're not sure
+   the server already supports what you need, ask rather than assume it
+   doesn't.
+2. An `@nextcloud/*` package for the behaviour, not just `@nextcloud/vue`
+   for UI. Check `package.json` for what's already a dependency, then the
+   wider `@nextcloud/*` npm scope (dialogs, upload, and more) for what
+   isn't.
+3. An existing `@nextcloud/vue` component or design token, for UI
+   specifically.
+4. An existing pattern in `src/`.
+
+If the closest match is a partial fit — right shape, wrong semantics, or
+costs more to bend into place than it saves — that's grounds to write it
+instead, not force it. That's a contestable call (see below): flag it in
+the PR description rather than silently picking either way.
+
+Each rung down this ladder is more for us to build, test, and maintain
+ourselves for something Nextcloud, or this repo, may already do correctly;
+reuse also comes pre-tested, and — for UI — pre-styled, in ways a bespoke
+equivalent won't.
 
 Tokens: `var(--color-...)`, `var(--border-radius)`,
 `var(--default-clickable-area)`, `var(--default-grid-baseline)`. Treat
@@ -136,14 +166,17 @@ so check the list above by hand before the PR.
   component are removed in `onUnmounted` — see `TemplateSection.vue`.
 - Stream file contents; never read a whole document into memory — office
   files have no upper size.
-- A new dependency pays its way in bundle size: check what an import drags in
-  before adding it.
+- A new dependency pays its way in bundle size and upkeep: check what an
+  import drags in, that it's actively maintained (recent releases, no pile
+  of unanswered issues), and that its license is compatible — before adding
+  it. An abandoned package is a security patch nobody ships.
 
 ## When the call is contestable, ask
 
 Two defensible seams from the naming test, a cleanup that would grow the PR,
 a security attribute you can justify but a reviewer might not accept, a
-dependency whose bundle cost is arguable — anywhere a reviewer could
+dependency whose bundle cost is arguable, an existing feature or component
+that's only a partial fit for what you need — anywhere a reviewer could
 reasonably want the other option, put the choice to the human driving the
 session before committing to it; unattended, take the narrower option — the
 one that's easier to reverse in review. Either way, flag the call in the PR
@@ -154,6 +187,9 @@ description.
 ```bash
 git fetch origin && git log --oneline HEAD..origin/main   # rebase if non-empty
 ```
+
+Say in the description which reuse option ("Reuse before you write") you
+used, or that none fit and why.
 
 If the change touches `src/` (JS/Vue/CSS):
 
