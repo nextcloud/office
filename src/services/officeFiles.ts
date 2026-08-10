@@ -10,7 +10,7 @@ import { getClient, getDavNameSpaces, getDavProperties, getRootPath, resultToNod
 // ownership filtering.
 export const MAX_DISPLAY_FILES = 200
 
-// Upper bound on rows requested from the server, across every category at once.
+// Upper bound on nodes returned to callers, across every category at once.
 // Deliberately well above MAX_DISPLAY_FILES: a single search feeds all categories
 // and is narrowed further by the Mine/Shared filters, so the fetched set has to be
 // large enough that one category is not starved by the others.
@@ -33,6 +33,10 @@ export interface OfficeFilesResult {
 // arbitrary one: the server only adds an ORDER BY when the request asks for one, so
 // without it the limit above would cut the result set at SEARCH_RESULT_LIMIT rows in
 // database order, and a recently edited document could be missing from "Recent" entirely.
+//
+// The request asks for one row more than SEARCH_RESULT_LIMIT so getAllOfficeFiles can
+// tell "exactly SEARCH_RESULT_LIMIT files exist" from "more exist and got cut off" —
+// both would otherwise come back as exactly SEARCH_RESULT_LIMIT rows.
 function buildOfficeMimeSearch(mimes: string[]): string {
 	const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 	const conditions = mimes
@@ -65,7 +69,7 @@ ${conditions}
 			</d:order>
 		</d:orderby>
 		<d:limit>
-			<d:nresults>${SEARCH_RESULT_LIMIT}</d:nresults>
+			<d:nresults>${SEARCH_RESULT_LIMIT + 1}</d:nresults>
 		</d:limit>
 	</d:basicsearch>
 </d:searchrequest>`
@@ -90,12 +94,16 @@ export async function getAllOfficeFiles(mimes: string[]): Promise<OfficeFilesRes
 	const results = response.data.results
 
 	cachedResult = {
+		// Trim the extra row the request asked for (see buildOfficeMimeSearch) — it
+		// exists to detect truncation, not to be shown.
 		nodes: results
 			.map(item => resultToNode(item as Parameters<typeof resultToNode>[0]))
-			.filter(node => node.type === 'file'),
-		// A full page back means the limit, not the collection, ended the result set.
-		// Measured on the raw rows: the folder filter above can only shrink the count.
-		truncated: results.length >= SEARCH_RESULT_LIMIT,
+			.filter(node => node.type === 'file')
+			.slice(0, SEARCH_RESULT_LIMIT),
+		// More than SEARCH_RESULT_LIMIT raw rows back means the extra row was actually
+		// filled, i.e. more files exist than fit. Measured on the raw count, before the
+		// folder filter above, which can only shrink it further.
+		truncated: results.length > SEARCH_RESULT_LIMIT,
 	}
 
 	return cachedResult

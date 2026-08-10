@@ -51,7 +51,7 @@ describe('getAllOfficeFiles', () => {
 		expect(result).toEqual({ nodes: [file], truncated: false })
 	})
 
-	it('orders by mtime descending and requests SEARCH_RESULT_LIMIT rows', async () => {
+	it('orders by mtime descending and requests one more than SEARCH_RESULT_LIMIT rows', async () => {
 		searchMock.mockResolvedValue({ data: { results: [] } })
 
 		await getAllOfficeFiles(['application/vnd.oasis.opendocument.text'])
@@ -59,16 +59,31 @@ describe('getAllOfficeFiles', () => {
 		const body = searchMock.mock.calls[0][1].data as string
 		expect(body).toContain('<d:prop><d:getlastmodified/></d:prop>')
 		expect(body).toContain('<d:descending/>')
-		expect(body).toContain(`<d:nresults>${SEARCH_RESULT_LIMIT}</d:nresults>`)
+		expect(body).toContain(`<d:nresults>${SEARCH_RESULT_LIMIT + 1}</d:nresults>`)
 	})
 
-	it('reports truncated when the server returns a full page', async () => {
-		const fullPage = Array.from({ length: SEARCH_RESULT_LIMIT }, () => makeNode())
-		searchMock.mockResolvedValue({ data: { results: fullPage } })
+	// Regression test: requesting exactly SEARCH_RESULT_LIMIT would make "exactly
+	// that many files exist" and "more exist, cut off at the limit" indistinguishable
+	// — both come back as a SEARCH_RESULT_LIMIT-row response. Requesting one extra
+	// row disambiguates them, so these two cases must stay distinct.
+	it('reports not truncated when exactly SEARCH_RESULT_LIMIT files exist', async () => {
+		const exactPage = Array.from({ length: SEARCH_RESULT_LIMIT }, () => makeNode())
+		searchMock.mockResolvedValue({ data: { results: exactPage } })
+
+		const result = await getAllOfficeFiles(['application/vnd.oasis.opendocument.text'])
+
+		expect(result.truncated).toBe(false)
+		expect(result.nodes).toHaveLength(SEARCH_RESULT_LIMIT)
+	})
+
+	it('reports truncated, and trims the extra row, when more than SEARCH_RESULT_LIMIT files exist', async () => {
+		const overflowPage = Array.from({ length: SEARCH_RESULT_LIMIT + 1 }, () => makeNode())
+		searchMock.mockResolvedValue({ data: { results: overflowPage } })
 
 		const result = await getAllOfficeFiles(['application/vnd.oasis.opendocument.text'])
 
 		expect(result.truncated).toBe(true)
+		expect(result.nodes).toHaveLength(SEARCH_RESULT_LIMIT)
 	})
 
 	it('reports not truncated when the server returns fewer than the limit', async () => {
