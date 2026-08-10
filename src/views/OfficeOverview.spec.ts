@@ -314,6 +314,28 @@ describe('OfficeOverview > truncated server results', () => {
 
 		expect(() => findButtonByText(wrapper, 'Show all in Files')).toThrow()
 	})
+
+	// Characterizing existing behaviour, not a bug: `hasMoreFiles` is `|| truncated`,
+	// and `truncated` describes the shared search across all categories, not this
+	// category specifically — so "No {category} found" and "Show all in Files" can
+	// render together. Before this PR that combination was impossible (hasMoreFiles
+	// was purely a count on the already-empty filtered list), but a sparse category
+	// is exactly the one most likely to have real matches sitting past a global
+	// cutoff, so surfacing the escape hatch here is the conservative-correct call,
+	// not a contradiction to hide.
+	it('shows both the empty-category state and "Show all in Files" when the category has no matches but the search was truncated', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()]) // default category mime: .odt text
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(
+			[makeNode({ owner: 'alice', mime: 'application/vnd.oasis.opendocument.spreadsheet' })], // different category
+			true,
+		))
+
+		const wrapper = await mountOverview()
+
+		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find(c => c.props('name') === 'No Documents found')
+		expect(noFilesFound).toBeTruthy()
+		expect(() => findButtonByText(wrapper, 'Show all in Files')).not.toThrow()
+	})
 })
 
 describe('OfficeOverview > toggleViewMode', () => {
