@@ -159,6 +159,7 @@ If the change touches PHP:
 composer lint
 composer cs:check
 composer psalm
+composer test:unit
 composer openapi   # if controllers or routes changed
                    # commit openapi*.json — unlike js/css, this one is tracked
 ```
