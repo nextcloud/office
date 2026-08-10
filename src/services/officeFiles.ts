@@ -22,9 +22,9 @@ export const SEARCH_RESULT_LIMIT = 500
 export interface OfficeFilesResult {
 	nodes: Node[]
 	/**
-	 * True when the server returned a full page, meaning office files older than
-	 * the oldest node in `nodes` exist but were not fetched. Callers should offer
-	 * a way out to the Files app rather than implying the list is complete.
+	 * True when more office files exist than fit in `nodes` (more than
+	 * SEARCH_RESULT_LIMIT matched). Callers should offer a way out to the Files
+	 * app rather than implying the list is complete.
 	 */
 	truncated: boolean
 }

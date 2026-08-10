@@ -13,7 +13,7 @@ vi.mock('./services/officeFiles.ts', async (importOriginal) => {
 	const actual = await importOriginal<typeof import('./services/officeFiles.ts')>()
 	return {
 		...actual,
-		getAllOfficeFiles: vi.fn().mockResolvedValue([]),
+		getAllOfficeFiles: vi.fn().mockResolvedValue({ nodes: [], truncated: false }),
 		invalidateOfficeFilesCache: vi.fn(),
 	}
 })

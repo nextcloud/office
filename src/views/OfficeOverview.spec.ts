@@ -53,7 +53,7 @@ const NC_DIALOG_STUB = {
 // Module-level side effects (getCurrentUser()?.uid, fetchAll(), loadState()) run
 // at import time, so mocks must be configured before each fresh dynamic import.
 // vi.resetModules() + a fresh dynamic import are required per test to avoid
-// officeFiles.ts's cachedNodes singleton and the one-time fetchAll() leaking
+// officeFiles.ts's cachedResult singleton and the one-time fetchAll() leaking
 // state across tests — and because resetModules gives the freshly re-imported
 // OfficeOverview.vue its own instances of every module it imports, component
 // lookups below always match by { name } rather than by imported reference:
