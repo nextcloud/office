@@ -4,18 +4,18 @@ OC.L10N.register(
     "Office" : "Pisarna",
     "Create new" : "Ustvari novo",
     "Blank" : "Prazno",
-    "Documents" : "Dokumenti",
-    "Spreadsheets" : "Preglednice",
-    "Presentations" : "Predstavitve",
     "Search {category}" : "Preišči kategorijo {category}",
     "Search" : "Poišči",
-    "Filename cannot be empty" : "Ime datoteke ne sme biti prazno",
     "All" : "Vse",
     "Shared with me" : "V souporabi z mano",
     "Switch to grid view" : "Preklopi na mrežni pogled",
     "Switch to list view" : "Preklopi na seznamski pogled",
     "No {category} found" : "Ni najdene vrste točke {category} ",
     "Create" : "Ustvari",
-    "Filename" : "Ime datoteke"
+    "Filename" : "Ime datoteke",
+    "Documents" : "Dokumenti",
+    "Spreadsheets" : "Preglednice",
+    "Presentations" : "Predstavitve",
+    "Filename cannot be empty" : "Ime datoteke ne sme biti prazno"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);");

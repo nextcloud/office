@@ -6,14 +6,8 @@
     "Scroll left" : "Keri vasakule",
     "Scroll right" : "Keri paremale",
     "Blank" : "Tühi",
-    "Documents" : "Dokumendid",
-    "Spreadsheets" : "Arvutustabelid",
-    "Presentations" : "Esitlused",
-    "Diagrams" : "Joonised ja diagrammid",
     "Search {category}" : "Otsi „{category}“ kategooriat",
     "Search" : "Otsi",
-    "Filename cannot be empty" : "Failinimi ei tohi olla tühi",
-    "Filename contains invalid characters" : "Failinimes leidub keelatud tähemärke",
     "Failed to create file" : "Faili loomine ei õnnestunud",
     "Failed to load files" : "Failide laadimine ei õnnestu",
     "No office suite installed" : "Ühtegi kontoritarkvarapaketti pole valitud",
@@ -31,6 +25,12 @@
     "Show all in Files" : "Näita neid kõiki failirakenduses",
     "Create" : "Lisa",
     "Filename" : "Failinimi",
+    "Documents" : "Dokumendid",
+    "Spreadsheets" : "Arvutustabelid",
+    "Presentations" : "Esitlused",
+    "Diagrams" : "Joonised ja diagrammid",
+    "Filename cannot be empty" : "Failinimi ei tohi olla tühi",
+    "Filename contains invalid characters" : "Failinimes leidub keelatud tähemärke",
     "{count} {category} found" : "Leidus {count} „{category}“ kategooria"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

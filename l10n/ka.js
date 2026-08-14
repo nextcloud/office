@@ -4,14 +4,14 @@ OC.L10N.register(
     "Office" : "Office",
     "Create new" : "Create new",
     "Blank" : "Blank",
-    "Documents" : "Documents",
     "Search" : "ძებნა",
-    "Filename cannot be empty" : "Filename cannot be empty",
     "All" : "All",
     "Shared with me" : "Shared with me",
     "Switch to grid view" : "Switch to grid view",
     "Switch to list view" : "Switch to list view",
     "Create" : "Create",
-    "Filename" : "Filename"
+    "Filename" : "Filename",
+    "Documents" : "Documents",
+    "Filename cannot be empty" : "Filename cannot be empty"
 },
 "nplurals=2; plural=(n!=1);");

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
 import { makeCreator, makeNode } from '../test-utils/fixtures.ts'
+import type { Node } from '@nextcloud/files'
 
 const getTemplatesMock = vi.fn()
 const createFromTemplateMock = vi.fn()
@@ -52,7 +53,7 @@ const NC_DIALOG_STUB = {
 // Module-level side effects (getCurrentUser()?.uid, fetchAll(), loadState()) run
 // at import time, so mocks must be configured before each fresh dynamic import.
 // vi.resetModules() + a fresh dynamic import are required per test to avoid
-// officeFiles.ts's cachedNodes singleton and the one-time fetchAll() leaking
+// officeFiles.ts's cachedResult singleton and the one-time fetchAll() leaking
 // state across tests — and because resetModules gives the freshly re-imported
 // OfficeOverview.vue its own instances of every module it imports, component
 // lookups below always match by { name } rather than by imported reference:
@@ -76,6 +77,12 @@ async function mountOverview(extraStubs: Record<string, unknown> = {}) {
 	})
 	await flushPromises()
 	return wrapper
+}
+
+// getAllOfficeFiles now resolves { nodes, truncated } rather than a bare array —
+// this wraps a node list in that shape so existing mocks don't have to repeat it.
+function officeFilesResult(nodes: Node[], truncated = false) {
+	return { nodes, truncated }
 }
 
 function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, text: string) {
@@ -113,7 +120,7 @@ beforeEach(() => {
 describe('OfficeOverview > rendering states', () => {
 	it('shows the loading spinner while fetchAll is in flight', async () => {
 		getTemplatesMock.mockReturnValue(new Promise(() => {})) // never resolves
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 
 		vi.resetModules()
 		const { default: OfficeOverview } = await import('./OfficeOverview.vue')
@@ -125,7 +132,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('shows "No office suite installed" when there are zero creators', async () => {
 		getTemplatesMock.mockResolvedValue([])
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 
 		const wrapper = await mountOverview()
 
@@ -161,7 +168,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('shows "No {category} found" with a switch-to-All hint when the mine filter has no matches', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([]) // nothing matches "mine" (the default filter)
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([])) // nothing matches "mine" (the default filter)
 
 		const wrapper = await mountOverview()
 
@@ -172,7 +179,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('does not show the switch-to-All hint when the active filter is already "all"', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 
 		const wrapper = await mountOverview()
 		await findButtonByText(wrapper, 'All').vm.$emit('click')
@@ -184,7 +191,7 @@ describe('OfficeOverview > rendering states', () => {
 
 	it('renders files in list view by default (grid view not persisted)', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([makeNode({ owner: 'alice', basename: 'report.odt' })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
 
 		const wrapper = await mountOverview()
 
@@ -195,7 +202,7 @@ describe('OfficeOverview > rendering states', () => {
 	it('renders files in grid view when persisted via localStorage', async () => {
 		localStorage.setItem('office.overview.gridView', 'true')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([makeNode({ owner: 'alice', basename: 'report.odt' })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
 
 		const wrapper = await mountOverview()
 
@@ -252,7 +259,7 @@ describe('OfficeOverview > openFile', () => {
 		vi.mocked(loadState).mockReturnValue('/apps/office/editor')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
-		getAllOfficeFilesMock.mockResolvedValue([file])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
 
 		const wrapper = await mountOverview()
 		await wrapper.findComponent({ name: 'NcListItem' }).vm.$emit('click', new MouseEvent('click'))
@@ -263,7 +270,7 @@ describe('OfficeOverview > openFile', () => {
 	it('navigates to /f/{fileid} when no WOPI editor is configured', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
-		getAllOfficeFilesMock.mockResolvedValue([file])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
 
 		const wrapper = await mountOverview()
 		await wrapper.findComponent({ name: 'NcListItem' }).vm.$emit('click', new MouseEvent('click'))
@@ -284,7 +291,7 @@ describe('OfficeOverview > openInFiles', () => {
 
 	it('navigates to the recent-files URL when there is no search query', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(manyFiles(201))
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(manyFiles(201)))
 
 		const wrapper = await mountOverview()
 		await findButtonByText(wrapper, 'Show all in Files').vm.$emit('click')
@@ -294,7 +301,7 @@ describe('OfficeOverview > openInFiles', () => {
 
 	it('navigates to the files search URL with the query when a search is active', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(manyFiles(201))
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(manyFiles(201)))
 
 		const wrapper = await mountOverview()
 		await wrapper.findComponent({ name: 'NcAppNavigationSearch' }).vm.$emit('update:modelValue', 'report')
@@ -321,7 +328,7 @@ describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
 
 	it('keeps the newest files, not the oldest, when more than MAX_DISPLAY_FILES match', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(filesWithIncreasingMtime(201))
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(filesWithIncreasingMtime(201)))
 
 		const wrapper = await mountOverview()
 
@@ -332,10 +339,56 @@ describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
 	})
 })
 
+describe('OfficeOverview > truncated server results', () => {
+	// Regression test for the DAV SEARCH orderby/limit fix: a truncated server
+	// response means office files older than what's shown exist but were never
+	// fetched, which is exactly the "there's more" case "Show all in Files" is
+	// for — even when the fetched set is well under MAX_DISPLAY_FILES.
+	it('shows "Show all in Files" when the server search was truncated, even under MAX_DISPLAY_FILES', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' })], true))
+
+		const wrapper = await mountOverview()
+
+		expect(() => findButtonByText(wrapper, 'Show all in Files')).not.toThrow()
+	})
+
+	it('does not show "Show all in Files" when the result is small and not truncated', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' })], false))
+
+		const wrapper = await mountOverview()
+
+		expect(() => findButtonByText(wrapper, 'Show all in Files')).toThrow()
+	})
+
+	// Characterizing existing behaviour, not a bug: `hasMoreFiles` is `|| truncated`,
+	// and `truncated` describes the shared search across all categories, not this
+	// category specifically — so "No {category} found" and "Show all in Files" can
+	// render together. Before this PR that combination was impossible (hasMoreFiles
+	// was purely a count on the already-empty filtered list), but a sparse category
+	// is exactly the one most likely to have real matches sitting past a global
+	// cutoff, so surfacing the escape hatch here is the conservative-correct call,
+	// not a contradiction to hide.
+	it('shows both the empty-category state and "Show all in Files" when the category has no matches but the search was truncated', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()]) // default category mime: .odt text
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(
+			[makeNode({ owner: 'alice', mime: 'application/vnd.oasis.opendocument.spreadsheet' })], // different category
+			true,
+		))
+
+		const wrapper = await mountOverview()
+
+		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find(c => c.props('name') === 'No Documents found')
+		expect(noFilesFound).toBeTruthy()
+		expect(() => findButtonByText(wrapper, 'Show all in Files')).not.toThrow()
+	})
+})
+
 describe('OfficeOverview > toggleViewMode', () => {
 	it('flips list/grid and persists the new mode', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue([makeNode({ owner: 'alice' })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' })]))
 
 		const wrapper = await mountOverview()
 		expect(localStorage.getItem('office.overview.gridView')).toBeNull()
@@ -353,7 +406,7 @@ describe('OfficeOverview > doCreateFromTemplate', () => {
 	async function mountWithDialogOpen() {
 		const creator = makeCreator()
 		getTemplatesMock.mockResolvedValue([creator])
-		getAllOfficeFilesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 		const wrapper = await mountOverview()
 
 		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)

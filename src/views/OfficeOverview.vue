@@ -49,6 +49,7 @@ const currentUid = getCurrentUser()?.uid ?? null
 const creators = ref<TemplateCreator[]>([])
 const activeCreator = ref<TemplateCreator | null>(null)
 const allFiles = ref<Node[]>([])
+const resultsTruncated = ref(false)
 const loading = ref(false)
 const error = ref<string | null>(null)
 const viewMode = ref<ViewMode>(getOverviewGridView() ? 'grid' : 'list')
@@ -86,7 +87,14 @@ const filteredFiles = computed(() => {
 })
 
 const files = computed(() => filteredFiles.value.slice(0, MAX_DISPLAY_FILES))
-const hasMoreFiles = computed(() => filteredFiles.value.length > MAX_DISPLAY_FILES)
+
+// Two ways the list can be incomplete: too many matches to render, or the server
+// search itself was capped and older files were never fetched. Both need the
+// "Show all in Files" escape hatch, otherwise the page implies it's showing
+// everything when it isn't.
+const hasMoreFiles = computed(() =>
+	filteredFiles.value.length > MAX_DISPLAY_FILES || resultsTruncated.value,
+)
 
 const activeCategoryName = computed(() =>
 	activeCreator.value ? categoryName(activeCreator.value) : '',
@@ -185,11 +193,14 @@ async function fetchAll() {
 				...ALL_OFFICE_MIMES,
 				...creators.value.flatMap(c => c.mimetypes),
 			])]
-			allFiles.value = await getAllOfficeFiles(allMimes)
+			const result = await getAllOfficeFiles(allMimes)
+			allFiles.value = result.nodes
+			resultsTruncated.value = result.truncated
 		}
 	} catch {
 		error.value = t('office', 'Failed to load files')
 		allFiles.value = []
+		resultsTruncated.value = false
 	} finally {
 		loading.value = false
 	}

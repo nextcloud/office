@@ -4,12 +4,8 @@ OC.L10N.register(
     "Office" : "Oficina",
     "Create new" : "Crear nuevo",
     "Blank" : "Vacío",
-    "Documents" : "Documentos",
-    "Spreadsheets" : "Hojas de cálculo",
-    "Presentations" : "Presentaciones",
     "Search {category}" : "Buscar {category}",
     "Search" : "Buscar",
-    "Filename cannot be empty" : "El nombre de archivo no puede estar vacío",
     "Failed to load files" : "Error al subir archivos",
     "All" : "Todo",
     "Shared with me" : "Compartido conmigo",
@@ -17,6 +13,10 @@ OC.L10N.register(
     "Switch to list view" : "Cambiar a vista de lista",
     "No {category} found" : "No se ha encontrado {category}",
     "Create" : "Crear",
-    "Filename" : "Nombre de archivo"
+    "Filename" : "Nombre de archivo",
+    "Documents" : "Documentos",
+    "Spreadsheets" : "Hojas de cálculo",
+    "Presentations" : "Presentaciones",
+    "Filename cannot be empty" : "El nombre de archivo no puede estar vacío"
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

@@ -2,10 +2,10 @@ OC.L10N.register(
     "office",
     {
     "Create new" : "Täzesini dörediň",
-    "Documents" : "Dokumentlar",
     "Search" : "Gözlemek",
-    "Filename cannot be empty" : "Faýlyň ady boş bolup bilmez",
     "Create" : "Dörediň",
-    "Filename" : "Faýlyň ady"
+    "Filename" : "Faýlyň ady",
+    "Documents" : "Dokumentlar",
+    "Filename cannot be empty" : "Faýlyň ady boş bolup bilmez"
 },
 "nplurals=2; plural=(n != 1);");

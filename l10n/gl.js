@@ -4,12 +4,8 @@ OC.L10N.register(
     "Office" : "Oficina",
     "Create new" : "Crear novo",
     "Blank" : "Baleiro",
-    "Documents" : "Documentos",
-    "Spreadsheets" : "Follas de cálculo",
-    "Presentations" : "Presentacións",
     "Search {category}" : "Buscar {category}",
     "Search" : "Buscar",
-    "Filename cannot be empty" : "O nome de ficheiro non pode estar baleiro",
     "Failed to load files" : "Produciuse un fallo ao cargar os ficheiros",
     "All" : "Todo",
     "Shared with me" : "Compartido comigo",
@@ -17,6 +13,10 @@ OC.L10N.register(
     "Switch to list view" : "Cambiar á vista de lista",
     "No {category} found" : "Non se atopou {category}",
     "Create" : "Crear",
-    "Filename" : "Nome de ficheiro"
+    "Filename" : "Nome de ficheiro",
+    "Documents" : "Documentos",
+    "Spreadsheets" : "Follas de cálculo",
+    "Presentations" : "Presentacións",
+    "Filename cannot be empty" : "O nome de ficheiro non pode estar baleiro"
 },
 "nplurals=2; plural=(n != 1);");

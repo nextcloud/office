@@ -4,16 +4,16 @@ OC.L10N.register(
     "Office" : "Канцеларија",
     "Create new" : "Креирај нова",
     "Blank" : "Празно",
-    "Documents" : "Документи",
-    "Spreadsheets" : "Табели",
-    "Presentations" : "Презентации",
     "Search" : "Барај",
-    "Filename cannot be empty" : "Името на датотеката не може да биде празно",
     "All" : "Сите",
     "Switch to grid view" : "Прикажи поглед во мрежа",
     "Switch to list view" : "Прикажи поглед во листа",
     "No {category} found" : "Не е пронајдено {category}",
     "Create" : "Креирај",
-    "Filename" : "Име на датотека"
+    "Filename" : "Име на датотека",
+    "Documents" : "Документи",
+    "Spreadsheets" : "Табели",
+    "Presentations" : "Презентации",
+    "Filename cannot be empty" : "Името на датотеката не може да биде празно"
 },
 "nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;");
