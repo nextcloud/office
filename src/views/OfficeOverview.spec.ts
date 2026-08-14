@@ -224,7 +224,7 @@ describe('OfficeOverview > preview thumbnails', () => {
 	it('passes list view a small thumbnail size and the file, decorative (no alt)', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
-		getAllOfficeFilesMock.mockResolvedValue([file])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
 
 		const wrapper = await mountOverview({ NcListItem: LIST_ITEM_STUB })
 
@@ -242,7 +242,7 @@ describe('OfficeOverview > preview thumbnails', () => {
 		localStorage.setItem('office.overview.gridView', 'true')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
-		getAllOfficeFilesMock.mockResolvedValue([file])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
 
 		const wrapper = await mountOverview({ FileCard: FILE_CARD_STUB })
 
