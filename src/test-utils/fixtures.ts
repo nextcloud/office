@@ -12,6 +12,8 @@ interface MakeNodeOptions {
 	favorite?: boolean
 	mtime?: Date
 	basename?: string
+	/** Outgoing share-type numbers; stored in the nested shape DAV returns. */
+	shareTypes?: number[]
 }
 
 // Owner/mount-type are the two axes that decide whether a file counts as
@@ -27,6 +29,7 @@ export function makeNode({
 	favorite = false,
 	mtime = new Date('2024-01-01T00:00:00Z'),
 	basename = `file-${id}.odt`,
+	shareTypes,
 }: MakeNodeOptions = {}): Node {
 	const ownerSegment = owner ?? 'nobody'
 	return new File({
@@ -39,6 +42,9 @@ export function makeNode({
 		attributes: {
 			...(mountType !== undefined ? { 'nc:mount-type': mountType } : {}),
 			...(favorite ? { favorite: 1 } : {}),
+			// The DAV `oc:share-types` property nests the numbers under a
+			// `share-type` key — reproduce that so consumers exercise the real shape.
+			...(shareTypes ? { 'share-types': { 'share-type': shareTypes } } : {}),
 		},
 	})
 }

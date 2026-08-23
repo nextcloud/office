@@ -36,4 +36,12 @@ describe('FileCard', () => {
 		const withSubname = mount(FileCard, { slots: { subname: 'a subname' } })
 		expect(withSubname.find('.file-card__subname').text()).toBe('a subname')
 	})
+
+	it('only renders the overlay slot when provided', () => {
+		const without = mount(FileCard)
+		expect(without.find('.file-card__overlay').exists()).toBe(false)
+
+		const withOverlay = mount(FileCard, { slots: { overlay: 'a badge' } })
+		expect(withOverlay.find('.file-card__overlay').text()).toBe('a badge')
+	})
 })

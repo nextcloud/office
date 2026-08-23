@@ -4,7 +4,14 @@
  */
 
 import type { Node } from '@nextcloud/files'
-import { getClient, getDavNameSpaces, getDavProperties, getRootPath, resultToNode } from '@nextcloud/files/dav'
+import { getClient, getDavNameSpaces, getDavProperties, getRootPath, registerDavProperty, resultToNode } from '@nextcloud/files/dav'
+
+// `oc:share-types` is not in the default DAV property set, so the search would
+// not return sharing state without this. Registering it (as the Files app does
+// in files_sharing) adds it to the <d:prop> list getDavProperties() builds, so
+// the overview can flag which files are shared. Runs once, at module load,
+// before the first search.
+registerDavProperty('oc:share-types', { oc: 'http://owncloud.org/ns' })
 
 // Upper bound on files rendered per category, after client-side category and
 // ownership filtering.
