@@ -2,7 +2,7 @@ import { sortNodes } from '@nextcloud/files'
 import type { Node } from '@nextcloud/files'
 import { filterByMimes } from '../services/officeFiles.ts'
 
-export type Filter = 'all' | 'mine' | 'shared'
+export type Filter = 'all' | 'mine' | 'shared' | 'starred'
 
 interface FilterFilesOptions {
 	activeFilter: Filter
@@ -28,6 +28,10 @@ export function filterFiles(files: Node[], { activeFilter, currentUid, searchQue
 		)
 	} else if (activeFilter === 'shared') {
 		filtered = byCategory.filter(f => f.attributes?.['nc:mount-type'] === 'shared')
+	} else if (activeFilter === 'starred') {
+		// Favourites, regardless of ownership — the same `oc:favorite` flag the
+		// overview shows a star for. sortNodes below keeps them newest-first.
+		filtered = byCategory.filter(f => f.attributes?.favorite === 1)
 	}
 
 	if (searchQuery) {
