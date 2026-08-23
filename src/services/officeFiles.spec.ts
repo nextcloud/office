@@ -5,15 +5,24 @@ import { makeNode } from '../test-utils/fixtures.ts'
 
 const searchMock = vi.fn()
 
+const registerDavPropertyMock = vi.fn()
+
 vi.mock('@nextcloud/files/dav', () => ({
 	getClient: vi.fn(() => ({ search: searchMock })),
 	getDavNameSpaces: vi.fn(() => 'xmlns:d="DAV:"'),
 	getDavProperties: vi.fn(() => '<d:getcontenttype/>'),
 	getRootPath: vi.fn(() => '/remote.php/dav/files/alice'),
+	registerDavProperty: registerDavPropertyMock,
 	resultToNode: vi.fn((item: unknown) => item),
 }))
 
 const { getAllOfficeFiles, invalidateOfficeFilesCache, filterByMimes, SEARCH_RESULT_LIMIT } = await import('./officeFiles.ts')
+
+describe('module load', () => {
+	it('registers the oc:share-types DAV property so sharing state is fetched', () => {
+		expect(registerDavPropertyMock).toHaveBeenCalledWith('oc:share-types', { oc: 'http://owncloud.org/ns' })
+	})
+})
 
 describe('filterByMimes', () => {
 	it('keeps files whose mime is in the list and drops the rest', () => {
