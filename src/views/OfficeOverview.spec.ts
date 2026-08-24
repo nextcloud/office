@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { makeCreator, makeNode } from '../test-utils/fixtures.ts'
+import { fakeLoadState, makeCreator, makeNode } from '../test-utils/fixtures.ts'
 import type { Node } from '@nextcloud/files'
 import type { Router } from 'vue-router'
 
@@ -110,6 +110,10 @@ function officeFilesResult(nodes: Node[], truncated = false) {
 	return { nodes, truncated }
 }
 
+function mockLoadState(options?: Parameters<typeof fakeLoadState>[0]) {
+	vi.mocked(loadState).mockImplementation(fakeLoadState(options))
+}
+
 function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, text: string) {
 	const button = wrapper.findAllComponents({ name: 'NcButton' }).find(b => b.text() === text)
 	if (!button) throw new Error(`No NcButton with text "${text}" found`)
@@ -118,7 +122,7 @@ function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, te
 
 beforeEach(() => {
 	vi.mocked(getCurrentUser).mockReturnValue({ uid: 'alice' } as ReturnType<typeof getCurrentUser>)
-	vi.mocked(loadState).mockReturnValue(null)
+	mockLoadState()
 	getTemplatesMock.mockReset()
 	createFromTemplateMock.mockReset()
 	getAllOfficeFilesMock.mockReset()
@@ -384,7 +388,7 @@ describe('OfficeOverview > preview thumbnails', () => {
 
 describe('OfficeOverview > openFile', () => {
 	it('navigates to the WOPI editor URL with fileId when editorUrl is set', async () => {
-		vi.mocked(loadState).mockReturnValue('/apps/office/editor')
+		mockLoadState({ editorUrl: '/apps/office/editor' })
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))

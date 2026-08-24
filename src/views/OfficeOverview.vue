@@ -36,7 +36,7 @@ import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
-import { categoryId, categoryName, categoryMimes, creatorById, ALL_OFFICE_MIMES } from '../utils/fileCategories.ts'
+import { categoryId, categoryName, categoryMimes, creatorById, allOfficeMimes } from '../utils/fileCategories.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
 import type { Filter } from '../utils/fileFilters.ts'
@@ -210,10 +210,10 @@ async function fetchAll() {
 		creators.value = await getTemplates()
 
 		if (creators.value.length > 0) {
-			// Union our full static set (ODF + OOXML) with whatever the creators
-			// actually advertise, so we never drop a mime the server supports.
+			// Union the categories' full mime set (ODF + OOXML) with whatever the
+			// creators actually advertise, so we never drop a mime the server supports.
 			const allMimes = [...new Set([
-				...ALL_OFFICE_MIMES,
+				...allOfficeMimes(),
 				...creators.value.flatMap(c => c.mimetypes),
 			])]
 			const result = await getAllOfficeFiles(allMimes)
