@@ -8,6 +8,9 @@ export default createAppConfig(
 	{
 		createEmptyCSSEntryPoints: true,
 		extractLicenseInformation: true,
+		emptyOutputDirectory: {
+			additionalDirectories: ['css'],
+		},
 		thirdPartyLicense: false,
 	},
 )
