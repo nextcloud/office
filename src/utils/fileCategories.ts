@@ -1,5 +1,6 @@
-import { translate as t } from '@nextcloud/l10n'
 import type { TemplateCreator } from '../services/templates.ts'
+
+import { translate as t } from '@nextcloud/l10n'
 
 const MIME_CATEGORIES: Record<string, string> = {
 	'application/vnd.oasis.opendocument.text': t('office', 'Documents'),
@@ -24,9 +25,15 @@ const MIME_CATEGORIES: Record<string, string> = {
 // from this full set instead — otherwise existing ODF files would never be found.
 export const ALL_OFFICE_MIMES = Object.keys(MIME_CATEGORIES)
 
+/**
+ *
+ * @param creator
+ */
 export function categoryName(creator: TemplateCreator): string {
 	for (const mime of (creator.mimetypes ?? [])) {
-		if (MIME_CATEGORIES[mime]) return MIME_CATEGORIES[mime]
+		if (MIME_CATEGORIES[mime]) {
+			return MIME_CATEGORIES[mime]
+		}
 	}
 	return creator.label
 }
@@ -35,8 +42,12 @@ export function categoryName(creator: TemplateCreator): string {
 // category shows every openable file regardless of the configured create format.
 // The creator's own mimes are always kept, so anything it advertises beyond our
 // static map (and any creator mapping to no known category) is still covered.
+/**
+ *
+ * @param creator
+ */
 export function categoryMimes(creator: TemplateCreator): string[] {
 	const category = categoryName(creator)
-	const fromCategory = ALL_OFFICE_MIMES.filter(mime => MIME_CATEGORIES[mime] === category)
+	const fromCategory = ALL_OFFICE_MIMES.filter((mime) => MIME_CATEGORIES[mime] === category)
 	return [...new Set([...fromCategory, ...creator.mimetypes])]
 }

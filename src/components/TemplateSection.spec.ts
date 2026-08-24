@@ -1,7 +1,8 @@
+import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
+
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TemplateSection from './TemplateSection.vue'
-import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
 
 function makeTemplate(overrides: Partial<TemplateFile> = {}): TemplateFile {
 	return {
@@ -38,7 +39,7 @@ describe('TemplateSection > items', () => {
 		const creator = makeCreator({ templates: [makeTemplate({ fileid: 1, basename: 'A.odt' })] })
 		const wrapper = mount(TemplateSection, { props: { creator } })
 
-		const names = wrapper.findAll('.template-card__name').map(n => n.text())
+		const names = wrapper.findAll('.template-card__name').map((n) => n.text())
 		expect(names).toEqual(['Blank', 'A'])
 	})
 })
@@ -153,7 +154,9 @@ describe('TemplateSection > scroll arrows', () => {
 		const creator = makeCreator()
 		const wrapper = mount(TemplateSection, { props: { creator } })
 		setScrollMetrics(wrapper.find('.template-section__list').element as HTMLElement, {
-			scrollLeft: 0, scrollWidth: 100, clientWidth: 100,
+			scrollLeft: 0,
+			scrollWidth: 100,
+			clientWidth: 100,
 		})
 
 		expect(wrapper.find('.template-section__nav').exists()).toBe(false)

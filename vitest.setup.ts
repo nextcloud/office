@@ -13,6 +13,11 @@ config.global.renderStubDefaultSlot = true
  * gets these for free via `test.setupFiles`, rather than re-stubbing per file.
  */
 
+/**
+ *
+ * @param text
+ * @param vars
+ */
 function substitutePlaceholders(text: string, vars?: Record<string, unknown>): string {
 	return text.replace(/{([^{}]*)}/g, (match, key) => {
 		const value = vars?.[key]
@@ -22,11 +27,10 @@ function substitutePlaceholders(text: string, vars?: Record<string, unknown>): s
 
 vi.mock('@nextcloud/l10n', async (importOriginal) => ({
 	...(await importOriginal<typeof import('@nextcloud/l10n')>()),
-	translate: (app: string, text: string, placeholders?: Record<string, unknown>) =>
-		text.replace(/{([^{}]*)}/g, (match: string, key: string) => {
-			const value = placeholders?.[key]
-			return value !== undefined ? String(value) : match
-		}),
+	translate: (app: string, text: string, placeholders?: Record<string, unknown>) => text.replace(/{([^{}]*)}/g, (match: string, key: string) => {
+		const value = placeholders?.[key]
+		return value !== undefined ? String(value) : match
+	}),
 }))
 
 vi.mock('@nextcloud/auth', () => ({
@@ -44,11 +48,9 @@ vi.mock('@nextcloud/router', async (importOriginal) => ({
 }))
 
 class ResizeObserverStub {
-
 	observe() {}
 	unobserve() {}
 	disconnect() {}
-
 }
 
 globalThis.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver

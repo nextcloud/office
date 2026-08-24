@@ -4,11 +4,22 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import type { Node } from '@nextcloud/files'
+import type { CreatedFile, OcsErrorResponse, TemplateCreator, TemplateFile } from '../services/templates.ts'
+import type { Filter } from '../utils/fileFilters.ts'
+
+import {
+	mdiFileDocumentOutline,
+	mdiOpenInNew,
+	mdiStar,
+	mdiViewGrid,
+	mdiViewList,
+} from '@mdi/js'
 import { getCurrentUser } from '@nextcloud/auth'
-import { translate as t } from '@nextcloud/l10n'
 import { loadState } from '@nextcloud/initial-state'
+import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import { computed, nextTick, ref, watch } from 'vue'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
 import NcAppNavigation from '@nextcloud/vue/components/NcAppNavigation'
 import NcAppNavigationItem from '@nextcloud/vue/components/NcAppNavigationItem'
@@ -22,25 +33,15 @@ import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
 import NcListItem from '@nextcloud/vue/components/NcListItem'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
-import {
-	mdiFileDocumentOutline,
-	mdiOpenInNew,
-	mdiStar,
-	mdiViewGrid,
-	mdiViewList,
-} from '@mdi/js'
 import FileCard from '../components/FileCard.vue'
 import FilePreview from '../components/FilePreview.vue'
 import TemplateSection from '../components/TemplateSection.vue'
-import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
-import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
-import { categoryName, categoryMimes, ALL_OFFICE_MIMES } from '../utils/fileCategories.ts'
-import { validateFilename } from '../utils/validateFilename.ts'
+import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
+import { createFromTemplate, getTemplates } from '../services/templates.ts'
+import { ALL_OFFICE_MIMES, categoryMimes, categoryName } from '../utils/fileCategories.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
-import type { Filter } from '../utils/fileFilters.ts'
-import type { TemplateCreator, TemplateFile, CreatedFile, OcsErrorResponse } from '../services/templates.ts'
-import type { Node } from '@nextcloud/files'
+import { validateFilename } from '../utils/validateFilename.ts'
 
 type ViewMode = 'list' | 'grid'
 
@@ -69,14 +70,14 @@ watch(activeCreator, () => {
 	// stay on that filter when they switch between document categories.
 })
 
-const searchLabel = computed(() =>
-	activeCreator.value
-		? t('office', 'Search {category}', { category: categoryName(activeCreator.value) })
-		: t('office', 'Search'),
-)
+const searchLabel = computed(() => activeCreator.value
+	? t('office', 'Search {category}', { category: categoryName(activeCreator.value) })
+	: t('office', 'Search'))
 
 const filteredFiles = computed(() => {
-	if (!activeCreator.value) return []
+	if (!activeCreator.value) {
+		return []
+	}
 
 	return filterFiles(allFiles.value, {
 		activeFilter: activeFilter.value,
@@ -92,18 +93,21 @@ const files = computed(() => filteredFiles.value.slice(0, MAX_DISPLAY_FILES))
 // search itself was capped and older files were never fetched. Both need the
 // "Show all in Files" escape hatch, otherwise the page implies it's showing
 // everything when it isn't.
-const hasMoreFiles = computed(() =>
-	filteredFiles.value.length > MAX_DISPLAY_FILES || resultsTruncated.value,
-)
+const hasMoreFiles = computed(() => filteredFiles.value.length > MAX_DISPLAY_FILES || resultsTruncated.value)
 
-const activeCategoryName = computed(() =>
-	activeCreator.value ? categoryName(activeCreator.value) : '',
-)
+const activeCategoryName = computed(() => activeCreator.value ? categoryName(activeCreator.value) : '')
 
+/**
+ *
+ * @param creator
+ */
 function setCreator(creator: TemplateCreator) {
 	activeCreator.value = creator
 }
 
+/**
+ *
+ */
 function toggleViewMode() {
 	const mode: ViewMode = viewMode.value === 'list' ? 'grid' : 'list'
 	viewMode.value = mode
@@ -114,6 +118,10 @@ function toggleViewMode() {
 // backend is active, null otherwise.
 const editorUrl = loadState<string | null>('office', 'editor-url', null)
 
+/**
+ *
+ * @param file
+ */
 function openFile(file: Node) {
 	if (editorUrl) {
 		// WOPI editor active: navigate directly so history.back() returns here.
@@ -126,6 +134,9 @@ function openFile(file: Node) {
 	}
 }
 
+/**
+ *
+ */
 function openInFiles() {
 	if (searchQuery.value) {
 		window.location.href = generateUrl('/apps/files/search') + '?query=' + encodeURIComponent(searchQuery.value)
@@ -134,6 +145,11 @@ function openInFiles() {
 	}
 }
 
+/**
+ *
+ * @param creator
+ * @param template
+ */
 function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | null) {
 	pendingCreator.value = creator
 	pendingTemplate.value = template
@@ -141,7 +157,7 @@ function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | nul
 	createError.value = ''
 	showCreateDialog.value = true
 	nextTick(() => {
-		const component = createInput.value as { focus?: () => void; $el?: HTMLElement } | null
+		const component = createInput.value as { focus?: () => void, $el?: HTMLElement } | null
 		if (typeof component?.focus === 'function') {
 			component.focus()
 		} else {
@@ -153,8 +169,14 @@ function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | nul
 	})
 }
 
+/**
+ *
+ */
 async function doCreateFromTemplate() {
-	if (creating.value) return
+	if (creating.value) {
+		return
+	}
+
 	const validationError = validateFilename(newFileName.value)
 	if (validationError) {
 		createError.value = validationError
@@ -179,6 +201,9 @@ async function doCreateFromTemplate() {
 	}
 }
 
+/**
+ *
+ */
 async function fetchAll() {
 	loading.value = true
 	error.value = null
@@ -191,7 +216,7 @@ async function fetchAll() {
 			// actually advertise, so we never drop a mime the server supports.
 			const allMimes = [...new Set([
 				...ALL_OFFICE_MIMES,
-				...creators.value.flatMap(c => c.mimetypes),
+				...creators.value.flatMap((c) => c.mimetypes),
 			])]
 			const result = await getAllOfficeFiles(allMimes)
 			allFiles.value = result.nodes
@@ -212,19 +237,21 @@ fetchAll()
 </script>
 
 <template>
-	<NcContent app-name="office">
+	<NcContent appName="office">
 		<NcAppNavigation>
 			<template #search>
 				<NcAppNavigationSearch v-model="searchQuery" :label="searchLabel" />
 			</template>
 			<template #list>
-				<NcAppNavigationItem v-for="creator in creators"
+				<NcAppNavigationItem
+					v-for="creator in creators"
 					:key="creator.app + '-' + creator.extension"
 					:name="categoryName(creator)"
 					:active="activeCreator === creator"
 					@click="setCreator(creator)">
 					<template #icon>
-						<NcIconSvgWrapper :svg="creator.iconSvgInline ?? ''"
+						<NcIconSvgWrapper
+							:svg="creator.iconSvgInline ?? ''"
 							class="office-overview__nav-icon" />
 					</template>
 				</NcAppNavigationItem>
@@ -235,7 +262,8 @@ fetchAll()
 			<NcLoadingIcon v-if="loading" class="office-overview__loading" />
 
 			<template v-else>
-				<NcEmptyContent v-if="creators.length === 0"
+				<NcEmptyContent
+					v-if="creators.length === 0"
 					:name="t('office', 'No office suite installed')">
 					<template #icon>
 						<NcIconSvgWrapper :path="mdiFileDocumentOutline" :size="48" />
@@ -243,11 +271,13 @@ fetchAll()
 				</NcEmptyContent>
 
 				<template v-else>
-					<TemplateSection v-if="!searchQuery && activeCreator"
+					<TemplateSection
+						v-if="!searchQuery && activeCreator"
 						:creator="activeCreator"
 						@select="onTemplateSelect" />
 
-					<NcEmptyContent v-if="error"
+					<NcEmptyContent
+						v-if="error"
 						:name="error" />
 
 					<section v-else-if="activeCreator" class="office-overview__files" aria-labelledby="files-section-heading">
@@ -262,22 +292,26 @@ fetchAll()
 						</div>
 
 						<div class="office-overview__controls">
-							<div class="office-overview__filters"
+							<div
+								class="office-overview__filters"
 								role="group"
 								:aria-label="t('office', 'Filter files')">
-								<NcButton size="small"
+								<NcButton
+									size="small"
 									:variant="activeFilter === 'all' ? 'primary' : 'secondary'"
 									:aria-pressed="activeFilter === 'all'"
 									@click="activeFilter = 'all'">
 									{{ t('office', 'All') }}
 								</NcButton>
-								<NcButton size="small"
+								<NcButton
+									size="small"
 									:variant="activeFilter === 'mine' ? 'primary' : 'secondary'"
 									:aria-pressed="activeFilter === 'mine'"
 									@click="activeFilter = 'mine'">
 									{{ t('office', 'Mine') }}
 								</NcButton>
-								<NcButton size="small"
+								<NcButton
+									size="small"
 									:variant="activeFilter === 'shared' ? 'primary' : 'secondary'"
 									:aria-pressed="activeFilter === 'shared'"
 									@click="activeFilter = 'shared'">
@@ -285,7 +319,8 @@ fetchAll()
 								</NcButton>
 							</div>
 
-							<NcButton :aria-label="viewMode === 'list' ? t('office', 'Switch to grid view') : t('office', 'Switch to list view')"
+							<NcButton
+								:aria-label="viewMode === 'list' ? t('office', 'Switch to grid view') : t('office', 'Switch to list view')"
 								variant="tertiary"
 								@click="toggleViewMode">
 								<template #icon>
@@ -295,7 +330,8 @@ fetchAll()
 							</NcButton>
 						</div>
 
-						<NcEmptyContent v-if="files.length === 0"
+						<NcEmptyContent
+							v-if="files.length === 0"
 							:name="t('office', 'No {category} found', { category: activeCategoryName })">
 							<template #icon>
 								<NcIconSvgWrapper :path="mdiFileDocumentOutline" :size="48" />
@@ -306,7 +342,8 @@ fetchAll()
 						</NcEmptyContent>
 
 						<div v-else-if="viewMode === 'grid'" class="office-overview__grid">
-							<FileCard v-for="file in files"
+							<FileCard
+								v-for="file in files"
 								:key="file.fileid"
 								@click="openFile(file)">
 								<template #preview>
@@ -328,20 +365,23 @@ fetchAll()
 						</div>
 
 						<div v-else class="office-overview__list">
-							<NcListItem v-for="file in files"
+							<NcListItem
+								v-for="file in files"
 								:key="file.fileid"
 								:name="file.basename"
 								:active="false"
 								@click="openFile(file)">
 								<template #icon>
 									<!-- Requested size is 2x the rendered box for crisp hidpi rendering. -->
-									<FilePreview :file="file"
+									<FilePreview
+										:file="file"
 										:size="96"
-										:fallback-icon-size="32"
+										:fallbackIconSize="32"
 										class="office-overview__list-thumb" />
 								</template>
 								<template #indicator>
-									<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
+									<NcIconSvgWrapper
+										v-if="file.attributes?.favorite === 1"
 										:path="mdiStar"
 										:size="16"
 										class="office-overview__favourite-icon" />
@@ -364,10 +404,11 @@ fetchAll()
 				</template>
 
 				<!-- Create from template dialog -->
-				<NcDialog v-if="showCreateDialog"
+				<NcDialog
+					v-if="showCreateDialog"
 					:name="pendingCreator ? pendingCreator.label : ''"
 					:open="showCreateDialog"
-					close-on-click-outside
+					closeOnClickOutside
 					@update:open="showCreateDialog = false">
 					<template #actions>
 						<NcButton :disabled="creating || !newFileName.trim()" variant="primary" @click="doCreateFromTemplate">
@@ -375,11 +416,12 @@ fetchAll()
 						</NcButton>
 					</template>
 					<form class="office-overview__create-form" @submit.prevent="doCreateFromTemplate">
-						<NcTextField ref="createInput"
+						<NcTextField
+							ref="createInput"
 							v-model="newFileName"
 							:label="t('office', 'Filename')"
 							:error="!!createError"
-							:helper-text="createError"
+							:helperText="createError"
 							:disabled="creating" />
 					</form>
 				</NcDialog>

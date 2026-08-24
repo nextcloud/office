@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from 'vitest'
 import type { TemplateCreator } from './templates.ts'
+
+import { describe, expect, it, vi } from 'vitest'
 
 const getMock = vi.fn()
 const postMock = vi.fn()

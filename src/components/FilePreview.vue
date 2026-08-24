@@ -4,11 +4,12 @@
 -->
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { generateUrl } from '@nextcloud/router'
-import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
-import { mdiFileDocumentOutline } from '@mdi/js'
 import type { Node } from '@nextcloud/files'
+
+import { mdiFileDocumentOutline } from '@mdi/js'
+import { generateUrl } from '@nextcloud/router'
+import { computed, ref } from 'vue'
+import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
 
 const props = withDefaults(defineProps<{
 	file: Node
@@ -39,13 +40,15 @@ const previewUrl = computed(() => {
 
 <template>
 	<div class="file-preview">
-		<img v-if="!failed"
+		<img
+			v-if="!failed"
 			:src="previewUrl"
 			:alt="alt"
 			loading="lazy"
 			class="file-preview__image"
 			@error="failed = true">
-		<NcIconSvgWrapper v-else
+		<NcIconSvgWrapper
+			v-else
 			:path="mdiFileDocumentOutline"
 			:size="fallbackIconSize"
 			class="file-preview__fallback" />

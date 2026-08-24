@@ -4,13 +4,18 @@
 -->
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
+
+import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
-import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
-import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
+
+const props = defineProps<{ creator: TemplateCreator }>()
+
+const emit = defineEmits<{ select: [creator: TemplateCreator, template: TemplateFile | null] }>()
 
 const THEME_PALETTES: Record<string, [string, string, string, string]> = {
 	document: ['hsl(203 79% 78%)', 'hsl(203 79% 60%)', 'hsl(203 70% 42%)', 'hsl(203 65% 26%)'],
@@ -37,9 +42,6 @@ const MIME_THEME: Record<string, keyof typeof THEME_PALETTES> = {
 const CARD_WIDTH = 160
 const CARD_GAP = 12
 
-const props = defineProps<{ creator: TemplateCreator }>()
-const emit = defineEmits<{ select: [creator: TemplateCreator, template: TemplateFile | null] }>()
-
 const list = ref<HTMLUListElement | null>(null)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
@@ -49,7 +51,9 @@ let resizeObserver: ResizeObserver | null = null
 const themeType = computed((): keyof typeof THEME_PALETTES => {
 	for (const mime of (props.creator.mimetypes ?? [])) {
 		const theme = MIME_THEME[mime]
-		if (theme) return theme
+		if (theme) {
+			return theme
+		}
 	}
 	return 'document'
 })
@@ -86,25 +90,49 @@ watch(() => props.creator, () => {
 	updateArrows()
 })
 
+/**
+ * Update the scroll arrow state based on the current scroll position of the list.
+ */
 function updateArrows() {
-	if (!list.value) return
+	if (!list.value) {
+		return
+	}
+
 	const { scrollLeft, scrollWidth, clientWidth } = list.value
 	canScrollLeft.value = scrollLeft > 0
 	// 1px tolerance absorbs sub-pixel rounding at the far end.
 	canScrollRight.value = scrollLeft + clientWidth < scrollWidth - 1
 }
 
+/**
+ * Scroll the list by a step
+ *
+ * @param direction - 1 for right, -1 for left
+ */
 function scrollByStep(direction: number) {
-	if (!list.value) return
+	if (!list.value) {
+		return
+	}
+
 	const step = Math.max(CARD_WIDTH + CARD_GAP, list.value.clientWidth - (CARD_WIDTH + CARD_GAP))
 	list.value.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
 
+/**
+ * Check if the basename has an extension and return the name without it.
+ *
+ * @param basename - The file name
+ */
 function nameWithoutExt(basename: string) {
 	const dot = basename.lastIndexOf('.')
 	return dot > 0 ? basename.slice(0, dot) : basename
 }
 
+/**
+ * Get the preview URL for a template
+ *
+ * @param template - The template file
+ */
 function templatePreviewUrl(template: TemplateFile) {
 	if (template.previewUrl) {
 		return template.previewUrl
@@ -126,7 +154,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-	<section class="template-section"
+	<section
+		class="template-section"
 		:style="sectionStyle"
 		aria-labelledby="template-section-heading">
 		<div class="template-section__header">
@@ -135,7 +164,8 @@ onUnmounted(() => {
 			</h2>
 
 			<div v-if="canScroll" class="template-section__nav">
-				<NcButton variant="tertiary"
+				<NcButton
+					variant="tertiary"
 					:aria-label="t('office', 'Scroll left')"
 					:disabled="!canScrollLeft"
 					@click="scrollByStep(-1)">
@@ -143,7 +173,8 @@ onUnmounted(() => {
 						<NcIconSvgWrapper :svg="mdiChevronLeft" :size="20" />
 					</template>
 				</NcButton>
-				<NcButton variant="tertiary"
+				<NcButton
+					variant="tertiary"
 					:aria-label="t('office', 'Scroll right')"
 					:disabled="!canScrollRight"
 					@click="scrollByStep(1)">
@@ -155,11 +186,13 @@ onUnmounted(() => {
 		</div>
 
 		<ul ref="list" class="template-section__list" @scroll="updateArrows">
-			<li v-for="item in items"
+			<li
+				v-for="item in items"
 				:key="'blank' in item ? 'blank' : item.fileid"
 				class="template-section__item">
 				<!-- Blank file card -->
-				<button v-if="'blank' in item"
+				<button
+					v-if="'blank' in item"
 					class="template-card"
 					:style="cardStyle"
 					@click="emit('select', creator, null)">
@@ -170,12 +203,14 @@ onUnmounted(() => {
 				</button>
 
 				<!-- Template card -->
-				<button v-else
+				<button
+					v-else
 					class="template-card"
 					:style="cardStyle"
 					@click="emit('select', creator, item)">
 					<span class="template-card__preview">
-						<img v-if="item.hasPreview && !failedPreviews[item.fileid]"
+						<img
+							v-if="item.hasPreview && !failedPreviews[item.fileid]"
 							:src="templatePreviewUrl(item)"
 							:alt="nameWithoutExt(item.basename)"
 							loading="lazy"

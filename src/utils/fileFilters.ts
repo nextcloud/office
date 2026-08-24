@@ -1,5 +1,6 @@
-import { sortNodes } from '@nextcloud/files'
 import type { Node } from '@nextcloud/files'
+
+import { sortNodes } from '@nextcloud/files'
 import { filterByMimes } from '../services/officeFiles.ts'
 
 export type Filter = 'all' | 'mine' | 'shared'
@@ -17,22 +18,29 @@ interface FilterFilesOptions {
 // actually owns to every user who has the mount attached (#46).
 const NON_MINE_MOUNT_TYPES = ['group', 'shared', 'external', 'external-session']
 
+/**
+ *
+ * @param files
+ * @param root0
+ * @param root0.activeFilter
+ * @param root0.currentUid
+ * @param root0.searchQuery
+ * @param root0.category
+ */
 export function filterFiles(files: Node[], { activeFilter, currentUid, searchQuery, category }: FilterFilesOptions): Node[] {
 	const byCategory = filterByMimes(files, category)
 
 	let filtered = byCategory
 	if (activeFilter === 'mine') {
-		filtered = byCategory.filter(f =>
-			f.owner === currentUid
-			&& !NON_MINE_MOUNT_TYPES.includes(f.attributes?.['nc:mount-type'] as string),
-		)
+		filtered = byCategory.filter((f) => f.owner === currentUid
+			&& !NON_MINE_MOUNT_TYPES.includes(f.attributes?.['nc:mount-type'] as string))
 	} else if (activeFilter === 'shared') {
-		filtered = byCategory.filter(f => f.attributes?.['nc:mount-type'] === 'shared')
+		filtered = byCategory.filter((f) => f.attributes?.['nc:mount-type'] === 'shared')
 	}
 
 	if (searchQuery) {
 		const q = searchQuery.toLowerCase()
-		filtered = filtered.filter(f => f.basename.toLowerCase().includes(q))
+		filtered = filtered.filter((f) => f.basename.toLowerCase().includes(q))
 	}
 
 	return sortNodes(filtered, {

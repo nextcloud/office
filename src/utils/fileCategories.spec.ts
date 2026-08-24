@@ -36,6 +36,6 @@ describe('categoryMimes', () => {
 	it('deduplicates mimes that appear in both the category set and the creator\'s own list', () => {
 		const creator = makeCreator({ mimetypes: ['application/vnd.oasis.opendocument.text'] })
 		const mimes = categoryMimes(creator)
-		expect(mimes.filter(m => m === 'application/vnd.oasis.opendocument.text')).toHaveLength(1)
+		expect(mimes.filter((m) => m === 'application/vnd.oasis.opendocument.text')).toHaveLength(1)
 	})
 })

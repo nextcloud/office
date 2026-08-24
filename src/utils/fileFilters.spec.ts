@@ -87,6 +87,6 @@ describe('filterFiles > sort', () => {
 
 		const result = filterFiles([older, newer, favouriteButOld], { ...baseOptions, activeFilter: 'all' })
 
-		expect(result.map(f => f.basename)).toEqual(['favourite.odt', 'newer.odt', 'older.odt'])
+		expect(result.map((f) => f.basename)).toEqual(['favourite.odt', 'newer.odt', 'older.odt'])
 	})
 })

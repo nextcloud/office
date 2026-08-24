@@ -1,5 +1,6 @@
-import { Folder } from '@nextcloud/files'
 import type { Node } from '@nextcloud/files'
+
+import { Folder } from '@nextcloud/files'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeNode } from '../test-utils/fixtures.ts'
 
