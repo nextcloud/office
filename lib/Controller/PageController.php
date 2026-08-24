@@ -28,6 +28,7 @@ final class PageController extends Controller {
 	#[NoAdminRequired]
 	#[OpenAPI(OpenAPI::SCOPE_IGNORE)]
 	#[FrontpageRoute(verb: 'GET', url: '/')]
+	#[FrontpageRoute(verb: 'GET', url: '/{path}', requirements: ['path' => '.*'], defaults: ['path' => ''], postfix: 'path')]
 	public function index(): TemplateResponse {
 		// editor-url is not provided here — OfficeOverview.vue calls
 		// loadState('office', 'editor-url', null) and falls back to /f/{fileid}
