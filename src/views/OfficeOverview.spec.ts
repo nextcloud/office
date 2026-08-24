@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { fakeLoadState, makeCreator, makeNode } from '../test-utils/fixtures.ts'
+import { CREATOR_CATEGORIES, fakeLoadState, makeCreator, makeNode } from '../test-utils/fixtures.ts'
 import type { Node } from '@nextcloud/files'
 import type { Router } from 'vue-router'
 
@@ -324,6 +324,25 @@ describe('OfficeOverview > creator on the URL', () => {
 			{ name: 'creator', params: { creatorId: 'documents' } },
 			{ name: 'creator', params: { creatorId: 'spreadsheets' } },
 		])
+	})
+
+	// listCategories() emits one row per creator, so two suites each offering
+	// documents both map onto the id "documents". Only the first is addressable
+	// at /documents; a second entry would be an identically labelled dead link,
+	// and NcAppNavigationItem would mark both as the current page since
+	// aria-current follows the shared route target.
+	it('lists one navigation entry per category when two creators share one', async () => {
+		mockLoadState({
+			categories: [...CREATOR_CATEGORIES, { ...CREATOR_CATEGORIES[0], app: 'otheroffice' }],
+		})
+		const otherDocuments = makeCreator({ app: 'otheroffice', label: 'OtherOffice Document', extension: '.odt' })
+		getTemplatesMock.mockResolvedValue([documents, otherDocuments, spreadsheets])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+
+		const wrapper = await mountOverview({}, '/documents')
+
+		const items = wrapper.findAllComponents({ name: 'NcAppNavigationItem' })
+		expect(items.map(item => item.props('name'))).toEqual(['Documents', 'Spreadsheets'])
 	})
 
 	it('marks only the routed entry as active', async () => {

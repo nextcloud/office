@@ -36,7 +36,7 @@ export function categoryId(creator: TemplateCreator): string {
 }
 
 // Two creators can share a category (two suites both offering documents): the
-// navigation lists both, the URL addresses the first.
+// URL addresses the first, and the navigation lists only that one.
 export function creatorById(creators: TemplateCreator[], id: string | null): TemplateCreator | null {
 	if (!id) return null
 	return creators.find(creator => categoryId(creator) === id) ?? null

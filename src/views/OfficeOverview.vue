@@ -81,13 +81,29 @@ function creatorRoute(creator: TemplateCreator) {
 	return { name: 'creator', params: { creatorId: categoryId(creator) } }
 }
 
+// One entry per category: two suites can each register a creator for the same
+// category, and only the first is addressable at that category's URL.
+const navigationCreators = computed(() => {
+	const seen = new Set<string>()
+	return creators.value.filter((creator) => {
+		const id = categoryId(creator)
+		if (seen.has(id)) {
+			return false
+		}
+		seen.add(id)
+		return true
+	})
+})
+
 // Keep the address naming what is on screen: a missing or unmatched id is
 // rewritten. replace(), not push(), so Back leaves the app instead of returning
 // to the corrected URL.
 watch([activeCreator, routeCreatorId], () => {
 	const creator = activeCreator.value
 	if (creator && routeCreatorId.value !== categoryId(creator)) {
-		router.replace(creatorRoute(creator))
+		// A rejected correction only leaves the address stale — the page keeps
+		// showing the resolved creator — but must not go unhandled.
+		router.replace(creatorRoute(creator)).catch(() => {})
 	}
 }, { immediate: true })
 
@@ -241,7 +257,7 @@ fetchAll()
 				<NcAppNavigationSearch v-model="searchQuery" :label="searchLabel" />
 			</template>
 			<template #list>
-				<NcAppNavigationItem v-for="creator in creators"
+				<NcAppNavigationItem v-for="creator in navigationCreators"
 					:key="creator.app + '-' + creator.extension"
 					:name="categoryName(creator)"
 					:to="creatorRoute(creator)"
