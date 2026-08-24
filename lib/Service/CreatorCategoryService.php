@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace OCA\Office\Service;
 
+use OCA\Office\AppInfo\Application;
 use OCP\Files\Template\ITemplateManager;
 use OCP\Files\Template\TemplateFileCreator;
+use OCP\ICache;
+use OCP\ICacheFactory;
 use OCP\IL10N;
+use OCP\IUserSession;
 
 /**
  * Maps the registered template creators onto the categories the office app
@@ -17,6 +21,7 @@ use OCP\IL10N;
  * a creator's extension and mimetypes.
  *
  * @psalm-type OfficeCategory = array{app: string, extension: string, id: string, label: string, mimetypes: list<string>}
+ * @psalm-type OfficeCreatorCategory = array{app: string, extension: string, id: string, label: string, mimetypes: list<string>, color: ?string, order: int, iconSvgInline: ?string}
  */
 final class CreatorCategoryService {
 	private const array MIME_CATEGORIES = [
@@ -36,11 +41,32 @@ final class CreatorCategoryService {
 		'application/vnd.oasis.opendocument.graphics-template' => 'diagrams',
 	];
 
+	/**
+	 * Registering the creators runs every app that offers one, on every page
+	 * load the app menu is built for. What comes out of it only changes when an
+	 * app is installed, enabled or reconfigured, so it is worth a cache — bound
+	 * by a TTL rather than invalidated, as none of those are observable here.
+	 */
+	private const int CACHE_TTL = 3600;
+
+	private ICache $cache;
+
+	/**
+	 * A page of this app builds both the app menu and its own initial state, so
+	 * the cache would be asked twice in one request.
+	 *
+	 * @var ?list<OfficeCreatorCategory>
+	 */
+	private ?array $creatorCategories = null;
+
 	/** @psalm-suppress PossiblyUnusedMethod Constructed by the DI container */
 	public function __construct(
 		private IL10N $l10n,
 		private ITemplateManager $templateManager,
+		private IUserSession $userSession,
+		ICacheFactory $cacheFactory,
 	) {
+		$this->cache = $cacheFactory->createDistributed(Application::APP_ID . '-creator-categories');
 	}
 
 	/**
@@ -51,14 +77,72 @@ final class CreatorCategoryService {
 	 * @return list<OfficeCategory>
 	 */
 	public function listCategories(): array {
+		return array_map(
+			static fn (array $category): array => [
+				'app' => $category['app'],
+				'extension' => $category['extension'],
+				'id' => $category['id'],
+				'label' => $category['label'],
+				'mimetypes' => $category['mimetypes'],
+			],
+			$this->listCreatorCategories(),
+		);
+	}
+
+	/**
+	 * Every registered creator with everything the app menu presents it by.
+	 * Nothing in here is request-scoped — no URLs, no theming — because it is
+	 * served from the cache across requests.
+	 *
+	 * @return list<OfficeCreatorCategory>
+	 */
+	public function listCreatorCategories(): array {
+		if ($this->creatorCategories !== null) {
+			return $this->creatorCategories;
+		}
+
+		$key = $this->cacheKey();
+		if ($key !== null) {
+			/** @var ?list<OfficeCreatorCategory> $cached Written by this class only */
+			$cached = $this->cache->get($key);
+			if ($cached !== null) {
+				return $this->creatorCategories = $cached;
+			}
+		}
+
+		$categories = $this->describeCreators();
+		if ($key !== null) {
+			$this->cache->set($key, $categories, self::CACHE_TTL);
+		}
+		return $this->creatorCategories = $categories;
+	}
+
+	/**
+	 * Creators are registered per user, and their labels are translated into the
+	 * user's language: both belong in the key. A request without a user has
+	 * nothing stable to key on, so its result is not cached.
+	 */
+	private function cacheKey(): ?string {
+		$uid = $this->userSession->getUser()?->getUID();
+		return $uid === null ? null : $uid . '-' . $this->l10n->getLanguageCode();
+	}
+
+	/**
+	 * @return list<OfficeCreatorCategory>
+	 */
+	private function describeCreators(): array {
 		$categories = [];
 		foreach ($this->listCreators() as $creator) {
+			$description = $this->describe($creator);
 			$categories[] = [
 				'app' => $creator->getAppId(),
-				'extension' => $this->describe($creator)['extension'],
+				'extension' => $description['extension'],
 				'id' => $this->categoryId($creator),
 				'label' => $this->categoryLabel($creator),
 				'mimetypes' => $this->categoryMimetypes($creator),
+				'color' => $this->categoryColor($creator),
+				'order' => $creator->getOrder(),
+				'iconSvgInline' => $description['iconSvgInline'],
 			];
 		}
 		return $categories;
@@ -67,7 +151,7 @@ final class CreatorCategoryService {
 	/**
 	 * @return list<TemplateFileCreator> Registered creators, ordered by the order they declared
 	 */
-	public function listCreators(): array {
+	private function listCreators(): array {
 		/** @var list<TemplateFileCreator> $creators ITemplateManager::listCreators() is untyped */
 		$creators = $this->templateManager->listCreators();
 		return $creators;

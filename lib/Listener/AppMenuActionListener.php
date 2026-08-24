@@ -8,7 +8,6 @@ use OCA\Office\AppInfo\Application;
 use OCA\Office\Service\CreatorCategoryService;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
-use OCP\Files\Template\TemplateFileCreator;
 use OCP\INavigationManager;
 use OCP\IURLGenerator;
 use OCP\IUserSession;
@@ -42,8 +41,8 @@ final class AppMenuActionListener implements IEventListener {
 		}
 
 		$seen = [];
-		foreach ($this->categoryService->listCreators() as $creator) {
-			$id = $this->categoryService->categoryId($creator);
+		foreach ($this->categoryService->listCreatorCategories() as $category) {
+			$id = $category['id'];
 			// Two suites can register a creator for the same category; the first
 			// one wins, matching which one the category URL resolves to.
 			if (isset($seen[$id])) {
@@ -55,17 +54,16 @@ final class AppMenuActionListener implements IEventListener {
 				'id' => Application::APP_ID . '-' . $id,
 				'app' => Application::APP_ID,
 				'type' => INavigationManager::TYPE_ACTION,
-				'order' => $creator->getOrder(),
+				'order' => $category['order'],
 				'href' => $this->urlGenerator->linkToRoute(Application::APP_ID . '.page.indexpath', ['path' => $id]),
-				'name' => $this->categoryService->categoryLabel($creator),
-				'icon' => $this->icon($creator),
+				'name' => $category['label'],
+				'icon' => $this->icon($category['iconSvgInline']),
 			];
 
 			// The indicator is only rendered when a color is set, and a category
 			// outside the static map has none to give.
-			$color = $this->categoryService->categoryColor($creator);
-			if ($color !== null) {
-				$entry['color'] = $color;
+			if ($category['color'] !== null) {
+				$entry['color'] = $category['color'];
 			}
 
 			$this->navigationManager->add($entry);
@@ -78,8 +76,7 @@ final class AppMenuActionListener implements IEventListener {
 	 * the creator's own icon without a route to serve it, and cannot execute the
 	 * script an SVG may carry.
 	 */
-	private function icon(TemplateFileCreator $creator): string {
-		$svg = $creator->jsonSerialize()['iconSvgInline'];
+	private function icon(?string $svg): string {
 		if ($svg === null || $svg === '') {
 			return $this->urlGenerator->imagePath(Application::APP_ID, 'app.svg');
 		}

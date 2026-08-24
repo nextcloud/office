@@ -9,6 +9,8 @@ use OCA\Office\Service\CreatorCategoryService;
 use OCP\EventDispatcher\Event;
 use OCP\Files\Template\ITemplateManager;
 use OCP\Files\Template\TemplateFileCreator;
+use OCP\ICache;
+use OCP\ICacheFactory;
 use OCP\IL10N;
 use OCP\INavigationManager;
 use OCP\IURLGenerator;
@@ -41,11 +43,23 @@ final class AppMenuActionListenerTest extends TestCase {
 			->willReturnCallback(static fn (string $app, string $image): string => "/apps/$app/img/$image");
 
 		$this->listener = new AppMenuActionListener(
-			new CreatorCategoryService($l10n, $this->templateManager),
+			$this->categoryService($l10n, $this->userSession),
 			$this->navigationManager,
 			$urlGenerator,
 			$this->userSession,
 		);
+	}
+
+	/**
+	 * The service with a cache that never hits, so every test here describes the
+	 * creators it registers itself. What the cache holds is
+	 * CreatorCategoryServiceTest's subject.
+	 */
+	private function categoryService(IL10N $l10n, IUserSession $userSession): CreatorCategoryService {
+		$cacheFactory = $this->createMock(ICacheFactory::class);
+		$cacheFactory->method('createDistributed')->willReturn($this->createMock(ICache::class));
+
+		return new CreatorCategoryService($l10n, $this->templateManager, $userSession, $cacheFactory);
 	}
 
 	private function creator(string $app, string $label, string $extension, string $mimetype, ?string $icon = null): TemplateFileCreator {
@@ -163,7 +177,7 @@ final class AppMenuActionListenerTest extends TestCase {
 		$userSession->method('getUser')->willReturn(null);
 		$l10n = $this->createMock(IL10N::class);
 		$listener = new AppMenuActionListener(
-			new CreatorCategoryService($l10n, $this->templateManager),
+			$this->categoryService($l10n, $userSession),
 			$this->navigationManager,
 			$this->createMock(IURLGenerator::class),
 			$userSession,
