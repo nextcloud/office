@@ -12,6 +12,8 @@ OC.L10N.register(
     "Create" : "Crează",
     "Filename" : "Nume fișier",
     "Documents" : "Documente",
+    "Spreadsheets" : "Foi de calcul",
+    "Presentations" : "Prezentări",
     "Filename cannot be empty" : "Numele fișierului nu poate fi gol."
 },
 "nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));");

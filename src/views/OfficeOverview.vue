@@ -30,6 +30,7 @@ import {
 	mdiViewList,
 } from '@mdi/js'
 import FileCard from '../components/FileCard.vue'
+import FilePreview from '../components/FilePreview.vue'
 import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
@@ -60,7 +61,6 @@ const pendingCreator = ref<TemplateCreator | null>(null)
 const pendingTemplate = ref<TemplateFile | null>(null)
 const creating = ref(false)
 const createError = ref('')
-const failedPreviews = ref<Record<number, boolean>>({})
 const createInput = ref<InstanceType<typeof NcTextField> | null>(null)
 
 watch(activeCreator, () => {
@@ -108,16 +108,6 @@ function toggleViewMode() {
 	const mode: ViewMode = viewMode.value === 'list' ? 'grid' : 'list'
 	viewMode.value = mode
 	setOverviewGridView(mode === 'grid')
-}
-
-function getPreviewUrl(file: Node): string {
-	const etag = (file.attributes?.etag as string | undefined ?? '').slice(0, 6)
-	return generateUrl('/core/preview?fileId={fileid}&x={x}&y={y}&v={v}&a=1&mimeFallback=true', {
-		fileid: file.fileid,
-		x: 300,
-		y: 300,
-		v: etag,
-	})
 }
 
 // Provided by PageController::index() — set to the editor open URL when a WOPI
@@ -320,16 +310,7 @@ fetchAll()
 								:key="file.fileid"
 								@click="openFile(file)">
 								<template #preview>
-									<img v-if="!failedPreviews[file.fileid]"
-										:src="getPreviewUrl(file)"
-										:alt="file.basename"
-										loading="lazy"
-										class="overview-file-preview"
-										@error="failedPreviews = { ...failedPreviews, [file.fileid]: true }">
-									<NcIconSvgWrapper v-else
-										:path="mdiFileDocumentOutline"
-										:size="48"
-										class="overview-file-icon" />
+									<FilePreview :file="file" :alt="file.basename" />
 								</template>
 
 								<template #icon>
@@ -352,6 +333,13 @@ fetchAll()
 								:name="file.basename"
 								:active="false"
 								@click="openFile(file)">
+								<template #icon>
+									<!-- Requested size is 2x the rendered box for crisp hidpi rendering. -->
+									<FilePreview :file="file"
+										:size="96"
+										:fallback-icon-size="32"
+										class="office-overview__list-thumb" />
+								</template>
 								<template #indicator>
 									<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
 										:path="mdiStar"
@@ -406,16 +394,6 @@ fetchAll()
 	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 	gap: calc(var(--default-grid-baseline) * 3);
 	padding: calc(var(--default-grid-baseline) * 4);
-}
-
-.overview-file-preview {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-}
-
-.overview-file-icon {
-	margin: auto;
 }
 
 .office-overview__content {
@@ -473,6 +451,14 @@ fetchAll()
 	display: flex;
 	justify-content: center;
 	padding: calc(var(--default-grid-baseline) * 3) calc(var(--default-grid-baseline) * 4);
+}
+
+.office-overview__list-thumb {
+	width: var(--default-clickable-area);
+	height: var(--default-clickable-area);
+	border-radius: var(--border-radius);
+	background-color: var(--color-background-dark);
+	flex-shrink: 0;
 }
 
 .office-overview__favourite-icon {
