@@ -1,6 +1,7 @@
-import { File } from '@nextcloud/files'
 import type { Node } from '@nextcloud/files'
 import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
+
+import { File } from '@nextcloud/files'
 
 let sourceCounter = 0
 
@@ -19,6 +20,17 @@ interface MakeNodeOptions {
 // per case rather than relying on the defaults. id defaults to a fresh
 // number per call so file.fileid is always real (Node.fileid is only
 // derived when the backing id is a number) rather than silently undefined.
+/**
+ *
+ * @param root0
+ * @param root0.id
+ * @param root0.owner
+ * @param root0.mountType
+ * @param root0.mime
+ * @param root0.favorite
+ * @param root0.mtime
+ * @param root0.basename
+ */
 export function makeNode({
 	id = ++sourceCounter,
 	owner = 'alice',
@@ -51,6 +63,15 @@ interface MakeCreatorOptions {
 	templates?: TemplateFile[]
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.app
+ * @param root0.label
+ * @param root0.extension
+ * @param root0.mimetypes
+ * @param root0.templates
+ */
 export function makeCreator({
 	app = 'richdocuments',
 	label = 'Document',

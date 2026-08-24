@@ -1,9 +1,10 @@
-import { flushPromises, shallowMount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Node } from '@nextcloud/files'
+
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
+import { flushPromises, shallowMount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeCreator, makeNode } from '../test-utils/fixtures.ts'
-import type { Node } from '@nextcloud/files'
 
 const getTemplatesMock = vi.fn()
 const createFromTemplateMock = vi.fn()
@@ -86,8 +87,8 @@ function officeFilesResult(nodes: Node[], truncated = false) {
 }
 
 function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, text: string) {
-	const button = wrapper.findAllComponents({ name: 'NcButton' }).find(b => b.text() === text)
-	if (!button) throw new Error(`No NcButton with text "${text}" found`)
+	const button = wrapper.findAllComponents({ name: 'NcButton' }).find((b) => b.text() === text)
+	if (!button) { throw new Error(`No NcButton with text "${text}" found`) }
 	return button
 }
 
@@ -147,7 +148,7 @@ describe('OfficeOverview > rendering states', () => {
 		const wrapper = await mountOverview()
 
 		const emptyContents = wrapper.findAllComponents({ name: 'NcEmptyContent' })
-		expect(emptyContents.some(c => c.props('name') === 'Failed to load files')).toBe(true)
+		expect(emptyContents.some((c) => c.props('name') === 'Failed to load files')).toBe(true)
 	})
 
 	// Not a test bug: this is what the component actually does. fetchAll()'s
@@ -172,7 +173,7 @@ describe('OfficeOverview > rendering states', () => {
 
 		const wrapper = await mountOverview()
 
-		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find(c => c.props('name') === 'No Documents found')
+		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find((c) => c.props('name') === 'No Documents found')
 		expect(noFilesFound).toBeTruthy()
 		expect(noFilesFound!.text()).toContain('Switch to "All" to see every file you have access to')
 	})
@@ -185,7 +186,7 @@ describe('OfficeOverview > rendering states', () => {
 		await findButtonByText(wrapper, 'All').vm.$emit('click')
 		await flushPromises()
 
-		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find(c => c.props('name') === 'No Documents found')
+		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find((c) => c.props('name') === 'No Documents found')
 		expect(noFilesFound!.text()).not.toContain('Switch to "All"')
 	})
 
@@ -332,7 +333,7 @@ describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
 
 		const wrapper = await mountOverview()
 
-		const renderedNames = wrapper.findAllComponents({ name: 'NcListItem' }).map(item => item.props('name'))
+		const renderedNames = wrapper.findAllComponents({ name: 'NcListItem' }).map((item) => item.props('name'))
 		expect(renderedNames).toHaveLength(200)
 		expect(renderedNames).toContain('report-200.odt') // newest (highest index/mtime)
 		expect(renderedNames).not.toContain('report-0.odt') // oldest, pushed out by the cap
@@ -379,7 +380,7 @@ describe('OfficeOverview > truncated server results', () => {
 
 		const wrapper = await mountOverview()
 
-		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find(c => c.props('name') === 'No Documents found')
+		const noFilesFound = wrapper.findAllComponents({ name: 'NcEmptyContent' }).find((c) => c.props('name') === 'No Documents found')
 		expect(noFilesFound).toBeTruthy()
 		expect(() => findButtonByText(wrapper, 'Show all in Files')).not.toThrow()
 	})
@@ -393,8 +394,8 @@ describe('OfficeOverview > toggleViewMode', () => {
 		const wrapper = await mountOverview()
 		expect(localStorage.getItem('office.overview.gridView')).toBeNull()
 
-		const toggle = wrapper.findAllComponents({ name: 'NcButton' }).find(b => b.props('variant') === 'tertiary' && b.text() === '')
-		if (!toggle) throw new Error('view-toggle button not found')
+		const toggle = wrapper.findAllComponents({ name: 'NcButton' }).find((b) => b.props('variant') === 'tertiary' && b.text() === '')
+		if (!toggle) { throw new Error('view-toggle button not found') }
 		await toggle.vm.$emit('click')
 
 		expect(localStorage.getItem('office.overview.gridView')).toBe('true')

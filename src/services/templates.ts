@@ -44,11 +44,20 @@ export interface OcsErrorResponse {
 	}
 }
 
+/**
+ *
+ */
 export async function getTemplates(): Promise<TemplateCreator[]> {
 	const response = await axios.get(generateOcsUrl('apps/files/api/v1/templates'))
 	return response.data.ocs.data
 }
 
+/**
+ *
+ * @param filePath
+ * @param templatePath
+ * @param templateType
+ */
 export async function createFromTemplate(
 	filePath: string,
 	templatePath: string,

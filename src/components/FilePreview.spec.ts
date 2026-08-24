@@ -4,8 +4,8 @@
  */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { makeNode } from '../test-utils/fixtures.ts'
 import FilePreview from './FilePreview.vue'
+import { makeNode } from '../test-utils/fixtures.ts'
 
 describe('FilePreview', () => {
 	it('requests a preview at the given size, keyed by fileid and etag', () => {

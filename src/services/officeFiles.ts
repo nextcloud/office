@@ -4,6 +4,7 @@
  */
 
 import type { Node } from '@nextcloud/files'
+
 import { getClient, getDavNameSpaces, getDavProperties, getRootPath, resultToNode } from '@nextcloud/files/dav'
 
 // Upper bound on files rendered per category, after client-side category and
@@ -37,10 +38,14 @@ export interface OfficeFilesResult {
 // The request asks for one row more than SEARCH_RESULT_LIMIT so getAllOfficeFiles can
 // tell "exactly SEARCH_RESULT_LIMIT files exist" from "more exist and got cut off" —
 // both would otherwise come back as exactly SEARCH_RESULT_LIMIT rows.
+/**
+ *
+ * @param mimes
+ */
 function buildOfficeMimeSearch(mimes: string[]): string {
 	const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 	const conditions = mimes
-		.map(mime => `\t\t\t\t<d:eq><d:prop><d:getcontenttype/></d:prop><d:literal>${escapeXml(mime)}</d:literal></d:eq>`)
+		.map((mime) => `\t\t\t\t<d:eq><d:prop><d:getcontenttype/></d:prop><d:literal>${escapeXml(mime)}</d:literal></d:eq>`)
 		.join('\n')
 
 	return `<?xml version="1.0" encoding="UTF-8"?>
@@ -80,6 +85,10 @@ ${conditions}
 // is ever added this must be keyed by the mimes set.
 let cachedResult: OfficeFilesResult | null = null
 
+/**
+ *
+ * @param mimes
+ */
 export async function getAllOfficeFiles(mimes: string[]): Promise<OfficeFilesResult> {
 	if (cachedResult) {
 		return cachedResult
@@ -97,8 +106,8 @@ export async function getAllOfficeFiles(mimes: string[]): Promise<OfficeFilesRes
 		// Trim the extra row the request asked for (see buildOfficeMimeSearch) — it
 		// exists to detect truncation, not to be shown.
 		nodes: results
-			.map(item => resultToNode(item as Parameters<typeof resultToNode>[0]))
-			.filter(node => node.type === 'file')
+			.map((item) => resultToNode(item as Parameters<typeof resultToNode>[0]))
+			.filter((node) => node.type === 'file')
 			.slice(0, SEARCH_RESULT_LIMIT),
 		// More than SEARCH_RESULT_LIMIT raw rows back means the extra row was actually
 		// filled, i.e. more files exist than fit. Measured on the raw count, before the
@@ -109,10 +118,18 @@ export async function getAllOfficeFiles(mimes: string[]): Promise<OfficeFilesRes
 	return cachedResult
 }
 
+/**
+ *
+ */
 export function invalidateOfficeFilesCache(): void {
 	cachedResult = null
 }
 
+/**
+ *
+ * @param files
+ * @param mimes
+ */
 export function filterByMimes(files: Node[], mimes: string[]): Node[] {
-	return files.filter(file => mimes.includes(file.mime ?? ''))
+	return files.filter((file) => mimes.includes(file.mime ?? ''))
 }
