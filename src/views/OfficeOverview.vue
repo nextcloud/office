@@ -462,7 +462,9 @@ fetchAll()
 }
 
 .office-overview__favourite-icon {
-	color: var(--color-warning);
+	/* Purpose-built favourite colour, legible in every theme — `--color-warning`
+	   is a near-black brown in the dark theme, so the star all but vanished. */
+	color: var(--color-favorite);
 }
 
 .office-overview__create-form {
