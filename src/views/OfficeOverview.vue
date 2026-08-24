@@ -75,7 +75,9 @@ const searchLabel = computed(() => activeCreator.value
 	: t('office', 'Search'))
 
 const filteredFiles = computed(() => {
-	if (!activeCreator.value) { return [] }
+	if (!activeCreator.value) {
+		return []
+	}
 
 	return filterFiles(allFiles.value, {
 		activeFilter: activeFilter.value,
@@ -171,7 +173,10 @@ function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | nul
  *
  */
 async function doCreateFromTemplate() {
-	if (creating.value) { return }
+	if (creating.value) {
+		return
+	}
+
 	const validationError = validateFilename(newFileName.value)
 	if (validationError) {
 		createError.value = validationError

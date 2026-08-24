@@ -31,7 +31,9 @@ export const ALL_OFFICE_MIMES = Object.keys(MIME_CATEGORIES)
  */
 export function categoryName(creator: TemplateCreator): string {
 	for (const mime of (creator.mimetypes ?? [])) {
-		if (MIME_CATEGORIES[mime]) { return MIME_CATEGORIES[mime] }
+		if (MIME_CATEGORIES[mime]) {
+			return MIME_CATEGORIES[mime]
+		}
 	}
 	return creator.label
 }

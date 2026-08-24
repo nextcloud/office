@@ -88,7 +88,9 @@ function officeFilesResult(nodes: Node[], truncated = false) {
 
 function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, text: string) {
 	const button = wrapper.findAllComponents({ name: 'NcButton' }).find((b) => b.text() === text)
-	if (!button) { throw new Error(`No NcButton with text "${text}" found`) }
+	if (!button) {
+		throw new Error(`No NcButton with text "${text}" found`)
+	}
 	return button
 }
 
@@ -395,7 +397,9 @@ describe('OfficeOverview > toggleViewMode', () => {
 		expect(localStorage.getItem('office.overview.gridView')).toBeNull()
 
 		const toggle = wrapper.findAllComponents({ name: 'NcButton' }).find((b) => b.props('variant') === 'tertiary' && b.text() === '')
-		if (!toggle) { throw new Error('view-toggle button not found') }
+		if (!toggle) {
+			throw new Error('view-toggle button not found')
+		}
 		await toggle.vm.$emit('click')
 
 		expect(localStorage.getItem('office.overview.gridView')).toBe('true')

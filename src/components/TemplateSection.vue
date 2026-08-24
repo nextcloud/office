@@ -51,7 +51,9 @@ let resizeObserver: ResizeObserver | null = null
 const themeType = computed((): keyof typeof THEME_PALETTES => {
 	for (const mime of (props.creator.mimetypes ?? [])) {
 		const theme = MIME_THEME[mime]
-		if (theme) { return theme }
+		if (theme) {
+			return theme
+		}
 	}
 	return 'document'
 })
@@ -89,10 +91,13 @@ watch(() => props.creator, () => {
 })
 
 /**
- *
+ * Update the scroll arrow state based on the current scroll position of the list.
  */
 function updateArrows() {
-	if (!list.value) { return }
+	if (!list.value) {
+		return
+	}
+
 	const { scrollLeft, scrollWidth, clientWidth } = list.value
 	canScrollLeft.value = scrollLeft > 0
 	// 1px tolerance absorbs sub-pixel rounding at the far end.
@@ -100,18 +105,23 @@ function updateArrows() {
 }
 
 /**
+ * Scroll the list by a step
  *
- * @param direction
+ * @param direction - 1 for right, -1 for left
  */
 function scrollByStep(direction: number) {
-	if (!list.value) { return }
+	if (!list.value) {
+		return
+	}
+
 	const step = Math.max(CARD_WIDTH + CARD_GAP, list.value.clientWidth - (CARD_WIDTH + CARD_GAP))
 	list.value.scrollBy({ left: direction * step, behavior: 'smooth' })
 }
 
 /**
+ * Check if the basename has an extension and return the name without it.
  *
- * @param basename
+ * @param basename - The file name
  */
 function nameWithoutExt(basename: string) {
 	const dot = basename.lastIndexOf('.')
@@ -119,8 +129,9 @@ function nameWithoutExt(basename: string) {
 }
 
 /**
+ * Get the preview URL for a template
  *
- * @param template
+ * @param template - The template file
  */
 function templatePreviewUrl(template: TemplateFile) {
 	if (template.previewUrl) {
