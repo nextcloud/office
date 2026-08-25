@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace OCA\Office\AppInfo;
 
+use OCA\Office\Listener\AppMenuActionListener;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
 
 final class Application extends App implements IBootstrap {
 	public const APP_ID = 'office';
@@ -19,6 +21,7 @@ final class Application extends App implements IBootstrap {
 
 	#[\Override]
 	public function register(IRegistrationContext $context): void {
+		$context->registerEventListener(LoadAdditionalEntriesEvent::class, AppMenuActionListener::class);
 	}
 
 	#[\Override]

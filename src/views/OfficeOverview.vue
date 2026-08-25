@@ -5,6 +5,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getCurrentUser } from '@nextcloud/auth'
 import { translate as t } from '@nextcloud/l10n'
 import { loadState } from '@nextcloud/initial-state'
@@ -35,7 +36,7 @@ import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
-import { categoryName, categoryMimes, ALL_OFFICE_MIMES } from '../utils/fileCategories.ts'
+import { categoryId, categoryName, categoryMimes, creatorById, allOfficeMimes } from '../utils/fileCategories.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
 import type { Filter } from '../utils/fileFilters.ts'
@@ -46,8 +47,10 @@ type ViewMode = 'list' | 'grid'
 
 const currentUid = getCurrentUser()?.uid ?? null
 
+const route = useRoute()
+const router = useRouter()
+
 const creators = ref<TemplateCreator[]>([])
-const activeCreator = ref<TemplateCreator | null>(null)
 const allFiles = ref<Node[]>([])
 const resultsTruncated = ref(false)
 const loading = ref(false)
@@ -62,6 +65,47 @@ const pendingTemplate = ref<TemplateFile | null>(null)
 const creating = ref(false)
 const createError = ref('')
 const createInput = ref<InstanceType<typeof NcTextField> | null>(null)
+
+const routeCreatorId = computed(() => {
+	const param = route.params.creatorId
+	return (Array.isArray(param) ? param[0] : param) || null
+})
+
+// The URL owns the selection. An id no creator matches — a stale link, or a
+// suite that is no longer installed — falls back to the first creator.
+const activeCreator = computed(() =>
+	creatorById(creators.value, routeCreatorId.value) ?? creators.value[0] ?? null,
+)
+
+function creatorRoute(creator: TemplateCreator) {
+	return { name: 'creator', params: { creatorId: categoryId(creator) } }
+}
+
+// One entry per category: two suites can each register a creator for the same
+// category, and only the first is addressable at that category's URL.
+const navigationCreators = computed(() => {
+	const seen = new Set<string>()
+	return creators.value.filter((creator) => {
+		const id = categoryId(creator)
+		if (seen.has(id)) {
+			return false
+		}
+		seen.add(id)
+		return true
+	})
+})
+
+// Keep the address naming what is on screen: a missing or unmatched id is
+// rewritten. replace(), not push(), so Back leaves the app instead of returning
+// to the corrected URL.
+watch([activeCreator, routeCreatorId], () => {
+	const creator = activeCreator.value
+	if (creator && routeCreatorId.value !== categoryId(creator)) {
+		// A rejected correction only leaves the address stale — the page keeps
+		// showing the resolved creator — but must not go unhandled.
+		router.replace(creatorRoute(creator)).catch(() => {})
+	}
+}, { immediate: true })
 
 watch(activeCreator, () => {
 	searchQuery.value = ''
@@ -99,10 +143,6 @@ const hasMoreFiles = computed(() =>
 const activeCategoryName = computed(() =>
 	activeCreator.value ? categoryName(activeCreator.value) : '',
 )
-
-function setCreator(creator: TemplateCreator) {
-	activeCreator.value = creator
-}
 
 function toggleViewMode() {
 	const mode: ViewMode = viewMode.value === 'list' ? 'grid' : 'list'
@@ -184,13 +224,12 @@ async function fetchAll() {
 	error.value = null
 	try {
 		creators.value = await getTemplates()
-		activeCreator.value = creators.value[0] ?? null
 
 		if (creators.value.length > 0) {
-			// Union our full static set (ODF + OOXML) with whatever the creators
-			// actually advertise, so we never drop a mime the server supports.
+			// Union the categories' full mime set (ODF + OOXML) with whatever the
+			// creators actually advertise, so we never drop a mime the server supports.
 			const allMimes = [...new Set([
-				...ALL_OFFICE_MIMES,
+				...allOfficeMimes(),
 				...creators.value.flatMap(c => c.mimetypes),
 			])]
 			const result = await getAllOfficeFiles(allMimes)
@@ -218,11 +257,11 @@ fetchAll()
 				<NcAppNavigationSearch v-model="searchQuery" :label="searchLabel" />
 			</template>
 			<template #list>
-				<NcAppNavigationItem v-for="creator in creators"
+				<NcAppNavigationItem v-for="creator in navigationCreators"
 					:key="creator.app + '-' + creator.extension"
 					:name="categoryName(creator)"
-					:active="activeCreator === creator"
-					@click="setCreator(creator)">
+					:to="creatorRoute(creator)"
+					:active="activeCreator === creator">
 					<template #icon>
 						<NcIconSvgWrapper :svg="creator.iconSvgInline ?? ''"
 							class="office-overview__nav-icon" />

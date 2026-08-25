@@ -1,27 +1,33 @@
 import { shallowMount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import App from './App.vue'
 
-// App.vue's only child, OfficeOverview.vue, runs fetchAll() at module
-// evaluation time — stub its two network-touching services so mounting
-// App doesn't attempt a real fetch.
+// App.vue's only child is the routed view, which fetches on setup — a
+// placeholder route component keeps that out of this spec. Which view a URL
+// resolves to is covered by router.spec.ts.
 vi.mock('./services/templates.ts', () => ({
 	getTemplates: vi.fn().mockResolvedValue([]),
 	createFromTemplate: vi.fn(),
 }))
-vi.mock('./services/officeFiles.ts', async (importOriginal) => {
-	const actual = await importOriginal<typeof import('./services/officeFiles.ts')>()
-	return {
-		...actual,
-		getAllOfficeFiles: vi.fn().mockResolvedValue({ nodes: [], truncated: false }),
-		invalidateOfficeFilesCache: vi.fn(),
-	}
-})
 
 describe('App', () => {
-	it('renders OfficeOverview', () => {
-		const wrapper = shallowMount(App)
+	it('renders the routed view, so the URL decides what is shown', async () => {
+		// Memory history rather than router.ts's own web-history instance: jsdom
+		// shares one real window.history across tests.
+		const router = createRouter({
+			history: createMemoryHistory(),
+			routes: [{ name: 'creator', path: '/:creatorId?', component: { template: '<div />' } }],
+		})
+		router.push('/')
+		await router.isReady()
 
-		expect(wrapper.findComponent({ name: 'OfficeOverview' }).exists()).toBe(true)
+		const wrapper = shallowMount(App, { global: { plugins: [router] } })
+
+		expect(wrapper.findComponent({ name: 'RouterView' }).exists()).toBe(true)
+
+		// shallowMount stubs vnodes process-wide until the wrapper is unmounted;
+		// leaving it mounted would stub every later render in this run.
+		wrapper.unmount()
 	})
 })
