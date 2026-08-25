@@ -2,8 +2,10 @@ import { flushPromises, shallowMount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
-import { makeCreator, makeNode } from '../test-utils/fixtures.ts'
+import { createMemoryHistory, createRouter } from 'vue-router'
+import { CREATOR_CATEGORIES, fakeLoadState, makeCreator, makeNode } from '../test-utils/fixtures.ts'
 import type { Node } from '@nextcloud/files'
+import type { Router } from 'vue-router'
 
 const getTemplatesMock = vi.fn()
 const createFromTemplateMock = vi.fn()
@@ -50,6 +52,25 @@ const NC_DIALOG_STUB = {
 	template: '<div v-if="open"><slot /><slot name="actions" /></div>',
 }
 
+// OfficeOverview derives the active creator from the route, so every mount needs
+// a router. Memory history keeps jsdom's single shared window.history — and the
+// app's /apps/office base, which doesn't exist there — out of it. The record
+// mirrors src/router.ts's, with a placeholder component since the view under
+// test is mounted directly rather than through RouterView. Module-level so tests
+// can assert on the URL the view navigated to.
+let router: Router
+
+function createTestRouter(): Router {
+	return createRouter({
+		history: createMemoryHistory(),
+		routes: [{
+			name: 'creator',
+			path: '/:creatorId?',
+			component: { template: '<div />' },
+		}],
+	})
+}
+
 // Module-level side effects (getCurrentUser()?.uid, fetchAll(), loadState()) run
 // at import time, so mocks must be configured before each fresh dynamic import.
 // vi.resetModules() + a fresh dynamic import are required per test to avoid
@@ -62,11 +83,15 @@ const NC_DIALOG_STUB = {
 // extraStubs merges in on top of the defaults below — used by tests that need
 // a named slot rendered on a component that's normally left as a plain
 // shallow stub (e.g. NcListItem's #icon, FileCard's #preview).
-async function mountOverview(extraStubs: Record<string, unknown> = {}) {
+async function mountOverview(extraStubs: Record<string, unknown> = {}, path = '/') {
 	vi.resetModules()
+	router = createTestRouter()
+	router.push(path)
+	await router.isReady()
 	const { default: OfficeOverview } = await import('./OfficeOverview.vue')
 	const wrapper = shallowMount(OfficeOverview, {
 		global: {
+			plugins: [router],
 			stubs: {
 				NcDialog: NC_DIALOG_STUB,
 				NcAppNavigation: stubRenderingAllSlots('NcAppNavigation'),
@@ -85,6 +110,10 @@ function officeFilesResult(nodes: Node[], truncated = false) {
 	return { nodes, truncated }
 }
 
+function mockLoadState(options?: Parameters<typeof fakeLoadState>[0]) {
+	vi.mocked(loadState).mockImplementation(fakeLoadState(options))
+}
+
 function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, text: string) {
 	const button = wrapper.findAllComponents({ name: 'NcButton' }).find(b => b.text() === text)
 	if (!button) throw new Error(`No NcButton with text "${text}" found`)
@@ -93,7 +122,7 @@ function findButtonByText(wrapper: Awaited<ReturnType<typeof mountOverview>>, te
 
 beforeEach(() => {
 	vi.mocked(getCurrentUser).mockReturnValue({ uid: 'alice' } as ReturnType<typeof getCurrentUser>)
-	vi.mocked(loadState).mockReturnValue(null)
+	mockLoadState()
 	getTemplatesMock.mockReset()
 	createFromTemplateMock.mockReset()
 	getAllOfficeFilesMock.mockReset()
@@ -123,8 +152,13 @@ describe('OfficeOverview > rendering states', () => {
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
 
 		vi.resetModules()
+		// No isReady() here, unlike mountOverview: the router's first navigation
+		// only starts when the plugin is installed at mount, and this test asserts
+		// on the state before that resolves — with no route resolved there is no
+		// creator id, so the view shows the loading spinner.
+		router = createTestRouter()
 		const { default: OfficeOverview } = await import('./OfficeOverview.vue')
-		const wrapper = shallowMount(OfficeOverview)
+		const wrapper = shallowMount(OfficeOverview, { global: { plugins: [router] } })
 
 		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).exists()).toBe(true)
 		expect(wrapper.findComponent({ name: 'NcEmptyContent' }).exists()).toBe(false)
@@ -211,6 +245,123 @@ describe('OfficeOverview > rendering states', () => {
 	})
 })
 
+describe('OfficeOverview > creator on the URL', () => {
+	const documents = makeCreator({
+		label: 'Document',
+		extension: '.odt',
+		mimetypes: ['application/vnd.oasis.opendocument.text'],
+	})
+	const spreadsheets = makeCreator({
+		label: 'Spreadsheet',
+		extension: '.ods',
+		mimetypes: ['application/vnd.oasis.opendocument.spreadsheet'],
+	})
+
+	function mountWithBothCategories(path: string) {
+		getTemplatesMock.mockResolvedValue([documents, spreadsheets])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([
+			makeNode({ owner: 'alice', basename: 'report.odt' }),
+			makeNode({ owner: 'alice', basename: 'budget.ods', mime: 'application/vnd.oasis.opendocument.spreadsheet' }),
+		]))
+		return mountOverview({}, path)
+	}
+
+	it('opens the category named by the URL, not the first one', async () => {
+		const wrapper = await mountWithBothCategories('/spreadsheets')
+
+		expect(wrapper.text()).toContain('Recent Spreadsheets')
+		expect(wrapper.findComponent({ name: 'NcListItem' }).props('name')).toBe('budget.ods')
+	})
+
+	it('rewrites the URL to the first creator when it names no creator', async () => {
+		await mountWithBothCategories('/')
+
+		expect(router.currentRoute.value.params.creatorId).toBe('documents')
+	})
+
+	// A stale bookmark or an uninstalled suite must not leave an empty page: fall
+	// back to the first creator and correct the address to match what's shown.
+	it('falls back to the first creator and rewrites the URL for an unknown id', async () => {
+		const wrapper = await mountWithBothCategories('/typewriters')
+
+		expect(wrapper.text()).toContain('Recent Documents')
+		expect(router.currentRoute.value.params.creatorId).toBe('documents')
+	})
+
+	it('replaces rather than pushes the corrected URL, so Back leaves the app', async () => {
+		await mountWithBothCategories('/')
+
+		// One entry: the corrected URL took the place of the one we opened.
+		expect(window.history.length).toBe(1)
+	})
+
+	it('follows a route change (link click, back/forward) to the other category', async () => {
+		const wrapper = await mountWithBothCategories('/documents')
+
+		await router.push('/spreadsheets')
+		await flushPromises()
+
+		expect(wrapper.text()).toContain('Recent Spreadsheets')
+	})
+
+	it('clears an active search when the route switches category', async () => {
+		const wrapper = await mountWithBothCategories('/documents')
+		await wrapper.findComponent({ name: 'NcAppNavigationSearch' }).vm.$emit('update:modelValue', 'report')
+		await flushPromises()
+		expect(wrapper.findComponent({ name: 'NcAppNavigationSearch' }).props('modelValue')).toBe('report')
+
+		await router.push('/spreadsheets')
+		await flushPromises()
+
+		expect(wrapper.findComponent({ name: 'NcAppNavigationSearch' }).props('modelValue')).toBe('')
+	})
+
+	it('gives every navigation entry a link to its own creator URL', async () => {
+		const wrapper = await mountWithBothCategories('/documents')
+
+		const items = wrapper.findAllComponents({ name: 'NcAppNavigationItem' })
+		expect(items.map(item => item.props('to'))).toEqual([
+			{ name: 'creator', params: { creatorId: 'documents' } },
+			{ name: 'creator', params: { creatorId: 'spreadsheets' } },
+		])
+	})
+
+	// listCategories() emits one row per creator, so two suites each offering
+	// documents both map onto the id "documents". Only the first is addressable
+	// at /documents; a second entry would be an identically labelled dead link,
+	// and NcAppNavigationItem would mark both as the current page since
+	// aria-current follows the shared route target.
+	it('lists one navigation entry per category when two creators share one', async () => {
+		mockLoadState({
+			categories: [...CREATOR_CATEGORIES, { ...CREATOR_CATEGORIES[0], app: 'otheroffice' }],
+		})
+		const otherDocuments = makeCreator({ app: 'otheroffice', label: 'OtherOffice Document', extension: '.odt' })
+		getTemplatesMock.mockResolvedValue([documents, otherDocuments, spreadsheets])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+
+		const wrapper = await mountOverview({}, '/documents')
+
+		const items = wrapper.findAllComponents({ name: 'NcAppNavigationItem' })
+		expect(items.map(item => item.props('name'))).toEqual(['Documents', 'Spreadsheets'])
+	})
+
+	it('marks only the routed entry as active', async () => {
+		const wrapper = await mountWithBothCategories('/spreadsheets')
+
+		const items = wrapper.findAllComponents({ name: 'NcAppNavigationItem' })
+		expect(items.map(item => item.props('active'))).toEqual([false, true])
+	})
+
+	it('leaves the URL alone while no creator is loaded yet', async () => {
+		getTemplatesMock.mockResolvedValue([])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+
+		await mountOverview({}, '/')
+
+		expect(router.currentRoute.value.params.creatorId).toBeUndefined()
+	})
+})
+
 describe('OfficeOverview > preview thumbnails', () => {
 	// FilePreview's own rendering (image src, error-to-icon fallback) is
 	// covered by FilePreview.spec.ts in isolation. These tests are wiring
@@ -256,7 +407,7 @@ describe('OfficeOverview > preview thumbnails', () => {
 
 describe('OfficeOverview > openFile', () => {
 	it('navigates to the WOPI editor URL with fileId when editorUrl is set', async () => {
-		vi.mocked(loadState).mockReturnValue('/apps/office/editor')
+		mockLoadState({ editorUrl: '/apps/office/editor' })
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
