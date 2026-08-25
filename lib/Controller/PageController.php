@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace OCA\Office\Controller;
 
 use OCA\Office\AppInfo\Application;
+use OCA\Office\Service\CreatorCategoryService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\Attribute\OpenAPI;
 use OCP\AppFramework\Http\TemplateResponse;
+use OCP\AppFramework\Services\IInitialState;
 use OCP\IRequest;
 
 /**
@@ -20,6 +22,8 @@ final class PageController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
+		private CreatorCategoryService $categoryService,
+		private IInitialState $initialState,
 	) {
 		parent::__construct($appName, $request);
 	}
@@ -28,7 +32,13 @@ final class PageController extends Controller {
 	#[NoAdminRequired]
 	#[OpenAPI(OpenAPI::SCOPE_IGNORE)]
 	#[FrontpageRoute(verb: 'GET', url: '/')]
+	#[FrontpageRoute(verb: 'GET', url: '/{path}', requirements: ['path' => '.*'], defaults: ['path' => ''], postfix: 'path')]
 	public function index(): TemplateResponse {
+		// The category a creator belongs to, its id and its label are decided
+		// server-side; the frontend joins these onto the creators it gets from
+		// the templates API.
+		$this->initialState->provideInitialState('creator-categories', $this->categoryService->listCategories());
+
 		// editor-url is not provided here — OfficeOverview.vue calls
 		// loadState('office', 'editor-url', null) and falls back to /f/{fileid}
 		// when the state is absent. A WOPI backend branch injects a real URL.
