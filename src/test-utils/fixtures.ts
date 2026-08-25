@@ -1,6 +1,10 @@
 import { File } from '@nextcloud/files'
 import type { Node } from '@nextcloud/files'
+
+import type { CreatorCategory } from '../utils/fileCategories.ts'
 import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
+
+type LoadState = typeof import('@nextcloud/initial-state').loadState
 
 let sourceCounter = 0
 
@@ -65,4 +69,70 @@ export function makeCreator({
 	templates = [],
 }: MakeCreatorOptions = {}): TemplateCreator {
 	return { app, label, extension, mimetypes, templates }
+}
+
+// What CreatorCategoryService provides as the 'creator-categories' initial state
+// for the four ODF creators richdocuments registers — the shape specs have to
+// hand loadState() for categoryName()/categoryId()/categoryMimes() to resolve.
+export const CREATOR_CATEGORIES: CreatorCategory[] = [
+	{
+		app: 'richdocuments',
+		extension: '.odt',
+		id: 'documents',
+		label: 'Documents',
+		mimetypes: [
+			'application/vnd.oasis.opendocument.text',
+			'application/vnd.oasis.opendocument.text-template',
+			'application/msword',
+			'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		],
+	},
+	{
+		app: 'richdocuments',
+		extension: '.ods',
+		id: 'spreadsheets',
+		label: 'Spreadsheets',
+		mimetypes: [
+			'application/vnd.oasis.opendocument.spreadsheet',
+			'application/vnd.oasis.opendocument.spreadsheet-template',
+			'application/vnd.ms-excel',
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+		],
+	},
+	{
+		app: 'richdocuments',
+		extension: '.odp',
+		id: 'presentations',
+		label: 'Presentations',
+		mimetypes: [
+			'application/vnd.oasis.opendocument.presentation',
+			'application/vnd.oasis.opendocument.presentation-template',
+			'application/vnd.ms-powerpoint',
+			'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+		],
+	},
+	{
+		app: 'richdocuments',
+		extension: '.odg',
+		id: 'diagrams',
+		label: 'Diagrams',
+		mimetypes: [
+			'application/vnd.oasis.opendocument.graphics',
+			'application/vnd.oasis.opendocument.graphics-template',
+		],
+	},
+]
+
+interface FakeLoadStateOptions {
+	categories?: CreatorCategory[]
+	editorUrl?: string | null
+}
+
+// loadState() is mocked globally (see vitest.setup.ts); this answers both of the
+// keys the app reads. Hand it to mockImplementation().
+export function fakeLoadState({
+	categories = CREATOR_CATEGORIES,
+	editorUrl = null,
+}: FakeLoadStateOptions = {}): LoadState {
+	return ((app: string, key: string) => (key === 'editor-url' ? editorUrl : categories)) as LoadState
 }

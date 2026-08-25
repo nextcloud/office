@@ -4,9 +4,9 @@
 -->
 
 <script setup lang="ts">
-import OfficeOverview from './views/OfficeOverview.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-	<OfficeOverview />
+	<RouterView />
 </template>
