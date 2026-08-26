@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "文档",
+    "Spreadsheets" : "表格",
+    "Presentations" : "幻灯片",
     "Office" : "办公",
     "Create new" : "新建",
     "Blank" : "空白",
@@ -13,9 +16,6 @@ OC.L10N.register(
     "No {category} found" : "{category} 未找到",
     "Create" : "创建",
     "Filename" : "文件名",
-    "Documents" : "文档",
-    "Spreadsheets" : "表格",
-    "Presentations" : "幻灯片",
     "Filename cannot be empty" : "文件名不能为空。"
 },
 "nplurals=1; plural=0;");

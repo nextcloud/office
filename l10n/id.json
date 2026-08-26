@@ -1,4 +1,7 @@
 { "translations": {
+    "Documents" : "Dokumen",
+    "Spreadsheets" : "Spreadsheet",
+    "Presentations" : "Presentasi",
     "Office" : "Office",
     "Create new" : "Buat",
     "Blank" : "Kosong",
@@ -10,9 +13,6 @@
     "Switch to list view" : "Beralih ke tampilan daftar",
     "Create" : "Buat",
     "Filename" : "Nama file",
-    "Documents" : "Dokumen",
-    "Spreadsheets" : "Spreadsheet",
-    "Presentations" : "Presentasi",
     "Filename cannot be empty" : "Nama berkas tidak boleh kosong"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

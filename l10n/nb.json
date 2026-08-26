@@ -1,4 +1,7 @@
 { "translations": {
+    "Documents" : "Dokumenter",
+    "Spreadsheets" : "Regneark",
+    "Presentations" : "Presentasjoner",
     "Office" : "Kontor",
     "Create new" : "Opprett ny",
     "Blank" : "Tom",
@@ -10,9 +13,6 @@
     "No {category} found" : "Ingen {category} funnet",
     "Create" : "Opprett",
     "Filename" : "Filnavn",
-    "Documents" : "Dokumenter",
-    "Spreadsheets" : "Regneark",
-    "Presentations" : "Presentasjoner",
     "Filename cannot be empty" : "Filnavn kan ikke være tomt"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

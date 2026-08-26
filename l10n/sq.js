@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumentat",
     "Office" : "Zyrë",
     "Create new" : "Krijo të ri",
     "Search {category}" : "Kërko {category}",
@@ -8,7 +9,6 @@ OC.L10N.register(
     "All" : "Të gjithë",
     "Create" : "Krijo",
     "Filename" : "Emri i skedarit",
-    "Documents" : "Dokumentat",
     "Filename cannot be empty" : "Emri i skedarit nuk mund të jetë i zbrazët"
 },
 "nplurals=2; plural=(n != 1);");

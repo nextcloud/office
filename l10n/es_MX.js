@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documentos",
+    "Spreadsheets" : "Hojas de cálculo",
+    "Presentations" : "Presentaciones",
     "Office" : "Office",
     "Create new" : "Crear nuevo",
     "Blank" : "Vacío",
@@ -11,9 +14,6 @@ OC.L10N.register(
     "Switch to list view" : "Cambiar a la vista de lista",
     "Create" : "Crear",
     "Filename" : "Nombre del archivo",
-    "Documents" : "Documentos",
-    "Spreadsheets" : "Hojas de cálculo",
-    "Presentations" : "Presentaciones",
     "Filename cannot be empty" : "El nombre del archivo no puede estar en blanco. "
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

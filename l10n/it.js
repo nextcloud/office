@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documenti",
+    "Spreadsheets" : "Fogli elettronici",
+    "Presentations" : "Presentazioni",
     "Office" : "Office",
     "Create new" : "Crea nuovo",
     "Blank" : "Vuoto",
@@ -13,9 +16,6 @@ OC.L10N.register(
     "No {category} found" : "Nessun {category} trovato",
     "Create" : "Crea",
     "Filename" : "Nome file",
-    "Documents" : "Documenti",
-    "Spreadsheets" : "Fogli elettronici",
-    "Presentations" : "Presentazioni",
     "Filename cannot be empty" : "Il nome del file non può essere vuoto"
 },
 "nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;");

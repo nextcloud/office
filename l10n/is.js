@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Skjöl",
+    "Spreadsheets" : "Töflureiknar",
+    "Presentations" : "Kynningar",
     "Office" : "Skrifstofa",
     "Create new" : "Búa til nýjan",
     "Blank" : "Tóm",
@@ -12,9 +15,6 @@ OC.L10N.register(
     "No {category} found" : "Ekkert {category} fannst",
     "Create" : "Búa til",
     "Filename" : "Skráarheiti",
-    "Documents" : "Skjöl",
-    "Spreadsheets" : "Töflureiknar",
-    "Presentations" : "Kynningar",
     "Filename cannot be empty" : "Skráarheiti má ekki vera tómt"
 },
 "nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);");

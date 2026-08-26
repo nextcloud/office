@@ -1,9 +1,9 @@
 { "translations": {
+    "Documents" : "Dokumentlar",
     "Create new" : "Täzesini dörediň",
     "Search" : "Gözlemek",
     "Create" : "Dörediň",
     "Filename" : "Faýlyň ady",
-    "Documents" : "Dokumentlar",
     "Filename cannot be empty" : "Faýlyň ady boş bolup bilmez"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

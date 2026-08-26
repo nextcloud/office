@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Belgeler",
+    "Spreadsheets" : "Elektronik tablolar",
+    "Presentations" : "Sunumlar",
+    "Diagrams" : "Şemalar",
     "Office" : "Ofis",
     "Office overview" : "Ofis özeti",
     "Office overview app for Nextcloud" : "Nextcloud için ofis özeti uygulaması",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Tümünü Dosyalar uygulamasında görüntüle",
     "Create" : "Oluştur",
     "Filename" : "Dosya adı",
-    "Documents" : "Belgeler",
-    "Spreadsheets" : "Elektronik tablolar",
-    "Presentations" : "Sunumlar",
-    "Diagrams" : "Şemalar",
     "Filename cannot be empty" : "Dosya adı boş olamaz",
     "Filename contains invalid characters" : "Dosya adı içinde geçersiz karakterler var",
     "{count} {category} found" : "{count} {category} bulundu"

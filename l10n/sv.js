@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokument",
+    "Spreadsheets" : "Kalkylblad",
+    "Presentations" : "Presentationer",
+    "Diagrams" : "Diagram",
     "Office" : "Office",
     "Office overview" : "Office-översikt",
     "Office overview app for Nextcloud" : "App för Office-översikt i Nextcloud",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Visa alla i Filer",
     "Create" : "Skapa",
     "Filename" : "Filnamn",
-    "Documents" : "Dokument",
-    "Spreadsheets" : "Kalkylblad",
-    "Presentations" : "Presentationer",
-    "Diagrams" : "Diagram",
     "Filename cannot be empty" : "Filnamnet kan inte vara tomt",
     "Filename contains invalid characters" : "Filnamnet innehåller ogiltiga tecken",
     "{count} {category} found" : "{count} {category} hittades"

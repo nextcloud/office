@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumentai",
+    "Spreadsheets" : "Skaičiuoklės",
+    "Presentations" : "Pateiktys",
+    "Diagrams" : "Diagramos",
     "Office" : "Biuras",
     "Office overview" : "Biuro apžvalga",
     "Office overview app for Nextcloud" : "„Nextcloud“ skirta biuro apžvalgos programėlė",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Rodyti viską Failuose",
     "Create" : "Sukurti",
     "Filename" : "Failo pavadinimas",
-    "Documents" : "Dokumentai",
-    "Spreadsheets" : "Skaičiuoklės",
-    "Presentations" : "Pateiktys",
-    "Diagrams" : "Diagramos",
     "Filename cannot be empty" : "Failo pavadinimas negali būti tuščias",
     "Filename contains invalid characters" : "Failo pavadinime yra neleistinų simbolių",
     "{count} {category} found" : "Rasta {count} {category}"

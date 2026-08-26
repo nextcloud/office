@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Документи",
+    "Spreadsheets" : "Електронні таблиці",
+    "Presentations" : "Презентації",
+    "Diagrams" : "Діаграми",
     "Office" : "Офіс",
     "Office overview" : "Огляд застосунку \"Офіс\"",
     "Office overview app for Nextcloud" : "Огляд застосунку \"Офіс для Nextcloud\"",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Показати все у Файлах",
     "Create" : "Додати",
     "Filename" : "Ім'я файлу",
-    "Documents" : "Документи",
-    "Spreadsheets" : "Електронні таблиці",
-    "Presentations" : "Презентації",
-    "Diagrams" : "Діаграми",
     "Filename cannot be empty" : "Ім'я файлу не може бути порожнім",
     "Filename contains invalid characters" : "Ім'я файлу містить неприпустимий символ",
     "{count} {category} found" : "Знайдено {count}{category}"
