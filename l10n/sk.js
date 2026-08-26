@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumenty",
+    "Spreadsheets" : "Tabuľky",
+    "Presentations" : "Prezentácie",
+    "Diagrams" : "Diagramy",
     "Office" : "Office",
     "Office overview" : "Prehľad Office",
     "Office overview app for Nextcloud" : "Aplikácia prehľad Office pre Nextcloud",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Zobraziť všetko v Súboroch",
     "Create" : "Vytvoriť",
     "Filename" : "Názov súboru",
-    "Documents" : "Dokumenty",
-    "Spreadsheets" : "Tabuľky",
-    "Presentations" : "Prezentácie",
-    "Diagrams" : "Diagramy",
     "Filename cannot be empty" : "Názov súboru nemôže byť prázdny",
     "Filename contains invalid characters" : "Názov súboru obsahuje neplatné znaky",
     "{count} {category} found" : "{count} {category} nájdené"

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documenten",
+    "Spreadsheets" : "Spreadsheets",
+    "Presentations" : "Presentaties",
+    "Diagrams" : "Tekeningen",
     "Office" : "Office",
     "Office overview" : "Office overzicht",
     "Office overview app for Nextcloud" : "Office overzicht app voor Nextcloud",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Toon alles in Bestanden",
     "Create" : "Aanmaken",
     "Filename" : "Bestandsnaam",
-    "Documents" : "Documenten",
-    "Spreadsheets" : "Spreadsheets",
-    "Presentations" : "Presentaties",
-    "Diagrams" : "Tekeningen",
     "Filename cannot be empty" : "Bestandsnaam mag niet leeg zijn",
     "Filename contains invalid characters" : "Bestandsnaam bevat ongeldige tekens",
     "{count} {category} found" : "{count} {category} gevonden"

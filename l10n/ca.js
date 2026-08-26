@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documents",
+    "Spreadsheets" : "Fulls de càlcul",
+    "Presentations" : "Presentacions",
     "Office" : "Oficina",
     "Create new" : "Crea nou",
     "Blank" : "En blanc",
@@ -12,9 +15,6 @@ OC.L10N.register(
     "No {category} found" : "No s'ha trobat {category}",
     "Create" : "Crea",
     "Filename" : "Nom del fitxer",
-    "Documents" : "Documents",
-    "Spreadsheets" : "Fulls de càlcul",
-    "Presentations" : "Presentacions",
     "Filename cannot be empty" : "El nom del fitxer no pot estar buit"
 },
 "nplurals=2; plural=(n != 1);");

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Isemliyen",
     "Office" : "Tanarit",
     "Create new" : "Snulfu-d amaynut",
     "Blank" : "Ilem",
@@ -14,7 +15,6 @@ OC.L10N.register(
     "Search all in Files" : "Nadi deg akk ifuyla",
     "Create" : "Snulfu-d",
     "Filename" : "Isem n ufaylu",
-    "Documents" : "Isemliyen",
     "Filename cannot be empty" : "Isem n ufaylu ulamek ara yili d ilem",
     "{count} {category} found" : "{count} {category} ttwafen"
 },

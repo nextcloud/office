@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "المستندات",
+    "Spreadsheets" : "الجداول الالكترونية",
+    "Presentations" : "العروض",
+    "Diagrams" : "الأشكال",
     "Office" : "المكتب",
     "Office overview" : "نظرة عامة على البرنامج المكتبي",
     "Office overview app for Nextcloud" : "نظرة عامة على تطبيق Office لـ Nextcloud",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "عرض الكل في الملفات",
     "Create" : "إنشاء",
     "Filename" : "اسم الملف",
-    "Documents" : "المستندات",
-    "Spreadsheets" : "الجداول الالكترونية",
-    "Presentations" : "العروض",
-    "Diagrams" : "الأشكال",
     "Filename cannot be empty" : "لا يجوز أن يُترك اسم الملف فارغًا",
     "Filename contains invalid characters" : "اسم الملف يحتوي على أحرف غير صالحة",
     "{count} {category} found" : "{count}{category} وجد"

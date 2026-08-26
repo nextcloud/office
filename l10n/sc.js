@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documentos",
     "Office" : "Ofìtziu",
     "Create new" : "Crea un'archìviu nou",
     "Blank" : "Isbòidu",
@@ -12,7 +13,6 @@ OC.L10N.register(
     "No {category} found" : "Perunu {category} agatadu",
     "Create" : "Crea",
     "Filename" : "Nùmene de s'archìviu",
-    "Documents" : "Documentos",
     "Filename cannot be empty" : "Su nùmene de su documentu non podet èssere bòidu"
 },
 "nplurals=2; plural=(n != 1);");

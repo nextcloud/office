@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Баримтууд",
+    "Spreadsheets" : "Хүснэгтүүд",
+    "Presentations" : "Танилцуулгууд",
     "Office" : "Office",
     "Create new" : "Шинээр үүсгэх",
     "Blank" : "Хоосон",
@@ -10,9 +13,6 @@ OC.L10N.register(
     "Switch to grid view" : "Торны харагдац руу шилжих",
     "Switch to list view" : "Жагсаалт харагдацад шилжих",
     "Create" : "“Æ“Ø—Å–≥—ç—Ö",
-    "Filename" : "–§–∞–π–ª—ã–Ω –Ω—ç—Ä",
-    "Documents" : "Баримтууд",
-    "Spreadsheets" : "Хүснэгтүүд",
-    "Presentations" : "Танилцуулгууд"
+    "Filename" : "–§–∞–π–ª—ã–Ω –Ω—ç—Ä"
 },
 "nplurals=2; plural=(n != 1);");

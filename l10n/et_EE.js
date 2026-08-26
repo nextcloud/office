@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumendid",
+    "Spreadsheets" : "Arvutustabelid",
+    "Presentations" : "Esitlused",
+    "Diagrams" : "Joonised ja diagrammid",
     "Office" : "Kontorirakendus",
     "Office overview" : "Kontorirakenduse ülevaade",
     "Office overview app for Nextcloud" : "Nextcloudi kontorirakenduse ülevaade",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Näita neid kõiki failirakenduses",
     "Create" : "Lisa",
     "Filename" : "Failinimi",
-    "Documents" : "Dokumendid",
-    "Spreadsheets" : "Arvutustabelid",
-    "Presentations" : "Esitlused",
-    "Diagrams" : "Joonised ja diagrammid",
     "Filename cannot be empty" : "Failinimi ei tohi olla tühi",
     "Filename contains invalid characters" : "Failinimes leidub keelatud tähemärke",
     "{count} {category} found" : "Leidus {count} „{category}“ kategooria"

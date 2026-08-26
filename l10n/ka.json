@@ -1,4 +1,5 @@
 { "translations": {
+    "Documents" : "Documents",
     "Office" : "Office",
     "Create new" : "Create new",
     "Blank" : "Blank",
@@ -9,7 +10,6 @@
     "Switch to list view" : "Switch to list view",
     "Create" : "Create",
     "Filename" : "Filename",
-    "Documents" : "Documents",
     "Filename cannot be empty" : "Filename cannot be empty"
 },"pluralForm" :"nplurals=2; plural=(n!=1);"
 }

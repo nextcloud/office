@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Asiakirjat",
+    "Spreadsheets" : "Laskentataulukot",
+    "Presentations" : "Esitykset",
+    "Diagrams" : "Kaaviot",
     "Office" : "Toimisto",
     "Create new" : "Luo uusi",
     "Scroll left" : "Vieritä vasemmalle",
@@ -19,10 +23,6 @@ OC.L10N.register(
     "Switch to list view" : "Vaihda taulukkonäkymään",
     "Create" : "Luo",
     "Filename" : "Tiedostonimi",
-    "Documents" : "Asiakirjat",
-    "Spreadsheets" : "Laskentataulukot",
-    "Presentations" : "Esitykset",
-    "Diagrams" : "Kaaviot",
     "Filename cannot be empty" : "Tiedoston nimi ei voi olla tyhjä",
     "Filename contains invalid characters" : "Tiedostonimi sisältää virheellisiä merkkejä"
 },
