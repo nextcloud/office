@@ -1,6 +1,6 @@
 {
   "name": "office",
-  "version": "1.0.0",
+  "version": "1.1.0-dev.0",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "scripts": {
@@ -25,7 +25,8 @@
     "@nextcloud/l10n": "^3.4.1",
     "@nextcloud/router": "^3.1.0",
     "@nextcloud/vue": "^9.3.1",
-    "vue": "^3.5.41"
+    "vue": "^3.5.41",
+    "vue-router": "^5.2.0"
   },
   "devDependencies": {
     "@nextcloud/browserslist-config": "^3.1.2",
@@ -35,10 +36,10 @@
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "typescript": "^5.9.3",
     "vite": "^7.2.7",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": "^24.0.0",

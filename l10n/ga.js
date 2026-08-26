@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Doiciméid",
+    "Spreadsheets" : "Scarbhileoga",
+    "Presentations" : "Cur i láthair",
+    "Diagrams" : "Léaráidí",
     "Office" : "Oifig",
     "Office overview" : "Forbhreathnú ar an oifig",
     "Office overview app for Nextcloud" : "Aip forbhreathnaithe Oifige do Nextcloud",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Taispeáin gach rud i gComhaid",
     "Create" : "Cruthaigh",
     "Filename" : "Ainm comhaid",
-    "Documents" : "Doiciméid",
-    "Spreadsheets" : "Scarbhileoga",
-    "Presentations" : "Cur i láthair",
-    "Diagrams" : "Léaráidí",
     "Filename cannot be empty" : "Ní féidir leis an ainm comhaid a bheith folamh",
     "Filename contains invalid characters" : "Tá carachtair neamhbhailí san ainm comhaid",
     "{count} {category} found" : "{count} {category} aimsithe"

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "ドキュメント",
+    "Spreadsheets" : "スプレッドシート",
+    "Presentations" : "プレゼンテーション",
     "Office" : "オフィス",
     "Create new" : "新規作成",
     "Blank" : "ブランク",
@@ -12,9 +15,6 @@ OC.L10N.register(
     "No {category} found" : "{category}が見つかりません",
     "Create" : "作成",
     "Filename" : "ファイル名",
-    "Documents" : "ドキュメント",
-    "Spreadsheets" : "スプレッドシート",
-    "Presentations" : "プレゼンテーション",
     "Filename cannot be empty" : "ファイル名は空にできません"
 },
 "nplurals=1; plural=0;");

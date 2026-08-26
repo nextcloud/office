@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documentos",
+    "Spreadsheets" : "Follas de cálculo",
+    "Presentations" : "Presentacións",
     "Office" : "Oficina",
     "Create new" : "Crear novo",
     "Blank" : "Baleiro",
@@ -14,9 +17,6 @@ OC.L10N.register(
     "No {category} found" : "Non se atopou {category}",
     "Create" : "Crear",
     "Filename" : "Nome de ficheiro",
-    "Documents" : "Documentos",
-    "Spreadsheets" : "Follas de cálculo",
-    "Presentations" : "Presentacións",
     "Filename cannot be empty" : "O nome de ficheiro non pode estar baleiro"
 },
 "nplurals=2; plural=(n != 1);");

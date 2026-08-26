@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumentuak",
+    "Spreadsheets" : "kalkulu-orriak",
+    "Presentations" : "Aurkezpenak",
     "Office" : "Bulegoa",
     "Create new" : "Sortu berria",
     "Blank" : "Hutsik",
@@ -13,9 +16,6 @@ OC.L10N.register(
     "No {category} found" : "{category} ez da aurkitu",
     "Create" : "Sortu",
     "Filename" : "Fitxategi-izena",
-    "Documents" : "Dokumentuak",
-    "Spreadsheets" : "kalkulu-orriak",
-    "Presentations" : "Aurkezpenak",
     "Filename cannot be empty" : "Fitxategi-izena ezin da hutsik egon"
 },
 "nplurals=2; plural=(n != 1);");

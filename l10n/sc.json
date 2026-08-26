@@ -1,4 +1,5 @@
 { "translations": {
+    "Documents" : "Documentos",
     "Office" : "Ofìtziu",
     "Create new" : "Crea un'archìviu nou",
     "Blank" : "Isbòidu",
@@ -10,7 +11,6 @@
     "No {category} found" : "Perunu {category} agatadu",
     "Create" : "Crea",
     "Filename" : "Nùmene de s'archìviu",
-    "Documents" : "Documentos",
     "Filename cannot be empty" : "Su nùmene de su documentu non podet èssere bòidu"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

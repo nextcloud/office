@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Документы",
+    "Spreadsheets" : "Таблицы",
+    "Presentations" : "Презентации",
     "Office" : "Офис",
     "Create new" : "Создать",
     "Blank" : "Пустой",
@@ -14,9 +17,6 @@ OC.L10N.register(
     "No {category} found" : "Объектов «{category}» не найдено",
     "Create" : "Создать",
     "Filename" : "Имя файла",
-    "Documents" : "Документы",
-    "Spreadsheets" : "Таблицы",
-    "Presentations" : "Презентации",
     "Filename cannot be empty" : "Имя файла не может быть пустым"
 },
 "nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n%100>=11 && n%100<=14)? 2 : 3);");

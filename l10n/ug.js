@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "ھۆججەتلەر",
+    "Spreadsheets" : "ئېلېكترونلۇق جەدۋەل",
+    "Presentations" : "لېكسىيە",
     "Office" : "ئىشخانا",
     "Create new" : "يېڭى قۇر",
     "Blank" : "ئوچۇق",
@@ -11,9 +14,6 @@ OC.L10N.register(
     "Switch to list view" : "تىزىملىك كۆرۈنۈشىگە ئالماشتۇرۇڭ",
     "Create" : "قۇر",
     "Filename" : "ھۆججەت ئىسمى",
-    "Documents" : "ھۆججەتلەر",
-    "Spreadsheets" : "ئېلېكترونلۇق جەدۋەل",
-    "Presentations" : "لېكسىيە",
     "Filename cannot be empty" : "ھۆججەت ئىسمى قۇرۇق بولمايدۇ"
 },
 "nplurals=2; plural=(n != 1);");

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Έγγραφα",
+    "Spreadsheets" : "Υπολογιστικά φύλλα",
+    "Presentations" : "Παρουσιάσεις",
+    "Diagrams" : "Διαγράμματα",
     "Office" : "Σουίτα Γραφείου",
     "Office overview" : "Επισκόπηση σουίτας γραφείου",
     "Office overview app for Nextcloud" : "Εφαρμογή επισκόπησης σουίτας γραφείου για το Nextcloud",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Εμφάνιση όλων στα Αρχεία",
     "Create" : "Δημιουργία",
     "Filename" : "Όνομα αρχείου",
-    "Documents" : "Έγγραφα",
-    "Spreadsheets" : "Υπολογιστικά φύλλα",
-    "Presentations" : "Παρουσιάσεις",
-    "Diagrams" : "Διαγράμματα",
     "Filename cannot be empty" : "Το όνομα αρχείου δεν μπορεί να είναι κενό",
     "Filename contains invalid characters" : "Το όνομα αρχείου περιέχει μη έγκυρους χαρακτήρες",
     "{count} {category} found" : "Βρέθηκαν {count} {category}"
