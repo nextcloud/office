@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "文件",
+    "Spreadsheets" : "試算表",
+    "Presentations" : "簡報",
+    "Diagrams" : "圖表",
     "Office" : "Nextcloud Office",
     "Office overview" : "Office 概覽",
     "Office overview app for Nextcloud" : "Nextcloud 的 Office 概覽應用程式",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "在檔案中顯示全部",
     "Create" : "創建",
     "Filename" : "檔案名",
-    "Documents" : "文件",
-    "Spreadsheets" : "試算表",
-    "Presentations" : "簡報",
-    "Diagrams" : "圖表",
     "Filename cannot be empty" : "檔案名不可為空白",
     "Filename contains invalid characters" : "檔案名稱包含無效字元",
     "{count} {category} found" : "找到 {count} 個 {category}"

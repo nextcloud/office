@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Документи",
+    "Spreadsheets" : "Електронни таблици",
+    "Presentations" : "Презентации",
     "Office" : "Офис",
     "Create new" : "Създай нов",
     "Blank" : "Празен",
@@ -12,9 +15,6 @@ OC.L10N.register(
     "No {category} found" : "Не е намерен {category}",
     "Create" : "Създаване",
     "Filename" : "Име на файла",
-    "Documents" : "Документи",
-    "Spreadsheets" : "Електронни таблици",
-    "Presentations" : "Презентации",
     "Filename cannot be empty" : "Името на файла не може да бъде празно"
 },
 "nplurals=2; plural=(n != 1);");

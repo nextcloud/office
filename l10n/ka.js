@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documents",
     "Office" : "Office",
     "Create new" : "Create new",
     "Blank" : "Blank",
@@ -11,7 +12,6 @@ OC.L10N.register(
     "Switch to list view" : "Switch to list view",
     "Create" : "Create",
     "Filename" : "Filename",
-    "Documents" : "Documents",
     "Filename cannot be empty" : "Filename cannot be empty"
 },
 "nplurals=2; plural=(n!=1);");

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Tài liệu",
+    "Spreadsheets" : "Bảng tính",
+    "Presentations" : "Bản trình chiếu",
     "Office" : "Văn phòng",
     "Create new" : "Tạo mới",
     "Blank" : "Trống",
@@ -11,9 +14,6 @@ OC.L10N.register(
     "Switch to list view" : "Chuyển sang chế độ xem danh sách",
     "Create" : "Tạo",
     "Filename" : "Tên tập tin",
-    "Documents" : "Tài liệu",
-    "Spreadsheets" : "Bảng tính",
-    "Presentations" : "Bản trình chiếu",
     "Filename cannot be empty" : "Tên tập tin không thể trống"
 },
 "nplurals=1; plural=0;");

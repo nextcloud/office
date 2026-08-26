@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumenty",
+    "Spreadsheets" : "Arkusze kalkulacyjne",
+    "Presentations" : "Prezentacje",
+    "Diagrams" : "Diagramy",
     "Office" : "Biuro",
     "Office overview" : "Przegląd biura",
     "Office overview app for Nextcloud" : "Aplikacja przegląd biura dla Androida",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Pokaż wszystkie w Plikach",
     "Create" : "Utwórz",
     "Filename" : "Nazwa pliku",
-    "Documents" : "Dokumenty",
-    "Spreadsheets" : "Arkusze kalkulacyjne",
-    "Presentations" : "Prezentacje",
-    "Diagrams" : "Diagramy",
     "Filename cannot be empty" : "Nazwa pliku nie może być pusta",
     "Filename contains invalid characters" : "Nazwa pliku zawiera nieprawidłowe znaki",
     "{count} {category} found" : "{count} {category} odnaleziono"

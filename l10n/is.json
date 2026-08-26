@@ -1,4 +1,7 @@
 { "translations": {
+    "Documents" : "Skjöl",
+    "Spreadsheets" : "Töflureiknar",
+    "Presentations" : "Kynningar",
     "Office" : "Skrifstofa",
     "Create new" : "Búa til nýjan",
     "Blank" : "Tóm",
@@ -10,9 +13,6 @@
     "No {category} found" : "Ekkert {category} fannst",
     "Create" : "Búa til",
     "Filename" : "Skráarheiti",
-    "Documents" : "Skjöl",
-    "Spreadsheets" : "Töflureiknar",
-    "Presentations" : "Kynningar",
     "Filename cannot be empty" : "Skráarheiti má ekki vera tómt"
 },"pluralForm" :"nplurals=2; plural=(n % 10 != 1 || n % 100 == 11);"
 }
