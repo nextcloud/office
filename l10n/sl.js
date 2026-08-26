@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumenti",
+    "Spreadsheets" : "Preglednice",
+    "Presentations" : "Predstavitve",
     "Office" : "Pisarna",
     "Create new" : "Ustvari novo",
     "Blank" : "Prazno",
@@ -13,9 +16,6 @@ OC.L10N.register(
     "No {category} found" : "Ni najdene vrste točke {category} ",
     "Create" : "Ustvari",
     "Filename" : "Ime datoteke",
-    "Documents" : "Dokumenti",
-    "Spreadsheets" : "Preglednice",
-    "Presentations" : "Predstavitve",
     "Filename cannot be empty" : "Ime datoteke ne sme biti prazno"
 },
 "nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);");

@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "اسناد",
+    "Spreadsheets" : "صفحات گسترده",
+    "Presentations" : "ارائه‌ها",
+    "Diagrams" : "نمودارها",
     "Office" : "دفتر کار",
     "Office overview" : "نمای کلی دفتر کار",
     "Office overview app for Nextcloud" : "برنامه نمای کلی دفتر کار برای نکست‌کلود",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "نمایش همه در فایل‌ها",
     "Create" : "ایجاد",
     "Filename" : "نام فایل",
-    "Documents" : "اسناد",
-    "Spreadsheets" : "صفحات گسترده",
-    "Presentations" : "ارائه‌ها",
-    "Diagrams" : "نمودارها",
     "Filename cannot be empty" : "نام فایل نمی‌تواند خالی باشد",
     "Filename contains invalid characters" : "نام فایل شامل کاراکترهای نامعتبر است",
     "{count} {category} found" : "{count} {category} یافت شد"

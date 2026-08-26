@@ -1,4 +1,7 @@
 { "translations": {
+    "Documents" : "ドキュメント",
+    "Spreadsheets" : "スプレッドシート",
+    "Presentations" : "プレゼンテーション",
     "Office" : "オフィス",
     "Create new" : "新規作成",
     "Blank" : "ブランク",
@@ -10,9 +13,6 @@
     "No {category} found" : "{category}が見つかりません",
     "Create" : "作成",
     "Filename" : "ファイル名",
-    "Documents" : "ドキュメント",
-    "Spreadsheets" : "スプレッドシート",
-    "Presentations" : "プレゼンテーション",
     "Filename cannot be empty" : "ファイル名は空にできません"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

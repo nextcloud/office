@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumentumok",
+    "Spreadsheets" : "Munkafüzetek",
+    "Presentations" : "Bemutatók",
+    "Diagrams" : "Diagramok",
     "Office" : "Office",
     "Office overview" : "Office áttekintő",
     "Office overview app for Nextcloud" : "Office áttekintő alkalmazás a Nextcloudhoz",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Összes megjelenítése a Fájlokban",
     "Create" : "Létrehozás",
     "Filename" : "Fájlnév",
-    "Documents" : "Dokumentumok",
-    "Spreadsheets" : "Munkafüzetek",
-    "Presentations" : "Bemutatók",
-    "Diagrams" : "Diagramok",
     "Filename cannot be empty" : "A fájlnév nem lehet üres",
     "Filename contains invalid characters" : "A fájlnév érvénytelen karaktereket tartalmaz",
     "{count} {category} found" : "{count} {category} található"

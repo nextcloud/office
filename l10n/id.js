@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumen",
+    "Spreadsheets" : "Spreadsheet",
+    "Presentations" : "Presentasi",
     "Office" : "Office",
     "Create new" : "Buat",
     "Blank" : "Kosong",
@@ -12,9 +15,6 @@ OC.L10N.register(
     "Switch to list view" : "Beralih ke tampilan daftar",
     "Create" : "Buat",
     "Filename" : "Nama file",
-    "Documents" : "Dokumen",
-    "Spreadsheets" : "Spreadsheet",
-    "Presentations" : "Presentasi",
     "Filename cannot be empty" : "Nama berkas tidak boleh kosong"
 },
 "nplurals=1; plural=0;");

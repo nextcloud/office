@@ -1,6 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Documents",
+    "Spreadsheets" : "Spreadsheets",
+    "Presentations" : "Presentations",
+    "Diagrams" : "Diagrams",
     "Office" : "Office",
     "Office overview" : "Office overview",
     "Office overview app for Nextcloud" : "Office overview app for Nextcloud",
@@ -27,10 +31,6 @@ OC.L10N.register(
     "Show all in Files" : "Show all in Files",
     "Create" : "Create",
     "Filename" : "Filename",
-    "Documents" : "Documents",
-    "Spreadsheets" : "Spreadsheets",
-    "Presentations" : "Presentations",
-    "Diagrams" : "Diagrams",
     "Filename cannot be empty" : "Filename cannot be empty",
     "Filename contains invalid characters" : "Filename contains invalid characters",
     "{count} {category} found" : "{count} {category} found"

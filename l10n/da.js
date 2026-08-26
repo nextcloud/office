@@ -1,6 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Documents" : "Dokumenter",
+    "Spreadsheets" : "Regneark",
+    "Presentations" : "Præsentationer",
     "Office" : "Kontor",
     "Create new" : "Opret ny",
     "Blank" : "Tom",
@@ -8,14 +11,12 @@ OC.L10N.register(
     "Search" : "Søg",
     "Failed to load files" : "Kunne ikke indlæse filer",
     "All" : "Alle",
+    "Mine" : "Min",
     "Shared with me" : "Delt med mig",
     "Switch to grid view" : "Skift til gittervisning",
     "Switch to list view" : "Skift til listevisning",
     "Create" : "Opret",
     "Filename" : "Filnavn",
-    "Documents" : "Dokumenter",
-    "Spreadsheets" : "Regneark",
-    "Presentations" : "Præsentationer",
     "Filename cannot be empty" : "Filnavnet kan ikke stå tomt."
 },
 "nplurals=2; plural=(n != 1);");
