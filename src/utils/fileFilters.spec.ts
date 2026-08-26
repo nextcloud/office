@@ -37,6 +37,25 @@ describe('filterFiles > shared', () => {
 	})
 })
 
+describe('filterFiles > starred', () => {
+	it('includes only favourited files, regardless of owner', () => {
+		const mineStarred = makeNode({ owner: 'alice', favorite: true })
+		const sharedStarred = makeNode({ owner: 'bob', mountType: 'shared', favorite: true })
+		const mineUnstarred = makeNode({ owner: 'alice' })
+
+		expect(filterFiles([mineStarred, sharedStarred, mineUnstarred], { ...baseOptions, activeFilter: 'starred' }))
+			.toEqual(expect.arrayContaining([mineStarred, sharedStarred]))
+		expect(filterFiles([mineStarred, sharedStarred, mineUnstarred], { ...baseOptions, activeFilter: 'starred' }))
+			.toHaveLength(2)
+	})
+
+	it('excludes unfavourited files', () => {
+		const unstarred = makeNode({ owner: 'alice' })
+
+		expect(filterFiles([unstarred], { ...baseOptions, activeFilter: 'starred' })).toEqual([])
+	})
+})
+
 describe('filterFiles > all', () => {
 	it('applies no owner/mount-type filtering', () => {
 		const mine = makeNode({ owner: 'alice' })

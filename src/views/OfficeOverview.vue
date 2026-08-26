@@ -144,6 +144,14 @@ const activeCategoryName = computed(() =>
 	activeCreator.value ? categoryName(activeCreator.value) : '',
 )
 
+// The "Starred" filter reframes the list as a section of its own, rather than
+// the default "Recent" view of the category.
+const filesHeading = computed(() =>
+	activeFilter.value === 'starred'
+		? t('office', 'Starred {category}', { category: activeCategoryName.value })
+		: t('office', 'Recent {category}', { category: activeCategoryName.value }),
+)
+
 function toggleViewMode() {
 	const mode: ViewMode = viewMode.value === 'list' ? 'grid' : 'list'
 	viewMode.value = mode
@@ -296,7 +304,7 @@ fetchAll()
 
 						<div class="office-overview__files-header">
 							<h2 id="files-section-heading" class="office-overview__files-title">
-								{{ t('office', 'Recent {category}', { category: activeCategoryName }) }}
+								{{ filesHeading }}
 							</h2>
 						</div>
 
@@ -321,6 +329,15 @@ fetchAll()
 									:aria-pressed="activeFilter === 'shared'"
 									@click="activeFilter = 'shared'">
 									{{ t('office', 'Shared with me') }}
+								</NcButton>
+								<NcButton size="small"
+									:variant="activeFilter === 'starred' ? 'primary' : 'secondary'"
+									:aria-pressed="activeFilter === 'starred'"
+									@click="activeFilter = 'starred'">
+									<template #icon>
+										<NcIconSvgWrapper :path="mdiStar" :size="16" />
+									</template>
+									{{ t('office', 'Starred') }}
 								</NcButton>
 							</div>
 
