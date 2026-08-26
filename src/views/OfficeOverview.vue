@@ -32,6 +32,7 @@ import {
 } from '@mdi/js'
 import FileCard from '../components/FileCard.vue'
 import FilePreview from '../components/FilePreview.vue'
+import ShareIndicator from '../components/ShareIndicator.vue'
 import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
@@ -352,6 +353,10 @@ fetchAll()
 									<FilePreview :file="file" :alt="file.basename" />
 								</template>
 
+								<template #overlay>
+									<ShareIndicator :file="file" :current-uid="currentUid" />
+								</template>
+
 								<template #icon>
 									<NcIconSvgWrapper :svg="activeCreator.iconSvgInline ?? ''" :size="20" />
 								</template>
@@ -380,10 +385,13 @@ fetchAll()
 										class="office-overview__list-thumb" />
 								</template>
 								<template #indicator>
-									<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
-										:path="mdiStar"
-										:size="16"
-										class="office-overview__favourite-icon" />
+									<span class="office-overview__indicators">
+										<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
+											:path="mdiStar"
+											:size="16"
+											class="office-overview__favourite-icon" />
+										<ShareIndicator :file="file" :current-uid="currentUid" :size="16" />
+									</span>
 								</template>
 								<template #subname>
 									<NcDateTime :timestamp="file.mtime" />
@@ -498,6 +506,12 @@ fetchAll()
 	border-radius: var(--border-radius);
 	background-color: var(--color-background-dark);
 	flex-shrink: 0;
+}
+
+.office-overview__indicators {
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--default-grid-baseline) * 1);
 }
 
 .office-overview__favourite-icon {
