@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search" : "Căutare",
     "All" : "Toate ",
     "Shared with me" : "Partajat cu mine",
+    "Starred" : "Articole selectate",
     "Switch to grid view" : "Comută la organizare tip grilă",
     "Switch to list view" : "Comuta la organizarea tip listă",
     "Create" : "Crează",

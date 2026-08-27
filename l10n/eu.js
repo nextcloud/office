@@ -11,6 +11,7 @@ OC.L10N.register(
     "Search" : "Bilatu",
     "All" : "Denak",
     "Shared with me" : "Nirekin partekatuta",
+    "Starred" : "Izarduna",
     "Switch to grid view" : "Aldatu sareta ikuspegira",
     "Switch to list view" : "Aldatu zerrenda ikuspegira",
     "No {category} found" : "{category} ez da aurkitu",

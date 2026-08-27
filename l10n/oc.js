@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Search" : "Recercar",
     "All" : "Tot",
+    "Starred" : "Favorit",
     "Create" : "Crear",
     "Filename" : "Nom de fichièr"
 },

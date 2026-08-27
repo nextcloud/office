@@ -6,6 +6,7 @@ OC.L10N.register(
     "Search {category}" : "Meklēt {category}",
     "Search" : "Meklēt",
     "All" : "Visi",
+    "Starred" : "Svarīgs",
     "Filename" : "Datnes nosaukums",
     "Filename cannot be empty" : "Datnes nosaukums nevar būt tukšs"
 },

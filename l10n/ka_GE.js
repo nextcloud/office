@@ -4,6 +4,7 @@ OC.L10N.register(
     "Search {category}" : "{category} ძებნა",
     "Search" : "ძიება",
     "All" : "ყველა",
+    "Starred" : "ვარსკვლავმინიჭებული",
     "Filename cannot be empty" : "ფაილის სახელი ვერ იქნება ცარიელი"
 },
 "nplurals=2; plural=(n!=1);");

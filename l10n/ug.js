@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search" : "ئىزدە",
     "All" : "ھەممىسى",
     "Shared with me" : "مەن بىلەن ئورتاقلاشتى",
+    "Starred" : "چولپان",
     "Switch to grid view" : "كاتەكچە كۆرۈنۈشكە ئالماشتۇرۇڭ",
     "Switch to list view" : "تىزىملىك كۆرۈنۈشىگە ئالماشتۇرۇڭ",
     "Create" : "قۇر",

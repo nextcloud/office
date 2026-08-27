@@ -13,6 +13,7 @@ OC.L10N.register(
     "All" : "Alle",
     "Mine" : "Min",
     "Shared with me" : "Delt med mig",
+    "Starred" : "Stjernemarkeret",
     "Switch to grid view" : "Skift til gittervisning",
     "Switch to list view" : "Skift til listevisning",
     "Create" : "Opret",

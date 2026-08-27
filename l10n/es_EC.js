@@ -8,6 +8,7 @@ OC.L10N.register(
     "Search {category}" : "Buscar {category}",
     "Search" : "Buscar",
     "All" : "Todos",
+    "Starred" : "Marcado como favorito",
     "Switch to list view" : "Cambiar a vista de lista",
     "Create" : "Crear",
     "Filename" : "Nombre de archivo",

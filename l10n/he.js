@@ -7,6 +7,7 @@ OC.L10N.register(
     "Search {category}" : "חיפוש ב{category}",
     "Search" : "חיפוש",
     "All" : "הכול",
+    "Starred" : "מסומן בכוכב",
     "No {category} found" : "לא נמצא {category}",
     "Create" : "יצירה",
     "Filename" : "שם קובץ",

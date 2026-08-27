@@ -9,6 +9,7 @@ OC.L10N.register(
     "Blank" : "Празно",
     "Search" : "Барај",
     "All" : "Сите",
+    "Starred" : "Со ѕвезда",
     "Switch to grid view" : "Прикажи поглед во мрежа",
     "Switch to list view" : "Прикажи поглед во листа",
     "No {category} found" : "Не е пронајдено {category}",
