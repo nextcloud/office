@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search" : "ຄົ້ນຫາ",
     "All" : "ທັງໝົດ",
     "Shared with me" : "Shared with me",
+    "Starred" : "Starred",
     "Switch to grid view" : "ປ່ຽນເປັນມຸມມອງແບບຕາຂ່າຍ",
     "Switch to list view" : "ປ່ຽນເປັນມຸມມອງລາຍການ",
     "Create" : "ສ້າງ",

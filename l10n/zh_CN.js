@@ -11,6 +11,7 @@ OC.L10N.register(
     "Search" : "搜索",
     "All" : "所有",
     "Shared with me" : "与我共享",
+    "Starred" : "已加星标",
     "Switch to grid view" : "切换到网格视图",
     "Switch to list view" : "切换为列表视图",
     "No {category} found" : "{category} 未找到",

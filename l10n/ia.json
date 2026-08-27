@@ -1,5 +1,6 @@
 { "translations": {
     "Search" : "Cercar",
-    "All" : "Tote"
+    "All" : "Tote",
+    "Starred" : "Stellate"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

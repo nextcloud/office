@@ -1,5 +1,6 @@
 { "translations": {
     "Search" : "ស្វែងរក",
-    "All" : "ទាំងអស់"
+    "All" : "ទាំងអស់",
+    "Starred" : "បាន​ដាក់​ផ្កាយ"
 },"pluralForm" :"nplurals=1; plural=0;"
 }

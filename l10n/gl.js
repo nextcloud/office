@@ -12,6 +12,7 @@ OC.L10N.register(
     "Failed to load files" : "Produciuse un fallo ao cargar os ficheiros",
     "All" : "Todo",
     "Shared with me" : "Compartido comigo",
+    "Starred" : "Salientado",
     "Switch to grid view" : "Cambiar á vista de grade",
     "Switch to list view" : "Cambiar á vista de lista",
     "No {category} found" : "Non se atopou {category}",

@@ -14,6 +14,7 @@ OC.L10N.register(
     "All" : "Vše",
     "Mine" : "Moje",
     "Shared with me" : "Sdíleno se mnou",
+    "Starred" : "S hvězdičkou",
     "Switch to grid view" : "Přepnout do zobrazení v mřížce",
     "Switch to list view" : "Přepnout do zobrazení v seznamu",
     "No {category} found" : "Nenalezeno žádné {category}",

@@ -4,6 +4,7 @@ OC.L10N.register(
     "Search {category}" : "Buscar {category}",
     "Search" : "Buscar",
     "All" : "Todos",
+    "Starred" : "Marcado como favorito",
     "Filename" : "Nombre del archivo",
     "Filename cannot be empty" : "El nombre del archivo no puede estar en blanco. "
 },

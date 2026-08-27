@@ -9,6 +9,7 @@ OC.L10N.register(
     "Search" : "Tafuta",
     "All" : "Zote",
     "Shared with me" : "Imeshirikiwa nami",
+    "Starred" : "Yenye nyota",
     "Switch to grid view" : "Badili hadi mwonekano wa gridi",
     "Switch to list view" : "Badili hadi mwonekano wa orodha",
     "Create" : "Tengeneza",

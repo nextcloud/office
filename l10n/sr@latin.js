@@ -4,6 +4,7 @@ OC.L10N.register(
     "Documents" : "Dokumenti",
     "Search" : "Traži",
     "All" : "Sve",
+    "Starred" : "Ozvezdano",
     "Filename cannot be empty" : "Naziv fajla ne može biti prazan"
 },
 "nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);");
