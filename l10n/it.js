@@ -11,6 +11,7 @@ OC.L10N.register(
     "Search" : "Cerca",
     "All" : "Tutti",
     "Shared with me" : "Condivisi con me",
+    "Starred" : "Preferiti",
     "Switch to grid view" : "Passa alla vista a griglia",
     "Switch to list view" : "Passa alla vista a elenco",
     "No {category} found" : "Nessun {category} trovato",

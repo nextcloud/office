@@ -11,6 +11,7 @@ OC.L10N.register(
     "Search" : "Traži",
     "All" : "Sve",
     "Shared with me" : "Dijeljeno sa mnom",
+    "Starred" : "Označeno zvjezdicom",
     "Switch to grid view" : "Prebacite se na prikaz rešetke",
     "Switch to list view" : "Prebacite na prikaz popisa",
     "No {category} found" : "Nije pronađen {category}",

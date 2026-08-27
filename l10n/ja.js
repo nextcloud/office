@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search {category}" : "{category}を検索",
     "Search" : "検索",
     "All" : "すべて",
+    "Starred" : "スター",
     "Switch to grid view" : "グリッド表示へ切り替え",
     "Switch to list view" : "リスト表示へ切り替え",
     "No {category} found" : "{category}が見つかりません",

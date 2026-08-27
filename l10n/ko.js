@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search {category}" : "{category}에서 검색",
     "Search" : "검색",
     "All" : "모두",
+    "Starred" : "별표",
     "Switch to grid view" : "바둑판식 보기로 전환",
     "Switch to list view" : "목록 보기로 전환",
     "No {category} found" : "{category}을 찾을 수 없음",

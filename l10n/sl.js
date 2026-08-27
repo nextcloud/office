@@ -11,6 +11,7 @@ OC.L10N.register(
     "Search" : "Poišči",
     "All" : "Vse",
     "Shared with me" : "V souporabi z mano",
+    "Starred" : "Označeno",
     "Switch to grid view" : "Preklopi na mrežni pogled",
     "Switch to list view" : "Preklopi na seznamski pogled",
     "No {category} found" : "Ni najdene vrste točke {category} ",

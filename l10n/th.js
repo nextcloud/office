@@ -6,6 +6,7 @@ OC.L10N.register(
     "Blank" : "ว่าง",
     "Search" : "ค้นหา",
     "All" : "ทั้งหมด",
+    "Starred" : "ติดดาวแล้ว",
     "Create" : "สร้าง",
     "Filename" : "ชื่อไฟล์",
     "Filename cannot be empty" : "ชื่อไฟล์ไม่สามารถเว้นว่างได้"

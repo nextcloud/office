@@ -8,6 +8,7 @@ OC.L10N.register(
     "Search" : "ძებნა",
     "All" : "All",
     "Shared with me" : "Shared with me",
+    "Starred" : "Starred",
     "Switch to grid view" : "Switch to grid view",
     "Switch to list view" : "Switch to list view",
     "Create" : "Create",

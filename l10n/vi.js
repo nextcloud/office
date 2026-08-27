@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search {category}" : "Tìm kiếm {category}",
     "Search" : "Tìm kiếm",
     "All" : "Tất cả",
+    "Starred" : "Starred",
     "Switch to grid view" : "Chuyển sang chế độ xem dạng lưới",
     "Switch to list view" : "Chuyển sang chế độ xem danh sách",
     "Create" : "Tạo",

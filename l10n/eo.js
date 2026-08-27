@@ -7,6 +7,7 @@ OC.L10N.register(
     "Search {category}" : "Serĉi {category}",
     "Search" : "Serĉi",
     "All" : "Ĉiuj",
+    "Starred" : "Markita",
     "Filename" : "Dosiernomo",
     "Filename cannot be empty" : "Dosieronomo ne povas esti malplena"
 },

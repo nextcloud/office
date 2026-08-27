@@ -7,6 +7,7 @@ OC.L10N.register(
     "Search {category}" : "Kërko {category}",
     "Search" : "Kërko",
     "All" : "Të gjithë",
+    "Starred" : "Me yll",
     "Create" : "Krijo",
     "Filename" : "Emri i skedarit",
     "Filename cannot be empty" : "Emri i skedarit nuk mund të jetë i zbrazët"

@@ -10,6 +10,7 @@ OC.L10N.register(
     "Search {category}" : "Leita í {category}",
     "Search" : "Search",
     "All" : "Allt",
+    "Starred" : "Stjörnumerkt",
     "Switch to grid view" : "Skipta yfir í reitasýn",
     "Switch to list view" : "Skipta yfir í listasýn",
     "No {category} found" : "Ekkert {category} fannst",

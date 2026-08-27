@@ -19,6 +19,7 @@ OC.L10N.register(
     "All" : "Kaikki",
     "Mine" : "Omat",
     "Shared with me" : "Jaettu kanssasi",
+    "Starred" : "Suosikkimerkintä päälle/pois",
     "Switch to grid view" : "Vaihda ruudukkonäkymään",
     "Switch to list view" : "Vaihda taulukkonäkymään",
     "Create" : "Luo",
