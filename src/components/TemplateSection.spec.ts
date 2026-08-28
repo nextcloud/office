@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import TemplateSection from './TemplateSection.vue'
 import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
@@ -142,26 +143,45 @@ describe('TemplateSection > themeType', () => {
 	})
 })
 
+describe('TemplateSection > accessibility', () => {
+	it('labels the scrollable list with the creator name', () => {
+		const creator = makeCreator({ label: 'Spreadsheet' })
+		const wrapper = mount(TemplateSection, { props: { creator } })
+
+		expect(wrapper.find('.template-section__list').attributes('aria-label'))
+			.toBe('Spreadsheet templates, scrollable')
+	})
+})
+
 describe('TemplateSection > scroll arrows', () => {
 	function setScrollMetrics(el: HTMLElement, { scrollLeft = 0, scrollWidth = 0, clientWidth = 0 }) {
-		Object.defineProperty(el, 'scrollLeft', { value: scrollLeft, configurable: true })
+		Object.defineProperty(el, 'scrollLeft', { value: scrollLeft, writable: true, configurable: true })
 		Object.defineProperty(el, 'scrollWidth', { value: scrollWidth, configurable: true })
 		Object.defineProperty(el, 'clientWidth', { value: clientWidth, configurable: true })
 	}
 
-	it('hides the nav entirely when the list does not overflow', () => {
-		const creator = makeCreator()
+	// useScrollArrows attaches its scroll listener from a watcher that only
+	// runs once Vue flushes post-render effects — mount() itself doesn't wait
+	// for that, so anything dispatched immediately after would be missed.
+	async function mountAndSettle(creator: TemplateCreator) {
 		const wrapper = mount(TemplateSection, { props: { creator } })
-		setScrollMetrics(wrapper.find('.template-section__list').element as HTMLElement, {
-			scrollLeft: 0, scrollWidth: 100, clientWidth: 100,
-		})
+		await nextTick()
+		return wrapper
+	}
+
+	it('hides the nav entirely when the list does not overflow', async () => {
+		const creator = makeCreator()
+		const wrapper = await mountAndSettle(creator)
+		const list = wrapper.find('.template-section__list').element as HTMLElement
+		setScrollMetrics(list, { scrollLeft: 0, scrollWidth: 100, clientWidth: 100 })
+		await wrapper.find('.template-section__list').trigger('scroll')
 
 		expect(wrapper.find('.template-section__nav').exists()).toBe(false)
 	})
 
 	it('enables the right arrow (not left) when scrolled to the start of an overflowing list', async () => {
 		const creator = makeCreator()
-		const wrapper = mount(TemplateSection, { props: { creator } })
+		const wrapper = await mountAndSettle(creator)
 		const list = wrapper.find('.template-section__list').element as HTMLElement
 		setScrollMetrics(list, { scrollLeft: 0, scrollWidth: 500, clientWidth: 200 })
 		await wrapper.find('.template-section__list').trigger('scroll')
@@ -173,7 +193,7 @@ describe('TemplateSection > scroll arrows', () => {
 
 	it('enables the left arrow (not right) when scrolled to the end of an overflowing list', async () => {
 		const creator = makeCreator()
-		const wrapper = mount(TemplateSection, { props: { creator } })
+		const wrapper = await mountAndSettle(creator)
 		const list = wrapper.find('.template-section__list').element as HTMLElement
 		setScrollMetrics(list, { scrollLeft: 300, scrollWidth: 500, clientWidth: 200 })
 		await wrapper.find('.template-section__list').trigger('scroll')
@@ -185,7 +205,7 @@ describe('TemplateSection > scroll arrows', () => {
 
 	it('scrolls right by max(card+gap, clientWidth - (card+gap))', async () => {
 		const creator = makeCreator()
-		const wrapper = mount(TemplateSection, { props: { creator } })
+		const wrapper = await mountAndSettle(creator)
 		const list = wrapper.find('.template-section__list').element as HTMLElement
 		// CARD_WIDTH=160, CARD_GAP=12: card+gap=172, clientWidth-172=28 -> max is 172.
 		setScrollMetrics(list, { scrollLeft: 0, scrollWidth: 500, clientWidth: 200 })
@@ -199,7 +219,7 @@ describe('TemplateSection > scroll arrows', () => {
 
 	it('scrolls left as a negative step when the left arrow is clicked', async () => {
 		const creator = makeCreator()
-		const wrapper = mount(TemplateSection, { props: { creator } })
+		const wrapper = await mountAndSettle(creator)
 		const list = wrapper.find('.template-section__list').element as HTMLElement
 		setScrollMetrics(list, { scrollLeft: 300, scrollWidth: 500, clientWidth: 200 })
 		await wrapper.find('.template-section__list').trigger('scroll')
