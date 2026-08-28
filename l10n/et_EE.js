@@ -14,6 +14,7 @@ OC.L10N.register(
     "Blank" : "Tühi",
     "Search {category}" : "Otsi „{category}“ kategooriat",
     "Search" : "Otsi",
+    "Starred {category}" : "Tärniga märgitud kategooria: {category}",
     "Recent {category}" : "Hiljutine kategooria: „{category}“",
     "Failed to create file" : "Faili loomine ei õnnestunud",
     "Failed to load files" : "Failide laadimine ei õnnestu",
