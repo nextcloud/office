@@ -14,6 +14,7 @@ OC.L10N.register(
     "Blank" : "空白",
     "Search {category}" : "搜尋 {category}",
     "Search" : "搜尋",
+    "Starred {category}" : "已對 {category} 加上星星",
     "Recent {category}" : "近期 {category}",
     "Failed to create file" : "建立檔案失敗",
     "Failed to load files" : "無法載入檔案",
