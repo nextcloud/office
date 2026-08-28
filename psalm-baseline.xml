@@ -126,10 +126,6 @@
     <ClassMustBeFinal>
       <code><![CDATA[WopiMapper]]></code>
     </ClassMustBeFinal>
-    <DeprecatedMethod>
-      <code><![CDATA[generate]]></code>
-      <code><![CDATA[generate]]></code>
-    </DeprecatedMethod>
     <MissingClassConstType>
       <code><![CDATA[TOKEN_TTL = 36000]]></code>
     </MissingClassConstType>
