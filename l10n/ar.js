@@ -23,6 +23,7 @@ OC.L10N.register(
     "All" : "الكل",
     "Mine" : "ملكي",
     "Shared with me" : "تمّت مُشاركته معي",
+    "Starred" : "مُعلّم بنجمة",
     "Switch to grid view" : "تبديل إلى العرض الشبكي",
     "Switch to list view" : "التبديل إلى عرض القائمة",
     "No {category} found" : "لم يتم العثور على أي{category}",

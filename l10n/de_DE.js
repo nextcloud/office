@@ -14,6 +14,7 @@ OC.L10N.register(
     "Blank" : "Leer",
     "Search {category}" : "Suche {category}",
     "Search" : "Suche",
+    "Starred {category}" : "Favorisiert {category}",
     "Recent {category}" : "Neueste {category}",
     "Failed to create file" : "Datei konnte nicht erstellt werden",
     "Failed to load files" : "Dateien konnten nicht geladen werden",
