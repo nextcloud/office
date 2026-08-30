@@ -14,6 +14,7 @@ OC.L10N.register(
     "Blank" : "Bán",
     "Search {category}" : "Cuardaigh {category}",
     "Search" : "Cuardach",
+    "Starred {category}" : "Réalta {category}",
     "Recent {category}" : "Le déanaí {category}",
     "Failed to create file" : "Theip ar chomhad a chruthú",
     "Failed to load files" : "Theip ar na comhaid a luchtú",
