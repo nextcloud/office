@@ -405,6 +405,26 @@ describe('OfficeOverview > preview thumbnails', () => {
 	})
 })
 
+describe('OfficeOverview > favourite indicator', () => {
+	// NcListItem's shallow stub only renders the default slot, but the
+	// favourite icon lives in the #indicator named slot — needs it rendered
+	// explicitly, same as the preview-thumbnail tests above.
+	const LIST_ITEM_STUB = stubRenderingAllSlots('NcListItem', ['name', 'active'])
+
+	// NcIconSvgWrapper defaults to aria-hidden unless given a `name`, so a
+	// favourited file's star would be invisible to assistive tech without it —
+	// state can't be colour/icon alone.
+	it('gives the favourite star an accessible name', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		const file = makeNode({ owner: 'alice', basename: 'report.odt', favorite: true })
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
+
+		const wrapper = await mountOverview({ NcListItem: LIST_ITEM_STUB })
+
+		expect(wrapper.findComponent({ name: 'NcIconSvgWrapper' }).props('name')).toBe('Favourite')
+	})
+})
+
 describe('OfficeOverview > openFile', () => {
 	it('navigates to the WOPI editor URL with fileId when editorUrl is set', async () => {
 		mockLoadState({ editorUrl: '/apps/office/editor' })
