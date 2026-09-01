@@ -38,6 +38,12 @@ export interface OfficeFilesResult {
 // tell "exactly SEARCH_RESULT_LIMIT files exist" from "more exist and got cut off" —
 // both would otherwise come back as exactly SEARCH_RESULT_LIMIT rows.
 function buildOfficeMimeSearch(mimes: string[]): string {
+	// `mimes` isn't a closed literal set — it includes server-registered
+	// mimetypes from the templates endpoint, not just this file's own
+	// constants. Escaping only &/</> is still complete here regardless of
+	// origin, because the result is only ever interpolated into <d:literal>
+	// element *text*, never an attribute; there's no quote or CDATA context
+	// to escape for.
 	const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 	const conditions = mimes
 		.map(mime => `\t\t\t\t<d:eq><d:prop><d:getcontenttype/></d:prop><d:literal>${escapeXml(mime)}</d:literal></d:eq>`)
