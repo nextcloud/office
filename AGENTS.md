@@ -134,6 +134,13 @@ Two things follow:
   responsibilities that predate your change. A unit that exists only because of
   the feature you're building belongs in the feature commit.
 
+Whether a refinement gets its own commit here or its own issue depends on who
+found it and when. Spotted while you're writing the feature — same PR, its own
+commit after the feature commit, same as extraction above. Spotted by a
+reviewer after the PR exists — merge what's ready, raise an issue for the
+rest; asking the original author back in reopens exactly the bottleneck this
+is meant to avoid.
+
 ## Never loosen a security check
 
 Auth here is deliberate: `#[NoAdminRequired]` and `#[NoCSRFRequired]` on a
