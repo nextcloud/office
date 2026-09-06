@@ -398,6 +398,7 @@ fetchAll()
 								</template>
 								<template #indicator>
 									<NcIconSvgWrapper v-if="file.attributes?.favorite === 1"
+										:name="t('office', 'Favourite')"
 										:path="mdiStar"
 										:size="16"
 										class="office-overview__favourite-icon" />
