@@ -10,6 +10,16 @@ updates:
       time: "03:00"
       timezone: Europe/Paris
     open-pull-requests-limit: 10
+    groups:
+      composer:
+        # Without group-by, grouping is per-directory, so each vendor-bin/*
+        # tool would still get its own pull request.
+        group-by: dependency-name
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
   - package-ecosystem: npm
     directory: "/"
     schedule:
@@ -18,12 +28,46 @@ updates:
       time: "03:00"
       timezone: Europe/Paris
     open-pull-requests-limit: 10
+    # Assets are committed, so a rebase without a recompile leaves CI red
+    # anyway. Rebase manually alongside /compile when a pull request is ready
+    # to merge — this only disables Dependabot's automatic rebasing.
+    rebase-strategy: "disabled"
+    cooldown:
+      default-days: 4
+      semver-major-days: 8
+    # Groups are first-match. production/development split the direct
+    # dependencies so a bundle regression narrows to one half. npm-security is
+    # separate because groups only apply to version updates unless applies-to
+    # says otherwise, and indirect dependencies reach us solely as security
+    # updates — which are also exempt from open-pull-requests-limit, so they
+    # are the class most worth grouping.
+    groups:
+      npm-production:
+        dependency-type: production
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      npm-development:
+        dependency-type: development
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
   - package-ecosystem: npm
     directory: "/"
     schedule:
       interval: weekly
       day: saturday
-      time: "03:00"
+      # Offset from main's queue so both branches do not land at once and
+      # stale each other's committed assets.
+      time: "03:30"
       timezone: Europe/Paris
     target-branch: stable35
     open-pull-requests-limit: 10
@@ -55,6 +99,22 @@ updates:
       timezone: Europe/Paris
     target-branch: stable34
     open-pull-requests-limit: 10
+    rebase-strategy: "disabled"
+    cooldown:
+      default-days: 4
+    groups:
+      npm-production:
+        dependency-type: production
+        patterns:
+          - "*"
+      npm-development:
+        dependency-type: development
+        patterns:
+          - "*"
+      npm-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
     ignore:
       # do not do breaking changes on stable branches
       - dependency-name: "*"
@@ -66,10 +126,15 @@ updates:
     schedule:
       interval: weekly
       day: saturday
-      time: "03:00"
+      time: "03:30"
       timezone: Europe/Paris
     target-branch: stable34
     open-pull-requests-limit: 10
+    groups:
+      composer:
+        group-by: dependency-name
+        patterns:
+          - "*"
     ignore:
       # do not do breaking changes on stable branches
       - dependency-name: "*"
