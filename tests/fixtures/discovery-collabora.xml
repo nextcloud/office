@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	Representative Collabora-style WOPI discovery document. App names are MIME
+	types, not product names - this is the shape DiscoveryService::getSupportedMimeTypes()
+	was written against, in contrast to discovery-onlyoffice.xml.
+-->
+<wopi-discovery>
+	<net-zone name="external-http">
+		<app name="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+			<action name="edit" ext="docx" default="true" urlsrc="https://collabora/browser/dist/cool.html?WOPISrc=&lt;WOPI_SOURCE&amp;&gt;"/>
+			<action name="view" ext="docx" urlsrc="https://collabora/browser/dist/cool.html?WOPISrc=&lt;WOPI_SOURCE&amp;&gt;"/>
+		</app>
+		<app name="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+			<action name="edit" ext="xlsx" default="true" urlsrc="https://collabora/browser/dist/cool.html?WOPISrc=&lt;WOPI_SOURCE&amp;&gt;"/>
+		</app>
+	</net-zone>
+</wopi-discovery>
