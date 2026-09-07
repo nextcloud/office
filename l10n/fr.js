@@ -14,6 +14,7 @@ OC.L10N.register(
     "Blank" : "Vide",
     "Search {category}" : "Rechercher {category}",
     "Search" : "Rechercher",
+    "Starred {category}" : "{category} mis en favoris",
     "Recent {category}" : "{category} récent",
     "Failed to create file" : "Impossible de créer le fichier",
     "Failed to load files" : "Impossible de charger les fichiers",

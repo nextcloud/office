@@ -14,6 +14,7 @@ OC.L10N.register(
     "Blank" : "Blank",
     "Search {category}" : "Search {category}",
     "Search" : "Search",
+    "Starred {category}" : "Starred {category}",
     "Recent {category}" : "Recent {category}",
     "Failed to create file" : "Failed to create file",
     "Failed to load files" : "Failed to load files",

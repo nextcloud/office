@@ -14,6 +14,7 @@ OC.L10N.register(
     "Blank" : "Tom",
     "Search {category}" : "Sök {category}",
     "Search" : "Sök",
+    "Starred {category}" : "Favoritmarkerad {category}",
     "Recent {category}" : "Senaste {category}",
     "Failed to create file" : "Det gick inte att skapa filen",
     "Failed to load files" : "Det gick inte att läsa in filerna",
