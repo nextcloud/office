@@ -1,19 +1,24 @@
 # Office
 
-A Nextcloud app that provides a dedicated hub for office documents. Users can browse,
-filter, search, and create Documents, Spreadsheets, Presentations, and Diagrams from
-a single page — without going through the Files app.
+A Nextcloud app that integrates Euro-Office as a WOPI host, providing a full-page
+editor and a document hub. Nextcloud acts as the WOPI host (file storage, token
+authority, lock manager); Euro-Office acts as the WOPI client (rendering, editing).
 
 ---
 
 ## Features
 
+- **Full-page editor** at `/apps/office/open?fileId=N`
+- **WOPI host implementation** — see [WOPI spec compliance](#wopi-spec-compliance) below
 - **Overview page** at `/apps/office` — categorised file list with sidebar navigation
 - **Filters** — All / Mine / Shared with me
 - **Search** — within the active category, with an "Open in Files" escape hatch
 - **View toggle** — Grid (thumbnail previews) or List, persisted per user
 - **Template creator** — create new files from editor-provided templates
-- **Editor integration** — opens files directly in the configured office editor
+- **Files app integration** — DEFAULT file action for all MIME types advertised by the editor
+- **Public share support** — guest tokens for link-share access
+- **Range reads** — partial file delivery via HTTP Range for large documents
+- **Conflict-free close** — editor close returns the user to the overview via `history.back()`
 
 ---
 
@@ -23,7 +28,8 @@ a single page — without going through the Files app.
 
 - [nextcloud-docker-dev](https://github.com/juliushaertl/nextcloud-docker-dev)
 - NC ≥ 33
-- Node 24 / npm 11
+- Node ≥ 24 / npm ≥ 11
+- Euro-Office server reachable from the NC container
 
 ### 1. Mount the app into the container
 
@@ -43,6 +49,14 @@ Restart the container after saving.
 ```bash
 docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
   php occ app:enable office
+```
+
+If the Euro-Office connector app is also installed, disable it to prevent it from
+competing for the DEFAULT file action:
+
+```bash
+docker exec -u www-data nextcloud-docker-dev-nextcloud-1 \
+  php occ app:disable eurooffice
 ```
 
 ### 3. Build the frontend
@@ -74,6 +88,10 @@ every component needs outside a running NC page
 stub. `src/test-utils/fixtures.ts` has `makeNode()`/`makeCreator()` factories
 for building test data. CI runs the suite on PRs via `test-unit.yml`.
 
+PHP: `composer lint`, `composer cs:check`, `composer psalm`, `composer test:unit`.
+Integration tests (`tests/integration`) run in-container only — see
+`composer test:integration` for the exact command.
+
 ### 5. Committing changes
 
 Commit **source only** (`src/`, `lib/`, …) — do **not** commit the built
@@ -87,6 +105,103 @@ CI (`npm-build`) will fail your PR with *"Please recompile and commit the
 assets"* — that's expected for a source-only PR. A maintainer then comments
 `/compile` on the PR and the `nextcloud-command` bot builds and pushes the
 recompiled assets as a `chore(assets): Recompile assets` commit.
+
+---
+
+## How it works
+
+### WOPI flow
+
+```
+Browser                  NC (WOPI host)                  Euro-Office (WOPI client)
+   |                          |                                   |
+   |  GET /apps/office/open   |                                   |
+   |------------------------->|                                   |
+   |                          | mint WOPI token (TokenManager)    |
+   |                          | build editor URL with wopisrc     |
+   |   editor iframe / page   |                                   |
+   |<-------------------------|                                   |
+   |                          |  GET /wopi/files/{id}?token=...  |
+   |                          |<----------------------------------|
+   |                          |  CheckFileInfo response           |
+   |                          |---------------------------------->|
+   |                          |  GET /wopi/files/{id}/contents   |
+   |                          |<----------------------------------|
+   |                          |  file bytes                       |
+   |                          |---------------------------------->|
+   |   ← editing session →    |                                   |
+   |                          |  POST /wopi/files/{id}/contents  |
+   |                          |<----------------------------------|
+   |                          |  204 No Content                   |
+   |                          |---------------------------------->|
+```
+
+### Key classes
+
+| Class | Responsibility |
+|---|---|
+| `EditorController` | Renders editor page; mints WOPI token; builds editor URL from discovery XML |
+| `WopiController` | WOPI protocol endpoint — handles all `/wopi/files/` requests |
+| `TokenManager` | Creates and validates WOPI tokens; manages token TTL and guest vs user access |
+| `DiscoveryService` | Fetches and caches the editor's discovery XML; resolves MIME → action URL |
+| `ShareController` | Issues guest tokens for public share links |
+| `WopiMapper` / `WopiLockMapper` | Persistence for WOPI tokens and file locks |
+| `CleanupJob` | Background job — expires stale locks and tokens |
+| `PageController::index()` | Renders the overview's SPA shell |
+
+---
+
+## WOPI spec compliance
+
+### Operations
+
+| Operation | `X-WOPI-Override` | Status | Notes |
+|---|---|---|---|
+| CheckFileInfo | — | ✅ | `GET /wopi/files/{id}` |
+| GetFile | — | ✅ | `GET /wopi/files/{id}/contents`; HTTP Range supported |
+| PutFile | — | ✅ | `POST /wopi/files/{id}/contents`; lock-enforced, optimistic version check, quota check |
+| Lock | `LOCK` | ✅ | |
+| Unlock | `UNLOCK` | ✅ | |
+| RefreshLock | `REFRESH_LOCK` | ✅ | |
+| GetLock | `GET_LOCK` | ✅ | |
+| UnlockAndRelock | `LOCK` + `X-WOPI-OldLock` | ✅ | |
+| RenameFile | `RENAME_FILE` | ✅ | Authenticated users only; conflict returns 400 + `X-WOPI-InvalidFileNameError` |
+| PutRelativeFile | `PUT_RELATIVE_FILE` | ⏳ Phase 6 | `UserCanNotWriteRelative: true` suppresses Save As in the editor UI |
+| DeleteFile | `DELETE` | — | Deletion is handled by NC outside WOPI |
+
+### CheckFileInfo capability flags
+
+| Flag | Value | Notes |
+|---|---|---|
+| `SupportsUpdate` | `true` | PutFile is implemented |
+| `SupportsLocks` | dynamic | `true` when an NC lock provider is available |
+| `SupportsGetLock` | `true` | GetLock is implemented |
+| `SupportsExtendedLockLength` | `true` | `lock_id` column is `VARCHAR(1024)` |
+| `SupportsRename` | per session | `true` for authenticated users; `false` for guests |
+| `UserCanRename` | per session | `true` for authenticated users; `false` for guests |
+| `UserCanNotWriteRelative` | `true` | PutRelativeFile deferred to Phase 6 |
+| `UserCanWrite` | per token | stamped at token-issue time from file/share permissions |
+| `IsAnonymousUser` | per session | `true` for guest (share-link) sessions |
+| `HasContentRange` | `true` | partial file reads via HTTP Range are supported |
+| `HideExportOption` | per token | derived from share `hide_download` flag |
+| `DisablePrint` | per token | derived from share `hide_download` flag |
+| `DisableExport` | per token | derived from share `hide_download` flag |
+
+---
+
+## Public share support
+
+Share link visitors (`/s/{token}`) receive a guest WOPI token via `ShareController`.
+File access, locking, and `CheckFileInfo` flags (`HideExportOption`, `DisablePrint`,
+`UserCanWrite`, etc.) are all derived from the share's permissions and `hide_download`
+flag at token-issue time.
+
+**Known gaps:**
+
+- **KG1** — Password-protected shares: users must authenticate at `/s/{token}` before
+  navigating to the editor.
+- **KG2** — Authenticated users arriving through share links receive guest tokens.
+- **KG3** — Federated/remote shares not tested.
 
 ---
 
@@ -105,6 +220,8 @@ present, navigates directly to that URL instead of `/f/{fileid}`.
 
 ## Architecture
 
+Overview (browser-side SPA):
+
 ```
 /apps/office
 └── PageController::index()       Renders the SPA shell
@@ -120,3 +237,10 @@ present, navigates directly to that URL instead of `/f/{fileid}`.
                 ├── fileCategories.ts  Mime → category mapping (pure)
                 └── validateFilename.ts
 ```
+
+WOPI host (server-side, see [Key classes](#key-classes) above): the WOPI token row
+(`oc_office_wopi`) is the authority for per-session flags (`canwrite`, `hideDownload`,
+`ownerUid`). Flags are stamped at token-generation time and not re-read on subsequent
+WOPI requests — this avoids a per-request `IShareManager` lookup on every
+CheckFileInfo heartbeat, matching the richdocuments pattern. Trade-off: share
+revocation mid-session is not enforced within the token TTL (10 h).

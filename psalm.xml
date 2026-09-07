@@ -8,6 +8,7 @@
 	findUnusedBaselineEntry="true"
 	findUnusedCode="true"
 	phpVersion="8.3"
+    errorBaseline="psalm-baseline.xml"
 >
 	<projectFiles>
 		<directory name="lib" />
@@ -20,4 +21,12 @@
 		<directory name="vendor"/>
 		<directory name="vendor-bin/nextcloud-ocp/vendor"/>
 	</extraFiles>
+	<issueHandlers>
+		<UndefinedDocblockClass>
+			<errorLevel type="suppress">
+				<referencedClass name="Doctrine\DBAL\Schema\Schema"/>
+				<referencedClass name="Doctrine\DBAL\Schema\Table"/>
+			</errorLevel>
+		</UndefinedDocblockClass>
+	</issueHandlers>
 </psalm>
