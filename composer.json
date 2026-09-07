@@ -15,7 +15,13 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"OCP\\": "vendor/nextcloud/ocp/OCP/",
+			"OCP\\": "vendor-bin/nextcloud-ocp/vendor/nextcloud/ocp/OCP/",
+			"Psr\\EventDispatcher\\": "vendor-bin/nextcloud-ocp/vendor/psr/event-dispatcher/src/",
+			"Psr\\Http\\Message\\": "vendor-bin/nextcloud-ocp/vendor/psr/http-message/src/",
+			"Psr\\Http\\Client\\": "vendor-bin/nextcloud-ocp/vendor/psr/http-client/src/",
+			"Psr\\Container\\": "vendor-bin/nextcloud-ocp/vendor/psr/container/src/",
+			"Psr\\Log\\": "vendor-bin/nextcloud-ocp/vendor/psr/log/src/",
+			"Psr\\Clock\\": "vendor-bin/nextcloud-ocp/vendor/psr/clock/src/",
 			"OCA\\Office\\Tests\\": "tests/"
 		}
 	},
