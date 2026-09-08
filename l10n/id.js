@@ -7,6 +7,7 @@ OC.L10N.register(
     "Office" : "Office",
     "Create new" : "Buat",
     "Blank" : "Kosong",
+    "Search {category}" : "Cari {category}",
     "Search" : "Cari",
     "Failed to load files" : "Gagal memuat file",
     "All" : "Semua",
