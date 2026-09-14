@@ -4,12 +4,13 @@
 -->
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
+import { useScrollArrows } from '../composables/useScrollArrows.ts'
 import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
 
 const THEME_PALETTES: Record<string, [string, string, string, string]> = {
@@ -41,10 +42,13 @@ const props = defineProps<{ creator: TemplateCreator }>()
 const emit = defineEmits<{ select: [creator: TemplateCreator, template: TemplateFile | null] }>()
 
 const list = ref<HTMLUListElement | null>(null)
-const canScrollLeft = ref(false)
-const canScrollRight = ref(false)
 const failedPreviews = ref<Record<number, boolean>>({})
-let resizeObserver: ResizeObserver | null = null
+
+// A step short of the full page (card+gap) leaves a card of context visible
+// at the edge the user scrolled from.
+const { canScrollLeft, canScrollRight, scrollByStep, scrollToStart } = useScrollArrows(list, {
+	step: () => Math.max(CARD_WIDTH + CARD_GAP, (list.value?.clientWidth ?? 0) - (CARD_WIDTH + CARD_GAP)),
+})
 
 const themeType = computed((): keyof typeof THEME_PALETTES => {
 	for (const mime of (props.creator.mimetypes ?? [])) {
@@ -80,25 +84,10 @@ const items = computed(() => [{ blank: true as const }, ...(props.creator.templa
 
 watch(() => props.creator, () => {
 	// New creator means a different template count — jump back to the start.
-	if (list.value) {
-		list.value.scrollLeft = 0
-	}
-	updateArrows()
+	// Recomputing canScrollLeft/canScrollRight is useScrollArrows' job: the
+	// template list swapping is a DOM mutation it already observes.
+	scrollToStart()
 })
-
-function updateArrows() {
-	if (!list.value) return
-	const { scrollLeft, scrollWidth, clientWidth } = list.value
-	canScrollLeft.value = scrollLeft > 0
-	// 1px tolerance absorbs sub-pixel rounding at the far end.
-	canScrollRight.value = scrollLeft + clientWidth < scrollWidth - 1
-}
-
-function scrollByStep(direction: number) {
-	if (!list.value) return
-	const step = Math.max(CARD_WIDTH + CARD_GAP, list.value.clientWidth - (CARD_WIDTH + CARD_GAP))
-	list.value.scrollBy({ left: direction * step, behavior: 'smooth' })
-}
 
 function nameWithoutExt(basename: string) {
 	const dot = basename.lastIndexOf('.')
@@ -111,18 +100,6 @@ function templatePreviewUrl(template: TemplateFile) {
 	}
 	return generateUrl('/core/preview?fileId={fileid}&x=256&y=256&a=1', { fileid: template.fileid })
 }
-
-onMounted(() => {
-	resizeObserver = new ResizeObserver(() => updateArrows())
-	if (list.value) {
-		resizeObserver.observe(list.value)
-	}
-	updateArrows()
-})
-
-onUnmounted(() => {
-	resizeObserver?.disconnect()
-})
 </script>
 
 <template>
@@ -154,7 +131,9 @@ onUnmounted(() => {
 			</div>
 		</div>
 
-		<ul ref="list" class="template-section__list" @scroll="updateArrows">
+		<ul ref="list"
+			class="template-section__list"
+			:aria-label="t('office', '{creator} templates, scrollable', { creator: creator.label })">
 			<li v-for="item in items"
 				:key="'blank' in item ? 'blank' : item.fileid"
 				class="template-section__item">
