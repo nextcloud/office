@@ -26,9 +26,22 @@ Commit messages are written for a public reviewer who has only the diff —
 not for your own notes. If a sentence only makes sense with context outside
 this repo, it doesn't belong in the message.
 
-Commits substantially written by an AI agent carry a `Co-Authored-By:`
-trailer naming the tool, alongside `Signed-off-by` — use `git commit -s`
-so git supplies your identity instead of guessing it.
+Commits substantially written by an AI agent carry two trailers:
+
+```
+Assisted-by: ClaudeCode:claude-opus-5
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+`Assisted-by:` is the provenance record the [AI Contribution
+Policy](https://github.com/nextcloud/.github/blob/master/AI_POLICY.md)
+requires, in `TOOL:MODEL` form; it matches the Linux kernel's tag. Substitute
+the tool and model you actually used. `Co-Authored-By:` is what GitHub renders
+as a linked co-author — it credits, so it never replaces `Assisted-by:`.
+
+An agent never writes `Signed-off-by` — only a human can certify the DCO. Use
+`git commit -s` so git supplies your identity from your own config instead of
+guessing it.
 
 A new unit lands with its `.spec.ts` sibling in the same commit —
 `src/utils/` and `src/components/` pair each unit with one; follow that.
