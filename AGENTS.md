@@ -45,6 +45,10 @@ as the fix. Without one, nothing stops the bug from coming back next time
 this code is touched, and the fix reads as untested even in a file that
 already has specs.
 
+A new interactive element or render branch in a file that already has specs
+still needs a test — assert on the rendered effect, not the prop passed into
+a mock. If two instances could receive the same input, test that case too.
+
 A red test means one of three things: the code is wrong, the behavior it
 pins changed on purpose, or the test itself is wrong — asserting on a mock
 instead of real behavior, or flaky. Only the last two justify touching the
@@ -132,7 +136,9 @@ Two things follow:
   or leave it inline until one emerges.
 - **Extraction is its own commit** when you're separating duplication or
   responsibilities that predate your change. A unit that exists only because of
-  the feature you're building belongs in the feature commit.
+  the feature you're building — including a component that finally gets split
+  up because your addition is what tipped it over — belongs in the feature
+  commit, not a dedicated cleanup PR to get to later.
 
 ## Never loosen a security check
 
