@@ -15,7 +15,7 @@ OC.L10N.register(
     "Search {category}" : "Hľadať {category}",
     "Search" : "Hľadať",
     "Starred {category}" : "S hviezdičkou: {category}",
-    "Recent {category}" : "Nedávne {category}",
+    "Recent {category}" : "Nedávne: {category}",
     "Failed to create file" : "Nepodarilo sa vytvoriť súbor.",
     "Failed to load files" : "Nepodarilo sa načítať súbory",
     "No office suite installed" : "Nie je nainštalovaný žiadny kancelársky balík.",
