@@ -184,19 +184,24 @@ describe('OfficeOverview > rendering states', () => {
 		expect(emptyContents.some(c => c.props('name') === 'Failed to load files')).toBe(true)
 	})
 
-	// Not a test bug: this is what the component actually does. fetchAll()'s
-	// catch only sets the "Failed to load files" error state if it's reached
-	// — but creators.value is only ever assigned *after* getTemplates()
-	// resolves, so a getTemplates() rejection leaves creators empty and the
-	// template shows "No office suite installed" instead, before the error
-	// branch is ever reached. A misleading message for a network failure,
-	// but out of scope for a behaviour-preserving refactor — characterizing
-	// it, not fixing it.
-	it('shows "No office suite installed" (not the error state) when getTemplates itself fails', async () => {
+	it('shows the error state, not "No office suite installed", when getTemplates itself fails', async () => {
 		getTemplatesMock.mockRejectedValue(new Error('network error'))
 
 		const wrapper = await mountOverview()
 
+		const names = wrapper.findAllComponents({ name: 'NcEmptyContent' }).map(c => c.props('name'))
+		expect(names).toEqual(['Failed to load files'])
+	})
+
+	it('retries loading from the error state', async () => {
+		getTemplatesMock.mockRejectedValueOnce(new Error('network error'))
+		getTemplatesMock.mockResolvedValueOnce([])
+
+		const wrapper = await mountOverview()
+		await findButtonByText(wrapper, 'Retry').vm.$emit('click')
+		await flushPromises()
+
+		expect(getTemplatesMock).toHaveBeenCalledTimes(2)
 		expect(wrapper.findComponent({ name: 'NcEmptyContent' }).props('name')).toBe('No office suite installed')
 	})
 

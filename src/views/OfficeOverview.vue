@@ -24,6 +24,7 @@ import NcListItem from '@nextcloud/vue/components/NcListItem'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import {
+	mdiAlertCircleOutline,
 	mdiFileDocumentOutline,
 	mdiOpenInNew,
 	mdiStar,
@@ -287,7 +288,7 @@ fetchAll()
 			<NcLoadingIcon v-if="loading" class="office-overview__loading" />
 
 			<template v-else>
-				<NcEmptyContent v-if="creators.length === 0"
+				<NcEmptyContent v-if="creators.length === 0 && !error"
 					:name="t('office', 'No office suite installed')">
 					<template #icon>
 						<NcIconSvgWrapper :path="mdiFileDocumentOutline" :size="48" />
@@ -300,7 +301,16 @@ fetchAll()
 						@select="onTemplateSelect" />
 
 					<NcEmptyContent v-if="error"
-						:name="error" />
+						:name="error">
+						<template #icon>
+							<NcIconSvgWrapper :path="mdiAlertCircleOutline" :size="48" />
+						</template>
+						<template #action>
+							<NcButton @click="fetchAll">
+								{{ t('office', 'Retry') }}
+							</NcButton>
+						</template>
+					</NcEmptyContent>
 
 					<section v-else-if="activeCreator" class="office-overview__files" aria-labelledby="files-section-heading">
 						<div role="status" class="sr-only">
