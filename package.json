@@ -6,12 +6,14 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --mode development build",
-    "lint": "eslint src",
+    "lint": "eslint src playwright playwright.config.ts",
     "prepare": "git config core.hooksPath .githooks || true",
     "stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "watch": "vite --mode development build --watch"
+    "watch": "vite --mode development build --watch",
+    "test:e2e": "playwright test",
+    "start:nextcloud": "node playwright/start-nextcloud-server.mjs"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
@@ -30,9 +32,11 @@
   },
   "devDependencies": {
     "@nextcloud/browserslist-config": "^3.1.2",
+    "@nextcloud/e2e-test-server": "^0.6.1",
     "@nextcloud/eslint-config": "^8.4.2",
     "@nextcloud/stylelint-config": "^3.1.1",
     "@nextcloud/vite-config": "^2.5.2",
+    "@playwright/test": "^1.63.0",
     "@types/escape-html": "^1.0.4",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.5.0",
