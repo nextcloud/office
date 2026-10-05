@@ -205,6 +205,15 @@ describe('OfficeOverview > rendering states', () => {
 		expect(wrapper.findComponent({ name: 'NcEmptyContent' }).props('name')).toBe('No office suite installed')
 	})
 
+	it('announces the pluralised number of files found', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' }), makeNode({ owner: 'alice' })]))
+
+		const wrapper = await mountOverview()
+
+		expect(wrapper.find('[role="status"]').text()).toBe('2 files found in Documents')
+	})
+
 	it('shows "No {category} found" with a switch-to-All hint when the mine filter has no matches', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([])) // nothing matches "mine" (the default filter)

@@ -7,7 +7,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCurrentUser } from '@nextcloud/auth'
-import { translate as t } from '@nextcloud/l10n'
+import { translate as t, translatePlural as n } from '@nextcloud/l10n'
 import { loadState } from '@nextcloud/initial-state'
 import { generateUrl } from '@nextcloud/router'
 import NcAppContent from '@nextcloud/vue/components/NcAppContent'
@@ -314,7 +314,7 @@ fetchAll()
 
 					<section v-else-if="activeCreator" class="office-overview__files" aria-labelledby="files-section-heading">
 						<div role="status" class="sr-only">
-							{{ t('office', '{count} found in {category}', { count: files.length, category: activeCategoryName }) }}
+							{{ n('office', '%n file found in {category}', '%n files found in {category}', files.length, { category: activeCategoryName }) }}
 						</div>
 
 						<div class="office-overview__files-header">
