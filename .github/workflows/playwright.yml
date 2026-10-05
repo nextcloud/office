@@ -45,6 +45,22 @@ jobs:
           npm ci
           npm run build
 
+      # Server master dropped the bundled Viewer app (nextcloud/server#63954);
+      # until a release supports @nextcloud/viewer, test against the PR that does.
+      - name: Build richdocuments with @nextcloud/viewer support
+        env:
+          # nextcloud/richdocuments#6142 (fix/6060-nextcloud-viewer-v2)
+          RICHDOCUMENTS_SHA: e101e6b3266cdb37e570137733bada08ca3f34af
+        run: |
+          git init -q "$RUNNER_TEMP/richdocuments"
+          cd "$RUNNER_TEMP/richdocuments"
+          git fetch -q --depth=1 https://github.com/nextcloud/richdocuments.git "$RICHDOCUMENTS_SHA"
+          git checkout -q FETCH_HEAD
+          composer install --no-dev
+          npm ci
+          npm run build
+          echo "RICHDOCUMENTS_PATH=$RUNNER_TEMP/richdocuments" >> "$GITHUB_ENV"
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
