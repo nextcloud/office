@@ -14,6 +14,9 @@ defineEmits<{ click: [event: MouseEvent] }>()
 	<button type="button" class="file-card" @click="$emit('click', $event)">
 		<div class="file-card__preview" :style="{ aspectRatio: previewAspectRatio }">
 			<slot name="preview" />
+			<span v-if="$slots.overlay" class="file-card__overlay">
+				<slot name="overlay" />
+			</span>
 		</div>
 		<div class="file-card__content">
 			<span v-if="$slots.icon" class="file-card__icon">
@@ -53,10 +56,27 @@ defineEmits<{ click: [event: MouseEvent] }>()
 }
 
 .file-card__preview {
+	position: relative;
 	display: flex;
 	border-radius: 4px;
 	overflow: hidden;
 	margin-bottom: calc(var(--default-grid-baseline) * 1);
+}
+
+/* Badge area over the thumbnail (e.g. the share indicator). The chip keeps the
+   icon legible over any preview; the shadow colour is a theme token so it works
+   in dark mode. */
+.file-card__overlay {
+	position: absolute;
+	inset-block-start: calc(var(--default-grid-baseline) * 1);
+	inset-inline-end: calc(var(--default-grid-baseline) * 1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 3px;
+	border-radius: var(--border-radius);
+	background-color: var(--color-main-background);
+	box-shadow: 0 1px 2px rgba(var(--color-box-shadow-rgb), 0.4);
 }
 
 .file-card__content {

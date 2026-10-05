@@ -405,6 +405,19 @@ describe('OfficeOverview > preview thumbnails', () => {
 		expect(preview.classes()).toContain('office-overview__list-thumb')
 	})
 
+	it('renders the grid overlay only for shared files', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([
+			makeNode({ owner: 'alice', shareTypes: [3] }),
+			makeNode({ owner: 'alice' }),
+		]))
+
+		const wrapper = await mountOverview({ FileCard: false })
+
+		expect(wrapper.findAll('.file-card')).toHaveLength(2)
+		expect(wrapper.findAll('.file-card__overlay')).toHaveLength(1)
+	})
+
 	it('passes grid view the file\'s basename as alt text (not decorative)', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
