@@ -42,6 +42,7 @@ import { categoryId, categoryName, categoryMimes, creatorById, allOfficeMimes } 
 import { previewAspectRatio } from '../utils/creatorTheme.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
+import { isShared } from '../utils/fileSharing.ts'
 import type { Filter } from '../utils/fileFilters.ts'
 import type { TemplateCreator, TemplateFile, CreatedFile, OcsErrorResponse } from '../services/templates.ts'
 import type { Node } from '@nextcloud/files'
@@ -387,7 +388,7 @@ fetchAll()
 									<FilePreview :file="file" :aspect-ratio="previewRatio" :alt="file.basename" />
 								</template>
 
-								<template #overlay>
+								<template v-if="isShared(file, currentUid)" #overlay>
 									<ShareIndicator :file="file" :current-uid="currentUid" />
 								</template>
 
