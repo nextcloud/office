@@ -285,7 +285,7 @@ fetchAll()
 		</NcAppNavigation>
 
 		<NcAppContent class="office-overview__content">
-			<NcLoadingIcon v-if="loading" class="office-overview__loading" />
+			<NcLoadingIcon v-if="loading" :name="t('office', 'Loading')" class="office-overview__loading" />
 
 			<template v-else>
 				<NcEmptyContent v-if="creators.length === 0 && !error"

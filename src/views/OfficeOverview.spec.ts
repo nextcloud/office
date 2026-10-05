@@ -160,7 +160,7 @@ describe('OfficeOverview > rendering states', () => {
 		const { default: OfficeOverview } = await import('./OfficeOverview.vue')
 		const wrapper = shallowMount(OfficeOverview, { global: { plugins: [router] } })
 
-		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).exists()).toBe(true)
+		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).props('name')).toBe('Loading')
 		expect(wrapper.findComponent({ name: 'NcEmptyContent' }).exists()).toBe(false)
 	})
 
