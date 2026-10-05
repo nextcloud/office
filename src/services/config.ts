@@ -6,7 +6,7 @@
 const GRID_VIEW_KEY = 'office.overview.gridView'
 
 export function getOverviewGridView(): boolean {
-	return localStorage.getItem(GRID_VIEW_KEY) === 'true'
+	return localStorage.getItem(GRID_VIEW_KEY) !== 'false'
 }
 
 export function setOverviewGridView(enabled: boolean): void {

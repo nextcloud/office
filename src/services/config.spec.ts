@@ -6,21 +6,21 @@ beforeEach(() => {
 })
 
 describe('getOverviewGridView', () => {
-	it('returns false when unset', () => {
-		expect(getOverviewGridView()).toBe(false)
-	})
-
-	it('returns true only for the exact string "true"', () => {
-		localStorage.setItem('office.overview.gridView', 'true')
+	it('defaults to grid when unset', () => {
 		expect(getOverviewGridView()).toBe(true)
 	})
 
-	it('returns false for "false" or any other value', () => {
+	it('returns false only for an explicit "false"', () => {
 		localStorage.setItem('office.overview.gridView', 'false')
 		expect(getOverviewGridView()).toBe(false)
+	})
+
+	it('returns true for "true" or any other value', () => {
+		localStorage.setItem('office.overview.gridView', 'true')
+		expect(getOverviewGridView()).toBe(true)
 
 		localStorage.setItem('office.overview.gridView', 'garbage')
-		expect(getOverviewGridView()).toBe(false)
+		expect(getOverviewGridView()).toBe(true)
 	})
 })
 

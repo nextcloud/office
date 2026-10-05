@@ -223,18 +223,7 @@ describe('OfficeOverview > rendering states', () => {
 		expect(noFilesFound!.text()).not.toContain('Switch to "All"')
 	})
 
-	it('renders files in list view by default (grid view not persisted)', async () => {
-		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
-
-		const wrapper = await mountOverview()
-
-		expect(wrapper.findComponent({ name: 'NcListItem' }).props('name')).toBe('report.odt')
-		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(false)
-	})
-
-	it('renders files in grid view when persisted via localStorage', async () => {
-		localStorage.setItem('office.overview.gridView', 'true')
+	it('renders files in grid view by default (no view persisted)', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
 
@@ -242,6 +231,17 @@ describe('OfficeOverview > rendering states', () => {
 
 		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(true)
 		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(false)
+	})
+
+	it('renders files in list view when persisted via localStorage', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
+
+		const wrapper = await mountOverview()
+
+		expect(wrapper.findComponent({ name: 'NcListItem' }).props('name')).toBe('report.odt')
+		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(false)
 	})
 })
 
@@ -267,6 +267,7 @@ describe('OfficeOverview > creator on the URL', () => {
 	}
 
 	it('opens the category named by the URL, not the first one', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		const wrapper = await mountWithBothCategories('/spreadsheets')
 
 		expect(wrapper.text()).toContain('Recent Spreadsheets')
@@ -373,6 +374,7 @@ describe('OfficeOverview > preview thumbnails', () => {
 	const FILE_CARD_STUB = stubRenderingAllSlots('FileCard', [])
 
 	it('passes list view a small thumbnail size and the file, decorative (no alt)', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
@@ -390,7 +392,6 @@ describe('OfficeOverview > preview thumbnails', () => {
 	})
 
 	it('passes grid view the file\'s basename as alt text (not decorative)', async () => {
-		localStorage.setItem('office.overview.gridView', 'true')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
@@ -407,6 +408,7 @@ describe('OfficeOverview > preview thumbnails', () => {
 
 describe('OfficeOverview > openFile', () => {
 	it('navigates to the WOPI editor URL with fileId when editorUrl is set', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		mockLoadState({ editorUrl: '/apps/office/editor' })
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
@@ -419,6 +421,7 @@ describe('OfficeOverview > openFile', () => {
 	})
 
 	it('navigates to /f/{fileid} when no WOPI editor is configured', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
@@ -478,6 +481,7 @@ describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
 	}
 
 	it('keeps the newest files, not the oldest, when more than MAX_DISPLAY_FILES match', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(filesWithIncreasingMtime(201)))
 
@@ -548,8 +552,8 @@ describe('OfficeOverview > toggleViewMode', () => {
 		if (!toggle) throw new Error('view-toggle button not found')
 		await toggle.vm.$emit('click')
 
-		expect(localStorage.getItem('office.overview.gridView')).toBe('true')
-		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(true)
+		expect(localStorage.getItem('office.overview.gridView')).toBe('false')
+		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(true)
 	})
 })
 
