@@ -47,6 +47,7 @@ defineEmits<{ click: [event: MouseEvent] }>()
 	transition: border-color var(--animation-quick) ease;
 }
 
+.file-card:hover,
 .file-card:focus-visible {
 	border-color: var(--color-primary-element) !important;
 }
