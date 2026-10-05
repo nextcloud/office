@@ -21,6 +21,13 @@ describe('FileCard', () => {
 		expect(wrapper.find('.file-card__name').text()).toBe('a name')
 	})
 
+	it('sizes the preview with the given aspect ratio, portrait by default', () => {
+		expect(mount(FileCard).find('.file-card__preview').attributes('style')).toContain('aspect-ratio: 0.6666')
+
+		const landscape = mount(FileCard, { props: { previewAspectRatio: 16 / 9 } })
+		expect(landscape.find('.file-card__preview').attributes('style')).toContain('aspect-ratio: 1.7777')
+	})
+
 	it('only renders the icon slot when provided', () => {
 		const without = mount(FileCard)
 		expect(without.find('.file-card__icon').exists()).toBe(false)

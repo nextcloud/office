@@ -371,7 +371,7 @@ describe('OfficeOverview > preview thumbnails', () => {
 	// slot (see stubRenderingAllSlots' comment above), so their #icon/#preview
 	// named slots — where FilePreview lives — need it rendered explicitly.
 	const LIST_ITEM_STUB = stubRenderingAllSlots('NcListItem', ['name', 'active'])
-	const FILE_CARD_STUB = stubRenderingAllSlots('FileCard', [])
+	const FILE_CARD_STUB = stubRenderingAllSlots('FileCard', ['previewAspectRatio'])
 
 	it('passes list view a small thumbnail size and the file, decorative (no alt)', async () => {
 		localStorage.setItem('office.overview.gridView', 'false')
@@ -403,6 +403,17 @@ describe('OfficeOverview > preview thumbnails', () => {
 		// copy, not the exact same reference as `file` — compare by fileid.
 		expect(preview.props('file').fileid).toBe(file.fileid)
 		expect(preview.props('alt')).toBe('report.odt')
+	})
+
+	it('sizes grid previews with the template aspect ratio of the category', async () => {
+		const presentationMime = 'application/vnd.oasis.opendocument.presentation'
+		getTemplatesMock.mockResolvedValue([makeCreator({ extension: '.odp', mimetypes: [presentationMime] })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', mime: presentationMime })]))
+
+		const wrapper = await mountOverview({ FileCard: FILE_CARD_STUB })
+
+		expect(wrapper.findComponent({ name: 'FileCard' }).props('previewAspectRatio')).toBe(16 / 9)
+		expect(wrapper.findComponent({ name: 'FilePreview' }).props('aspectRatio')).toBe(16 / 9)
 	})
 })
 

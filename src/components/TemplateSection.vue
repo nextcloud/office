@@ -10,7 +10,7 @@ import { generateUrl } from '@nextcloud/router'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
-import { creatorTheme } from '../utils/creatorTheme.ts'
+import { creatorTheme, previewAspectRatio } from '../utils/creatorTheme.ts'
 import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
 import type { CreatorTheme } from '../utils/creatorTheme.ts'
 
@@ -38,9 +38,8 @@ let resizeObserver: ResizeObserver | null = null
 const themeType = computed(() => creatorTheme(props.creator))
 
 const cardStyle = computed(() => {
-	const isPresentation = themeType.value === 'presentation'
-	const height = isPresentation ? 150 : 200
-	const ratio = isPresentation ? 16 / 9 : 2 / 3
+	const ratio = previewAspectRatio(props.creator)
+	const height = ratio > 1 ? 150 : 200
 	return {
 		width: `${Math.round(height * ratio)}px`,
 		'--tpl-preview-height': `${height}px`,

@@ -13,10 +13,12 @@ import type { Node } from '@nextcloud/files'
 const props = withDefaults(defineProps<{
 	file: Node
 	size?: number
+	aspectRatio?: number
 	fallbackIconSize?: number
 	alt?: string
 }>(), {
 	size: 300,
+	aspectRatio: 1,
 	fallbackIconSize: 48,
 	alt: '',
 })
@@ -31,7 +33,7 @@ const previewUrl = computed(() => {
 	return generateUrl('/core/preview?fileId={fileid}&x={x}&y={y}&v={v}&a=1&mimeFallback=true', {
 		fileid: props.file.fileid,
 		x: props.size,
-		y: props.size,
+		y: Math.round(props.size / props.aspectRatio),
 		v: etag,
 	})
 })

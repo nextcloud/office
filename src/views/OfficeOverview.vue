@@ -37,6 +37,7 @@ import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
 import { categoryId, categoryName, categoryMimes, creatorById, allOfficeMimes } from '../utils/fileCategories.ts'
+import { previewAspectRatio } from '../utils/creatorTheme.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
 import type { Filter } from '../utils/fileFilters.ts'
@@ -138,6 +139,10 @@ const files = computed(() => filteredFiles.value.slice(0, MAX_DISPLAY_FILES))
 // everything when it isn't.
 const hasMoreFiles = computed(() =>
 	filteredFiles.value.length > MAX_DISPLAY_FILES || resultsTruncated.value,
+)
+
+const previewRatio = computed(() =>
+	activeCreator.value ? previewAspectRatio(activeCreator.value) : 2 / 3,
 )
 
 const activeCategoryName = computed(() =>
@@ -361,12 +366,14 @@ fetchAll()
 							</template>
 						</NcEmptyContent>
 
-						<div v-else-if="viewMode === 'grid'" class="office-overview__grid">
+						<div v-else-if="viewMode === 'grid'"
+							:class="['office-overview__grid', { 'office-overview__grid--landscape': previewRatio > 1 }]">
 							<FileCard v-for="file in files"
 								:key="file.fileid"
+								:preview-aspect-ratio="previewRatio"
 								@click="openFile(file)">
 								<template #preview>
-									<FilePreview :file="file" :alt="file.basename" />
+									<FilePreview :file="file" :aspect-ratio="previewRatio" :alt="file.basename" />
 								</template>
 
 								<template #icon>
@@ -450,6 +457,10 @@ fetchAll()
 	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
 	gap: calc(var(--default-grid-baseline) * 3);
 	padding: calc(var(--default-grid-baseline) * 4);
+}
+
+.office-overview__grid--landscape {
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
 .office-overview__content {

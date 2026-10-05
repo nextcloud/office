@@ -27,3 +27,9 @@ export function creatorTheme(creator: TemplateCreator): CreatorTheme {
 	}
 	return 'document'
 }
+
+// Width / height of a document preview: slides are landscape, everything else
+// is a portrait page.
+export function previewAspectRatio(creator: TemplateCreator): number {
+	return creatorTheme(creator) === 'presentation' ? 16 / 9 : 2 / 3
+}
