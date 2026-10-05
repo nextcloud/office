@@ -24,17 +24,17 @@
     "@nextcloud/initial-state": "^3.0.0",
     "@nextcloud/l10n": "^3.4.1",
     "@nextcloud/router": "^3.1.0",
-    "@nextcloud/vue": "^9.3.1",
-    "vue": "^3.5.41",
-    "vue-router": "^5.2.0"
+    "@nextcloud/vue": "^9.13.1",
+    "vue": "^3.5.43",
+    "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@nextcloud/browserslist-config": "^3.1.2",
     "@nextcloud/eslint-config": "^8.4.2",
     "@nextcloud/stylelint-config": "^3.1.1",
-    "@nextcloud/vite-config": "^2.5.2",
+    "@nextcloud/vite-config": "^2.5.4",
     "@types/escape-html": "^1.0.4",
-    "@vitejs/plugin-vue": "^6.0.7",
+    "@vitejs/plugin-vue": "^6.0.9",
     "@vue/test-utils": "^2.5.0",
     "@vue/tsconfig": "^0.9.1",
     "escape-html": "^1.0.3",
