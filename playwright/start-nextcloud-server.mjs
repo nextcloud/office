@@ -21,9 +21,10 @@ const NEXTCLOUD_PORT = 8089
 const COLLABORA_PORT = Number(process.env.COLLABORA_PORT ?? 9980)
 const COLLABORA_IMAGE = 'collabora/code:latest'
 const COLLABORA_CONTAINER = 'nextcloud-e2e-office-collabora'
-// Set to a local richdocuments checkout (with built js/) to test against it
-// instead of the app store release.
+// Set to a local checkout (with built js/ and vendor/) to test against it
+// instead of the app store release or the Text main branch.
 const RICHDOCUMENTS_PATH = process.env.RICHDOCUMENTS_PATH
+const TEXT_PATH = process.env.TEXT_PATH
 
 async function isServerRunning() {
 	try {
@@ -100,9 +101,10 @@ async function configureRichdocuments(nextcloudIp, collaboraIp) {
 }
 
 async function start() {
-	const mounts = RICHDOCUMENTS_PATH
-		? { 'apps-writable/richdocuments': resolve(RICHDOCUMENTS_PATH) }
-		: {}
+	const mounts = {
+		...(RICHDOCUMENTS_PATH && { 'apps-writable/richdocuments': resolve(RICHDOCUMENTS_PATH) }),
+		...(TEXT_PATH && { 'apps-writable/text': resolve(TEXT_PATH) }),
+	}
 	const ip = await startNextcloud('master', true, { exposePort: NEXTCLOUD_PORT, mounts })
 	await waitOnNextcloud(ip)
 	await configureNextcloud(['text', 'office'])
