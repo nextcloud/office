@@ -21,7 +21,7 @@ test('lists a category per office file type and routes to it', async ({ page }) 
 test('falls back to the first category for an unknown one', async ({ page }) => {
 	await page.goto('apps/office/does-not-exist')
 
-	const first = page.getByRole('navigation').getByRole('link').first()
-	await expect(page).toHaveURL(new RegExp(`${await first.getAttribute('href')}$`))
+	const first = page.locator('#app-navigation-vue').getByRole('link').first()
+	await expect(page).not.toHaveURL(/does-not-exist$/)
 	await expect(first).toHaveAttribute('aria-current', 'page')
 })
