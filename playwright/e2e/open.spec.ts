@@ -15,9 +15,8 @@ test('opens an office document in Collabora', async ({ page, upload }) => {
 	await expect(collabora.locator('#main-document-content')).toBeVisible({ timeout: 30_000 })
 })
 
-// Server master dropped the bundled Viewer app for @nextcloud/viewer
-// (nextcloud/server#63954) and Text does not register with it yet, so Files
-// falls back to downloading the file. Re-enable with nextcloud/text#9235.
+// Text registers with @nextcloud/viewer in nextcloud/text#9235, but opening a
+// file from Files does nothing yet there. Enable once that PR works.
 test.fixme('opens a markdown file in Text', async ({ page, upload }) => {
 	await upload('note.md')
 	await page.goto('apps/office/')
