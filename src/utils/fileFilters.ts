@@ -24,10 +24,10 @@ export function filterFiles(files: Node[], { activeFilter, currentUid, searchQue
 	if (activeFilter === 'mine') {
 		filtered = byCategory.filter(f =>
 			f.owner === currentUid
-			&& !NON_MINE_MOUNT_TYPES.includes(f.attributes?.['nc:mount-type'] as string),
+			&& !NON_MINE_MOUNT_TYPES.includes(f.attributes?.['mount-type'] as string),
 		)
 	} else if (activeFilter === 'shared') {
-		filtered = byCategory.filter(f => f.attributes?.['nc:mount-type'] === 'shared')
+		filtered = byCategory.filter(f => f.attributes?.['mount-type'] === 'shared')
 	} else if (activeFilter === 'starred') {
 		// Favourites, regardless of ownership — the same `oc:favorite` flag the
 		// overview shows a star for. sortNodes below keeps them newest-first.
