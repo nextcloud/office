@@ -26,13 +26,19 @@ const COLLABORA_CONTAINER = 'nextcloud-e2e-office-collabora'
 const RICHDOCUMENTS_PATH = process.env.RICHDOCUMENTS_PATH
 const TEXT_PATH = process.env.TEXT_PATH
 
-async function isServerRunning() {
+async function isUp(url) {
 	try {
-		const res = await fetch(`http://127.0.0.1:${NEXTCLOUD_PORT}/status.php`)
-		return res.ok
+		return (await fetch(url)).ok
 	} catch {
 		return false
 	}
+}
+
+// Both containers only run together after a completed setup: a failed or
+// interrupted one removes them again.
+async function isServerRunning() {
+	return await isUp(`http://127.0.0.1:${NEXTCLOUD_PORT}/status.php`)
+		&& await isUp(`http://127.0.0.1:${COLLABORA_PORT}/hosting/discovery`)
 }
 
 async function bridgeIp(container) {
@@ -72,12 +78,10 @@ async function startCollabora(nextcloudIp) {
 	await container.start()
 
 	for (let tries = 0; tries < 60; tries++) {
-		try {
-			if ((await fetch(`http://127.0.0.1:${COLLABORA_PORT}/hosting/discovery`)).ok) {
-				console.log('└─ Collabora is ready')
-				return bridgeIp(container)
-			}
-		} catch {}
+		if (await isUp(`http://127.0.0.1:${COLLABORA_PORT}/hosting/discovery`)) {
+			console.log('└─ Collabora is ready')
+			return bridgeIp(container)
+		}
 		await new Promise((resolve) => setTimeout(resolve, 2000))
 	}
 	throw new Error('Collabora did not become ready')
@@ -105,7 +109,8 @@ async function start() {
 		...(RICHDOCUMENTS_PATH && { 'apps-writable/richdocuments': resolve(RICHDOCUMENTS_PATH) }),
 		...(TEXT_PATH && { 'apps-writable/text': resolve(TEXT_PATH) }),
 	}
-	const ip = await startNextcloud('master', true, { exposePort: NEXTCLOUD_PORT, mounts })
+	// Never reuse a leftover Nextcloud container: it may be half configured.
+	const ip = await startNextcloud('master', true, { exposePort: NEXTCLOUD_PORT, mounts, forceRecreate: true })
 	await waitOnNextcloud(ip)
 	await configureNextcloud(['text', 'office'])
 
@@ -119,23 +124,26 @@ async function start() {
 // survives a test run that merely reused it.
 let started = false
 
-async function stop() {
+async function stop(exitCode = 0) {
 	if (started) {
 		process.stderr.write('Stopping Nextcloud server…\n')
 		await removeCollabora()
 		await stopNextcloud()
 	}
-	process.exit(0)
+	process.exit(exitCode)
 }
 
-process.on('SIGTERM', stop)
-process.on('SIGINT', stop)
+process.on('SIGTERM', () => stop())
+process.on('SIGINT', () => stop())
 
 if (await isServerRunning()) {
 	console.log('└─ Office e2e environment is ready')
 } else {
 	started = true
-	await start()
+	await start().catch(async (error) => {
+		console.error(error)
+		await stop(1)
+	})
 }
 
 // Idle to wait for shutdown
