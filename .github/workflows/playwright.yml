@@ -61,6 +61,21 @@ jobs:
           npm run build
           echo "RICHDOCUMENTS_PATH=$RUNNER_TEMP/richdocuments" >> "$GITHUB_ENV"
 
+      - name: Build Text with @nextcloud/viewer support
+        env:
+          # nextcloud/text#9235 (feature/migrate-new-viewer-api)
+          TEXT_SHA: 06f59d2bb2b4744ede66e7a60fabfe5cbde0c99c
+          CYPRESS_INSTALL_BINARY: 0
+        run: |
+          git init -q "$RUNNER_TEMP/text"
+          cd "$RUNNER_TEMP/text"
+          git fetch -q --depth=1 https://github.com/nextcloud/text.git "$TEXT_SHA"
+          git checkout -q FETCH_HEAD
+          composer install --no-dev
+          npm ci
+          npm run build
+          echo "TEXT_PATH=$RUNNER_TEMP/text" >> "$GITHUB_ENV"
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
