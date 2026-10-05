@@ -1,0 +1,142 @@
+/*!
+ * SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+/* global process */
+
+import {
+	configureNextcloud,
+	docker,
+	getContainer,
+	runOcc,
+	setSystemConfig,
+	startNextcloud,
+	stopNextcloud,
+	waitOnNextcloud,
+} from '@nextcloud/e2e-test-server/docker'
+import { resolve } from 'node:path'
+
+const NEXTCLOUD_PORT = 8089
+const COLLABORA_PORT = Number(process.env.COLLABORA_PORT ?? 9980)
+const COLLABORA_IMAGE = 'collabora/code:latest'
+const COLLABORA_CONTAINER = 'nextcloud-e2e-office-collabora'
+// Set to a local richdocuments checkout (with built js/) to test against it
+// instead of the app store release.
+const RICHDOCUMENTS_PATH = process.env.RICHDOCUMENTS_PATH
+
+async function isServerRunning() {
+	try {
+		const res = await fetch(`http://127.0.0.1:${NEXTCLOUD_PORT}/status.php`)
+		return res.ok
+	} catch {
+		return false
+	}
+}
+
+async function bridgeIp(container) {
+	const { NetworkSettings } = await container.inspect()
+	return NetworkSettings.Networks.bridge.IPAddress
+}
+
+async function pull(image) {
+	const stream = await docker.pull(image)
+	await new Promise((resolve, reject) => docker.modem.followProgress(stream, (err) => err ? reject(err) : resolve()))
+}
+
+async function removeCollabora() {
+	await docker.getContainer(COLLABORA_CONTAINER).remove({ force: true }).catch(() => {})
+}
+
+// Collabora calls back into Nextcloud for WOPI and Nextcloud fetches its
+// discovery, so both talk over the docker bridge; the browser reaches Collabora
+// through the published port.
+async function startCollabora(nextcloudIp) {
+	console.log('Starting Collabora container… 🚀')
+	await pull(COLLABORA_IMAGE)
+	await removeCollabora()
+	const container = await docker.createContainer({
+		Image: COLLABORA_IMAGE,
+		name: COLLABORA_CONTAINER,
+		Env: [
+			`aliasgroup1=http://${nextcloudIp}`,
+			// The URL Collabora advertises in its discovery, which the browser loads.
+			`server_name=localhost:${COLLABORA_PORT}`,
+			'extra_params=--o:ssl.enable=false --o:home_mode.enable=true',
+		],
+		HostConfig: {
+			PortBindings: { '9980/tcp': [{ HostPort: String(COLLABORA_PORT) }] },
+		},
+	})
+	await container.start()
+
+	for (let tries = 0; tries < 60; tries++) {
+		try {
+			if ((await fetch(`http://127.0.0.1:${COLLABORA_PORT}/hosting/discovery`)).ok) {
+				console.log('└─ Collabora is ready')
+				return bridgeIp(container)
+			}
+		} catch {}
+		await new Promise((resolve) => setTimeout(resolve, 2000))
+	}
+	throw new Error('Collabora did not become ready')
+}
+
+async function configureRichdocuments(nextcloudIp, collaboraIp) {
+	if (!RICHDOCUMENTS_PATH) {
+		// No release targets the server's development branch yet, hence --force.
+		await runOcc(['app:install', '--allow-unstable', '--force', 'richdocuments'], { verbose: true })
+	}
+	await runOcc(['app:enable', '--force', 'richdocuments'], { verbose: true })
+
+	await setSystemConfig('allow_local_remote_servers', 'true')
+	await runOcc(['config:system:set', 'trusted_domains', '1', `--value=${nextcloudIp}`])
+	await runOcc(['config:app:set', 'richdocuments', 'wopi_allowlist', `--value=${collaboraIp}`])
+	await runOcc([
+		'richdocuments:activate-config',
+		`--wopi-url=http://${collaboraIp}:9980`,
+		`--callback-url=http://${nextcloudIp}/`,
+	], { verbose: true })
+}
+
+async function start() {
+	const mounts = RICHDOCUMENTS_PATH
+		? { 'apps-writable/richdocuments': resolve(RICHDOCUMENTS_PATH) }
+		: {}
+	const ip = await startNextcloud('master', true, { exposePort: NEXTCLOUD_PORT, mounts })
+	await waitOnNextcloud(ip)
+	await configureNextcloud(['text', 'office'])
+
+	const nextcloudIp = await bridgeIp(getContainer())
+	const collaboraIp = await startCollabora(nextcloudIp)
+	await configureRichdocuments(nextcloudIp, collaboraIp)
+	console.log('└─ Office e2e environment is ready')
+}
+
+// Only tear down what this process started, so an already running server
+// survives a test run that merely reused it.
+let started = false
+
+async function stop() {
+	if (started) {
+		process.stderr.write('Stopping Nextcloud server…\n')
+		await removeCollabora()
+		await stopNextcloud()
+	}
+	process.exit(0)
+}
+
+process.on('SIGTERM', stop)
+process.on('SIGINT', stop)
+
+if (await isServerRunning()) {
+	console.log('└─ Office e2e environment is ready')
+} else {
+	started = true
+	await start()
+}
+
+// Idle to wait for shutdown
+while (true) {
+	await new Promise((resolve) => setTimeout(resolve, 5000))
+}
