@@ -10,26 +10,15 @@ import { generateUrl } from '@nextcloud/router'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
+import { creatorTheme, previewAspectRatio } from '../utils/creatorTheme.ts'
 import type { TemplateCreator, TemplateFile } from '../services/templates.ts'
+import type { CreatorTheme } from '../utils/creatorTheme.ts'
 
-const THEME_PALETTES: Record<string, [string, string, string, string]> = {
+const THEME_PALETTES: Record<CreatorTheme, [string, string, string, string]> = {
 	document: ['hsl(203 79% 78%)', 'hsl(203 79% 60%)', 'hsl(203 70% 42%)', 'hsl(203 65% 26%)'],
 	spreadsheet: ['hsl(79 46% 70%)', 'hsl(79 46% 52%)', 'hsl(79 50% 38%)', 'hsl(79 55% 24%)'],
 	presentation: ['hsl(23 83% 80%)', 'hsl(23 83% 66%)', 'hsl(23 75% 48%)', 'hsl(23 70% 32%)'],
 	drawing: ['hsl(47 80% 62%)', 'hsl(47 80% 39%)', 'hsl(47 82% 28%)', 'hsl(47 85% 18%)'],
-}
-
-const MIME_THEME: Record<string, keyof typeof THEME_PALETTES> = {
-	'application/vnd.oasis.opendocument.presentation': 'presentation',
-	'application/vnd.oasis.opendocument.presentation-template': 'presentation',
-	'application/vnd.ms-powerpoint': 'presentation',
-	'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'presentation',
-	'application/vnd.oasis.opendocument.spreadsheet': 'spreadsheet',
-	'application/vnd.oasis.opendocument.spreadsheet-template': 'spreadsheet',
-	'application/vnd.ms-excel': 'spreadsheet',
-	'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'spreadsheet',
-	'application/vnd.oasis.opendocument.graphics': 'drawing',
-	'application/vnd.oasis.opendocument.graphics-template': 'drawing',
 }
 
 // Inter-card gap (calc(baseline * 3), baseline = 4px) and a representative card
@@ -46,18 +35,11 @@ const canScrollRight = ref(false)
 const failedPreviews = ref<Record<number, boolean>>({})
 let resizeObserver: ResizeObserver | null = null
 
-const themeType = computed((): keyof typeof THEME_PALETTES => {
-	for (const mime of (props.creator.mimetypes ?? [])) {
-		const theme = MIME_THEME[mime]
-		if (theme) return theme
-	}
-	return 'document'
-})
+const themeType = computed(() => creatorTheme(props.creator))
 
 const cardStyle = computed(() => {
-	const isPresentation = themeType.value === 'presentation'
-	const height = isPresentation ? 150 : 200
-	const ratio = isPresentation ? 16 / 9 : 2 / 3
+	const ratio = previewAspectRatio(props.creator)
+	const height = ratio > 1 ? 150 : 200
 	return {
 		width: `${Math.round(height * ratio)}px`,
 		'--tpl-preview-height': `${height}px`,

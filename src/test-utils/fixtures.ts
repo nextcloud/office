@@ -41,7 +41,7 @@ export function makeNode({
 		mime,
 		mtime,
 		attributes: {
-			...(mountType !== undefined ? { 'nc:mount-type': mountType } : {}),
+			...(mountType !== undefined ? { 'mount-type': mountType } : {}),
 			...(favorite ? { favorite: 1 } : {}),
 		},
 	})

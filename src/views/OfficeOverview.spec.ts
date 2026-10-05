@@ -160,7 +160,7 @@ describe('OfficeOverview > rendering states', () => {
 		const { default: OfficeOverview } = await import('./OfficeOverview.vue')
 		const wrapper = shallowMount(OfficeOverview, { global: { plugins: [router] } })
 
-		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).exists()).toBe(true)
+		expect(wrapper.findComponent({ name: 'NcLoadingIcon' }).props('name')).toBe('Loading')
 		expect(wrapper.findComponent({ name: 'NcEmptyContent' }).exists()).toBe(false)
 	})
 
@@ -184,20 +184,34 @@ describe('OfficeOverview > rendering states', () => {
 		expect(emptyContents.some(c => c.props('name') === 'Failed to load files')).toBe(true)
 	})
 
-	// Not a test bug: this is what the component actually does. fetchAll()'s
-	// catch only sets the "Failed to load files" error state if it's reached
-	// — but creators.value is only ever assigned *after* getTemplates()
-	// resolves, so a getTemplates() rejection leaves creators empty and the
-	// template shows "No office suite installed" instead, before the error
-	// branch is ever reached. A misleading message for a network failure,
-	// but out of scope for a behaviour-preserving refactor — characterizing
-	// it, not fixing it.
-	it('shows "No office suite installed" (not the error state) when getTemplates itself fails', async () => {
+	it('shows the error state, not "No office suite installed", when getTemplates itself fails', async () => {
 		getTemplatesMock.mockRejectedValue(new Error('network error'))
 
 		const wrapper = await mountOverview()
 
+		const names = wrapper.findAllComponents({ name: 'NcEmptyContent' }).map(c => c.props('name'))
+		expect(names).toEqual(['Failed to load files'])
+	})
+
+	it('retries loading from the error state', async () => {
+		getTemplatesMock.mockRejectedValueOnce(new Error('network error'))
+		getTemplatesMock.mockResolvedValueOnce([])
+
+		const wrapper = await mountOverview()
+		await findButtonByText(wrapper, 'Retry').vm.$emit('click')
+		await flushPromises()
+
+		expect(getTemplatesMock).toHaveBeenCalledTimes(2)
 		expect(wrapper.findComponent({ name: 'NcEmptyContent' }).props('name')).toBe('No office suite installed')
+	})
+
+	it('announces the pluralised number of files found', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice' }), makeNode({ owner: 'alice' })]))
+
+		const wrapper = await mountOverview()
+
+		expect(wrapper.find('[role="status"]').text()).toBe('2 files found in Documents')
 	})
 
 	it('shows "No {category} found" with a switch-to-All hint when the mine filter has no matches', async () => {
@@ -223,18 +237,7 @@ describe('OfficeOverview > rendering states', () => {
 		expect(noFilesFound!.text()).not.toContain('Switch to "All"')
 	})
 
-	it('renders files in list view by default (grid view not persisted)', async () => {
-		getTemplatesMock.mockResolvedValue([makeCreator()])
-		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
-
-		const wrapper = await mountOverview()
-
-		expect(wrapper.findComponent({ name: 'NcListItem' }).props('name')).toBe('report.odt')
-		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(false)
-	})
-
-	it('renders files in grid view when persisted via localStorage', async () => {
-		localStorage.setItem('office.overview.gridView', 'true')
+	it('renders files in grid view by default (no view persisted)', async () => {
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
 
@@ -242,6 +245,17 @@ describe('OfficeOverview > rendering states', () => {
 
 		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(true)
 		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(false)
+	})
+
+	it('renders files in list view when persisted via localStorage', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', basename: 'report.odt' })]))
+
+		const wrapper = await mountOverview()
+
+		expect(wrapper.findComponent({ name: 'NcListItem' }).props('name')).toBe('report.odt')
+		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(false)
 	})
 })
 
@@ -267,6 +281,7 @@ describe('OfficeOverview > creator on the URL', () => {
 	}
 
 	it('opens the category named by the URL, not the first one', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		const wrapper = await mountWithBothCategories('/spreadsheets')
 
 		expect(wrapper.text()).toContain('Recent Spreadsheets')
@@ -370,9 +385,10 @@ describe('OfficeOverview > preview thumbnails', () => {
 	// slot (see stubRenderingAllSlots' comment above), so their #icon/#preview
 	// named slots — where FilePreview lives — need it rendered explicitly.
 	const LIST_ITEM_STUB = stubRenderingAllSlots('NcListItem', ['name', 'active'])
-	const FILE_CARD_STUB = stubRenderingAllSlots('FileCard', [])
+	const FILE_CARD_STUB = stubRenderingAllSlots('FileCard', ['previewAspectRatio'])
 
 	it('passes list view a small thumbnail size and the file, decorative (no alt)', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
@@ -390,7 +406,6 @@ describe('OfficeOverview > preview thumbnails', () => {
 	})
 
 	it('passes grid view the file\'s basename as alt text (not decorative)', async () => {
-		localStorage.setItem('office.overview.gridView', 'true')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice', basename: 'report.odt' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
@@ -403,10 +418,22 @@ describe('OfficeOverview > preview thumbnails', () => {
 		expect(preview.props('file').fileid).toBe(file.fileid)
 		expect(preview.props('alt')).toBe('report.odt')
 	})
+
+	it('sizes grid previews with the template aspect ratio of the category', async () => {
+		const presentationMime = 'application/vnd.oasis.opendocument.presentation'
+		getTemplatesMock.mockResolvedValue([makeCreator({ extension: '.odp', mimetypes: [presentationMime] })])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([makeNode({ owner: 'alice', mime: presentationMime })]))
+
+		const wrapper = await mountOverview({ FileCard: FILE_CARD_STUB })
+
+		expect(wrapper.findComponent({ name: 'FileCard' }).props('previewAspectRatio')).toBe(16 / 9)
+		expect(wrapper.findComponent({ name: 'FilePreview' }).props('aspectRatio')).toBe(16 / 9)
+	})
 })
 
 describe('OfficeOverview > openFile', () => {
 	it('navigates to the WOPI editor URL with fileId when editorUrl is set', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		mockLoadState({ editorUrl: '/apps/office/editor' })
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
@@ -419,6 +446,7 @@ describe('OfficeOverview > openFile', () => {
 	})
 
 	it('navigates to /f/{fileid} when no WOPI editor is configured', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		const file = makeNode({ owner: 'alice' })
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([file]))
@@ -478,6 +506,7 @@ describe('OfficeOverview > MAX_DISPLAY_FILES cap', () => {
 	}
 
 	it('keeps the newest files, not the oldest, when more than MAX_DISPLAY_FILES match', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
 		getTemplatesMock.mockResolvedValue([makeCreator()])
 		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult(filesWithIncreasingMtime(201)))
 
@@ -548,8 +577,8 @@ describe('OfficeOverview > toggleViewMode', () => {
 		if (!toggle) throw new Error('view-toggle button not found')
 		await toggle.vm.$emit('click')
 
-		expect(localStorage.getItem('office.overview.gridView')).toBe('true')
-		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(true)
+		expect(localStorage.getItem('office.overview.gridView')).toBe('false')
+		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(true)
 	})
 })
 

@@ -25,6 +25,14 @@ describe('FilePreview', () => {
 		expect(img.attributes('src')).not.toContain('1234567890')
 	})
 
+	it('requests a preview matching the aspect ratio', () => {
+		const wrapper = mount(FilePreview, { props: { file: makeNode(), size: 300, aspectRatio: 2 / 3 } })
+
+		const src = wrapper.find('img').attributes('src')
+		expect(src).toContain('x=300')
+		expect(src).toContain('y=450')
+	})
+
 	it('passes the alt text through, defaulting to empty (decorative)', () => {
 		const withoutAlt = mount(FilePreview, { props: { file: makeNode() } })
 		expect(withoutAlt.find('img').attributes('alt')).toBe('')

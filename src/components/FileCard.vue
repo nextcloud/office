@@ -4,12 +4,15 @@
 -->
 
 <script setup lang="ts">
+withDefaults(defineProps<{ previewAspectRatio?: number }>(), {
+	previewAspectRatio: 2 / 3,
+})
 defineEmits<{ click: [event: MouseEvent] }>()
 </script>
 
 <template>
 	<button type="button" class="file-card" @click="$emit('click', $event)">
-		<div class="file-card__preview">
+		<div class="file-card__preview" :style="{ aspectRatio: previewAspectRatio }">
 			<slot name="preview" />
 		</div>
 		<div class="file-card__content">
@@ -33,7 +36,6 @@ defineEmits<{ click: [event: MouseEvent] }>()
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	aspect-ratio: 2 / 3;
 	/* !important overrides the legacy global button border styles. */
 	border: 2px solid var(--color-border) !important;
 	border-radius: var(--border-radius-element);
@@ -45,13 +47,12 @@ defineEmits<{ click: [event: MouseEvent] }>()
 	transition: border-color var(--animation-quick) ease;
 }
 
+.file-card:hover,
 .file-card:focus-visible {
 	border-color: var(--color-primary-element) !important;
 }
 
 .file-card__preview {
-	flex: 1;
-	min-height: 0;
 	display: flex;
 	border-radius: 4px;
 	overflow: hidden;
