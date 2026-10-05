@@ -5,11 +5,6 @@
 
 import { expect, test } from '../support/fixtures.ts'
 
-// Server master dropped the bundled Viewer app for @nextcloud/viewer
-// (nextcloud/server#63954); Text and richdocuments do not register with it yet,
-// so Files falls back to downloading the file. Re-enable once they do.
-test.fixme(true, 'Editors do not open on server master yet: nextcloud/server#63954')
-
 test('opens an office document in Collabora', async ({ page, upload }) => {
 	await upload('document.odt')
 	await page.goto('apps/office/documents')
@@ -20,7 +15,10 @@ test('opens an office document in Collabora', async ({ page, upload }) => {
 	await expect(collabora.locator('#main-document-content')).toBeVisible({ timeout: 30_000 })
 })
 
-test('opens a markdown file in Text', async ({ page, upload }) => {
+// Server master dropped the bundled Viewer app for @nextcloud/viewer
+// (nextcloud/server#63954) and Text does not register with it yet, so Files
+// falls back to downloading the file. Re-enable with nextcloud/text#9235.
+test.fixme('opens a markdown file in Text', async ({ page, upload }) => {
 	await upload('note.md')
 	await page.goto('apps/office/')
 

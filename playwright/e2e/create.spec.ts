@@ -25,8 +25,7 @@ test('creates a blank document and opens it', async ({ page, account }) => {
 	await dialog.getByRole('textbox', { name: 'Filename' }).fill('Created.odt')
 	await dialog.getByRole('button', { name: 'Create' }).click()
 
-	// Hands off to the Files app, which opens the editor; see open.spec.ts.
-	await expect(page).toHaveURL(/apps\/files\/files\/\d+/)
+	await expect(page.frameLocator('[data-cy="coolframe"]').locator('#main-document-content')).toBeVisible({ timeout: 30_000 })
 	const created = await page.request.fetch(`../remote.php/dav/files/${account.userId}/Created.odt`, { method: 'PROPFIND' })
 	expect(created.status()).toBe(207)
 })
