@@ -86,9 +86,9 @@ npm run test:e2e
 with this app, Text and richdocuments, plus a Collabora CODE container on
 port 9980. An already running server on port 8089 is reused, so
 `npm run start:nextcloud` in a second terminal speeds up repeated runs.
-`COLLABORA_PORT` changes the Collabora host port; `RICHDOCUMENTS_PATH` points
-at a local richdocuments checkout (with built `js/`) instead of the app store
-release. Example files live in `playwright/support/files/`. CI runs the suite
+`COLLABORA_PORT` changes the Collabora host port; `RICHDOCUMENTS_PATH` and
+`TEXT_PATH` point at local checkouts (with built `js/` and `vendor/`) instead
+of the app store release and Text main. Example files live in `playwright/support/files/`. CI runs the suite
 via `playwright.yml`.
 
 ### 5. Committing changes
