@@ -2,6 +2,7 @@ OC.L10N.register(
     "office",
     {
     "Documents" : "Dokumentlar",
+    "Shared" : "Paýlaşyldy",
     "Create new" : "Täzesini dörediň",
     "Search" : "Gözlemek",
     "Create" : "Dörediň",

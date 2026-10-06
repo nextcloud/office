@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Office",
     "Office overview" : "Ringkasan Office",
     "Office overview app for Nextcloud" : "Aplikasi ringkasan Office untuk Nextcloud",
+    "Shared" : "Dibagikan",
     "Create new" : "Buat baru",
     "Scroll left" : "Gulir ke kiri",
     "Scroll right" : "Gulir ke kanan",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "{category} terbaru",
     "Failed to create file" : "Gagal membuat file",
     "Failed to load files" : "Gagal memuat file",
+    "Loading" : "Memuat",
     "No office suite installed" : "Tidak ada paket Office yang terinstal",
-    "{count} found in {category}" : "Ditemukan {count} dalam {category}",
+    "Retry" : "Coba lagi",
     "Filter files" : "Filter file",
     "All" : "Semua",
     "Mine" : "Milik saya",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Nama file",
     "Filename cannot be empty" : "Nama berkas tidak boleh kosong",
     "Filename contains invalid characters" : "Nama file mengandung karakter yang tidak valid",
-    "{count} {category} found" : "{count} {category} ditemukan"
+    "{count} {category} found" : "{count} {category} ditemukan",
+    "{count} found in {category}" : "Ditemukan {count} dalam {category}"
 },
 "nplurals=1; plural=0;");

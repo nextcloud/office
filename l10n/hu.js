@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Iroda",
     "Office overview" : "Iroda áttekintése",
     "Office overview app for Nextcloud" : "Iroda áttekintése alkalmazás a Nextcloudhoz",
+    "Shared" : "Megosztva",
     "Create new" : "Új létrehozása",
     "Scroll left" : "Görgetés balra",
     "Scroll right" : "Görgetés jobbra",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "Legutóbbiak: {category}",
     "Failed to create file" : "Nem sikerült a fájl létrehozása",
     "Failed to load files" : "Nem sikerült a fájlok betöltése",
+    "Loading" : "Betöltés",
     "No office suite installed" : "Nincs irodai csomag telepítve",
-    "{count} found in {category}" : "{count} található ebben: {category}",
+    "Retry" : "Újra",
     "Filter files" : "Fájlok szűrése",
     "All" : "Összes",
     "Mine" : "Saját",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Fájlnév",
     "Filename cannot be empty" : "A fájlnév nem lehet üres",
     "Filename contains invalid characters" : "A fájlnév érvénytelen karaktereket tartalmaz",
-    "{count} {category} found" : "{count} {category} található"
+    "{count} {category} found" : "{count} {category} található",
+    "{count} found in {category}" : "{count} található ebben: {category}"
 },
 "nplurals=2; plural=(n != 1);");

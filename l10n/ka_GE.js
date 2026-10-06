@@ -1,8 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Shared" : "გაზიარებული",
     "Search {category}" : "{category} ძებნა",
     "Search" : "ძიება",
+    "Retry" : "ვცადოთ ახლიდან",
     "All" : "ყველა",
     "Starred" : "ვარსკვლავმინიჭებული",
     "Filename cannot be empty" : "ფაილის სახელი ვერ იქნება ცარიელი"

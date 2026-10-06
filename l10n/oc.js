@@ -1,7 +1,10 @@
 OC.L10N.register(
     "office",
     {
+    "Shared" : "Partejat",
     "Search" : "Recercar",
+    "Loading" : "Cargament",
+    "Retry" : "Tornar ensajar",
     "All" : "Tot",
     "Starred" : "Favorit",
     "Create" : "Crear",

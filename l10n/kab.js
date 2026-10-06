@@ -3,11 +3,13 @@ OC.L10N.register(
     {
     "Documents" : "Isemliyen",
     "Office" : "Tanarit",
+    "Shared" : "Yettwabḍa",
     "Create new" : "Snulfu-d amaynut",
     "Blank" : "Ilem",
     "Search {category}" : "Nadi deg {category}",
     "Search" : "Nadi",
-    "{count} found in {category}" : "{count} ttwafen deg {category}",
+    "Loading" : "Yessalay-d",
+    "Retry" : "Ɛreḍ tikkelt-nniḍen",
     "Filter files" : "Sizdeg ifuyla",
     "All" : "Akk",
     "Mine" : "Inu",
@@ -16,6 +18,7 @@ OC.L10N.register(
     "Create" : "Snulfu-d",
     "Filename" : "Isem n ufaylu",
     "Filename cannot be empty" : "Isem n ufaylu ulamek ara yili d ilem",
-    "{count} {category} found" : "{count} {category} ttwafen"
+    "{count} {category} found" : "{count} {category} ttwafen",
+    "{count} found in {category}" : "{count} ttwafen deg {category}"
 },
 "nplurals=2; plural=(n != 1);");

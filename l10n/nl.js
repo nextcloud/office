@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Office",
     "Office overview" : "Office overzicht",
     "Office overview app for Nextcloud" : "Office overzicht app voor Nextcloud",
+    "Shared" : "Gedeeld",
     "Create new" : "Maak nieuw",
     "Scroll left" : "Scroll naar links",
     "Scroll right" : "Scroll naar rechts",
@@ -17,8 +18,9 @@ OC.L10N.register(
     "Recent {category}" : "Recente {category}",
     "Failed to create file" : "Bestand aanmaken is mislukt",
     "Failed to load files" : "Laden van bestanden is mislukt",
+    "Loading" : "Laden",
     "No office suite installed" : "Geen officepakket geïnstalleerd",
-    "{count} found in {category}" : "{count} gevonden in {category}",
+    "Retry" : "Opnieuw",
     "Filter files" : "Bestanden filteren",
     "All" : "Alles",
     "Mine" : "Mijn",
@@ -34,6 +36,7 @@ OC.L10N.register(
     "Filename" : "Bestandsnaam",
     "Filename cannot be empty" : "Bestandsnaam mag niet leeg zijn",
     "Filename contains invalid characters" : "Bestandsnaam bevat ongeldige tekens",
-    "{count} {category} found" : "{count} {category} gevonden"
+    "{count} {category} found" : "{count} {category} gevonden",
+    "{count} found in {category}" : "{count} gevonden in {category}"
 },
 "nplurals=2; plural=(n != 1);");

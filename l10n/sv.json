@@ -6,6 +6,7 @@
     "Office" : "Office",
     "Office overview" : "Office-översikt",
     "Office overview app for Nextcloud" : "App för Office-översikt i Nextcloud",
+    "Shared" : "Delad",
     "Create new" : "Skapa ny",
     "Scroll left" : "Rulla åt vänster",
     "Scroll right" : "Rulla åt höger",
@@ -16,8 +17,9 @@
     "Recent {category}" : "Senaste {category}",
     "Failed to create file" : "Det gick inte att skapa filen",
     "Failed to load files" : "Det gick inte att läsa in filerna",
+    "Loading" : "Läser in",
     "No office suite installed" : "Ingen kontorssvit är installerad",
-    "{count} found in {category}" : "{count} hittades i {category}",
+    "Retry" : "Försök igen",
     "Filter files" : "Filtrera filer",
     "All" : "Alla",
     "Mine" : "Mina",
@@ -33,6 +35,7 @@
     "Filename" : "Filnamn",
     "Filename cannot be empty" : "Filnamnet kan inte vara tomt",
     "Filename contains invalid characters" : "Filnamnet innehåller ogiltiga tecken",
-    "{count} {category} found" : "{count} {category} hittades"
+    "{count} {category} found" : "{count} {category} hittades",
+    "{count} found in {category}" : "{count} hittades i {category}"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

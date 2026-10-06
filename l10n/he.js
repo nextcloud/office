@@ -3,9 +3,12 @@ OC.L10N.register(
     {
     "Documents" : "מסמכים",
     "Office" : "משרד",
+    "Shared" : "משותף",
     "Create new" : "יצירת חדש",
     "Search {category}" : "חיפוש ב{category}",
     "Search" : "חיפוש",
+    "Loading" : "בטעינה",
+    "Retry" : "ניסיון חוזר",
     "All" : "הכול",
     "Starred" : "מסומן בכוכב",
     "No {category} found" : "לא נמצא {category}",

@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Biuro",
     "Office overview" : "Przegląd biura",
     "Office overview app for Nextcloud" : "Aplikacja przegląd biura dla Androida",
+    "Shared" : "Udostępnione",
     "Create new" : "Utwórz nowy",
     "Scroll left" : "Przewiń w lewo",
     "Scroll right" : "Przewiń w prawo",
@@ -17,8 +18,9 @@ OC.L10N.register(
     "Recent {category}" : "Ostatnie {category}",
     "Failed to create file" : "Nie udało się utworzyć pliku",
     "Failed to load files" : "Nie udało się załadować pliku",
+    "Loading" : "Wczytywanie",
     "No office suite installed" : "Brak zainstalowanego pakietu biurowego",
-    "{count} found in {category}" : "{count} odnalezionych w {category}",
+    "Retry" : "Powtórz",
     "Filter files" : "Filtruj pliki",
     "All" : "Wszystkie",
     "Mine" : "Moje",
@@ -34,6 +36,7 @@ OC.L10N.register(
     "Filename" : "Nazwa pliku",
     "Filename cannot be empty" : "Nazwa pliku nie może być pusta",
     "Filename contains invalid characters" : "Nazwa pliku zawiera nieprawidłowe znaki",
-    "{count} {category} found" : "{count} {category} odnaleziono"
+    "{count} {category} found" : "{count} {category} odnaleziono",
+    "{count} found in {category}" : "{count} odnalezionych w {category}"
 },
 "nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);");

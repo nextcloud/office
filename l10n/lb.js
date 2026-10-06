@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Office",
     "Office overview" : "Office Iwwersiicht",
     "Office overview app for Nextcloud" : "Office Iwwersiichts-App fir Nextcloud",
+    "Shared" : "Gedeelt",
     "Create new" : "Nei erstellen",
     "Scroll left" : "Lénks scrollen",
     "Scroll right" : "Riets scrollen",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "Rezent {category}",
     "Failed to create file" : "Fichier konnt net erstallt ginn",
     "Failed to load files" : "Fichiere konnten net geluede ginn",
+    "Loading" : "Lued",
     "No office suite installed" : "Et ass keng Office-Suite installéiert",
-    "{count} found in {category}" : "{count} fonnt a(n) {category}",
+    "Retry" : "Widderhuelen",
     "Filter files" : "Fichiere filteren",
     "All" : "All",
     "Mine" : "Meng",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Fichiernumm",
     "Filename cannot be empty" : "Fichernumm dierf net eidel sinn",
     "Filename contains invalid characters" : "Fichernumm enthält ongëlteg Zeechen",
-    "{count} {category} found" : "{count} {category} fonnt"
+    "{count} {category} found" : "{count} {category} fonnt",
+    "{count} found in {category}" : "{count} fonnt a(n) {category}"
 },
 "nplurals=2; plural=(n != 1);");

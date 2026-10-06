@@ -5,6 +5,7 @@ OC.L10N.register(
     "Office" : "Burev",
     "Create new" : "Krouiñ unan nevez",
     "Search" : "Klask",
+    "Retry" : "Klaskit en dro",
     "All" : "Pep tra",
     "Filename" : "Anv restr",
     "Filename cannot be empty" : "Anv ar restr n'a hell get bezhañ goulo"

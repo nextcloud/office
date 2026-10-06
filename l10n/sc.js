@@ -3,9 +3,11 @@ OC.L10N.register(
     {
     "Documents" : "Documentos",
     "Office" : "Ofìtziu",
+    "Shared" : "Cumpartziduras",
     "Create new" : "Crea un'archìviu nou",
     "Blank" : "Isbòidu",
     "Search" : "Chirca",
+    "Loading" : "Carrighende",
     "All" : "Totu",
     "Shared with me" : "Cumpartzidos cun megus",
     "Starred" : "Preferidos",

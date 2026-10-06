@@ -3,9 +3,12 @@ OC.L10N.register(
     {
     "Documents" : "Documents",
     "Office" : "Office",
+    "Shared" : "Shared",
     "Create new" : "Create new",
     "Blank" : "Blank",
     "Search" : "ძებნა",
+    "Loading" : "ითვირთება",
+    "Retry" : "თავიდან ცდა",
     "All" : "All",
     "Shared with me" : "Shared with me",
     "Starred" : "Starred",

@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Kontorirakendus",
     "Office overview" : "Kontorirakenduse ülevaade",
     "Office overview app for Nextcloud" : "Nextcloudi kontorirakenduse ülevaade",
+    "Shared" : "Jagatud",
     "Create new" : "Loo uus",
     "Scroll left" : "Keri vasakule",
     "Scroll right" : "Keri paremale",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "Hiljutine kategooria: „{category}“",
     "Failed to create file" : "Faili loomine ei õnnestunud",
     "Failed to load files" : "Failide laadimine ei õnnestu",
+    "Loading" : "Laadin",
     "No office suite installed" : "Ühtegi kontoritarkvarapaketti pole valitud",
-    "{count} found in {category}" : "{count} leidus „{category}“ kategoorias",
+    "Retry" : "Proovi uuesti",
     "Filter files" : "Filtreeri faile",
     "All" : "Kõik",
     "Mine" : "Minu omad",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Failinimi",
     "Filename cannot be empty" : "Failinimi ei tohi olla tühi",
     "Filename contains invalid characters" : "Failinimes leidub keelatud tähemärke",
-    "{count} {category} found" : "Leidus {count} „{category}“ kategooria"
+    "{count} {category} found" : "Leidus {count} „{category}“ kategooria",
+    "{count} found in {category}" : "{count} leidus „{category}“ kategoorias"
 },
 "nplurals=2; plural=(n != 1);");

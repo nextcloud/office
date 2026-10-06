@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Shared" : "Compartite",
     "Search" : "Cercar",
     "All" : "Tote",
     "Starred" : "Stellate"

@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Shared" : "Podijeljen",
     "Search" : "Search",
     "All" : "Sve",
     "Starred" : "Označeno",
