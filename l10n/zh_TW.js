@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Office",
     "Office overview" : "Office 概覽",
     "Office overview app for Nextcloud" : "Nextcloud 的 Office 概覽應用程式",
+    "Shared" : "已分享",
     "Create new" : "建立新的",
     "Scroll left" : "向左捲動",
     "Scroll right" : "向右捲動",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "近期 {category}",
     "Failed to create file" : "建立檔案失敗",
     "Failed to load files" : "無法載入檔案",
+    "Loading" : "正在載入",
     "No office suite installed" : "未安裝辦公室套裝軟體",
-    "{count} found in {category}" : "在 {category} 中找到 {count} 個",
+    "Retry" : "重試",
     "Filter files" : "篩選檔案",
     "All" : "全部",
     "Mine" : "我的",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "檔案名稱",
     "Filename cannot be empty" : "檔案名稱不可為空白",
     "Filename contains invalid characters" : "檔案名稱包含無效字元",
-    "{count} {category} found" : "找到 {count} {category}"
+    "{count} {category} found" : "找到 {count} {category}",
+    "{count} found in {category}" : "在 {category} 中找到 {count} 個"
 },
 "nplurals=1; plural=0;");

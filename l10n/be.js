@@ -8,6 +8,7 @@ OC.L10N.register(
     "Create new" : "Стварыць новую",
     "Blank" : "Пусты",
     "Search" : "Пошук",
+    "Retry" : "Паўтарыць спробу",
     "All" : "Усе",
     "Switch to grid view" : "Пераключыцца ў выгляд сеткі",
     "Switch to list view" : "Пераключыцца ў выгляд спісу",

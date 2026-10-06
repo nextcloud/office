@@ -2,9 +2,11 @@ OC.L10N.register(
     "office",
     {
     "Office" : "สำนักงาน",
+    "Shared" : "ถูกแชร์",
     "Create new" : "สร้างใหม่",
     "Blank" : "ว่าง",
     "Search" : "ค้นหา",
+    "Loading" : "กำลังโหลด",
     "All" : "ทั้งหมด",
     "Starred" : "ติดดาวแล้ว",
     "Create" : "สร้าง",

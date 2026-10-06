@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Oifig",
     "Office overview" : "Forbhreathnú ar an oifig",
     "Office overview app for Nextcloud" : "Aip forbhreathnaithe Oifige do Nextcloud",
+    "Shared" : "Roinnte",
     "Create new" : "Cruthaigh nua",
     "Scroll left" : "Scrollaigh ar chlé",
     "Scroll right" : "Scrollaigh ar dheis",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "Le déanaí {category}",
     "Failed to create file" : "Theip ar chomhad a chruthú",
     "Failed to load files" : "Theip ar na comhaid a luchtú",
+    "Loading" : "Ag lódáil",
     "No office suite installed" : "Gan aon shraith oifige suiteáilte",
-    "{count} found in {category}" : "{count} aimsithe i {category}",
+    "Retry" : "Bain triail eile as",
     "Filter files" : "Scag comhaid",
     "All" : "Gach",
     "Mine" : "Mianach",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Ainm comhaid",
     "Filename cannot be empty" : "Ní féidir leis an ainm comhaid a bheith folamh",
     "Filename contains invalid characters" : "Tá carachtair neamhbhailí san ainm comhaid",
-    "{count} {category} found" : "{count} {category} aimsithe"
+    "{count} {category} found" : "{count} {category} aimsithe",
+    "{count} found in {category}" : "{count} aimsithe i {category}"
 },
 "nplurals=5; plural=(n==1 ? 0 : n==2 ? 1 : n<7 ? 2 : n<11 ? 3 : 4);");

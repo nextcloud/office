@@ -2,6 +2,7 @@ OC.L10N.register(
     "office",
     {
     "Documents" : "Dokumenti",
+    "Shared" : "Deljeno",
     "Search" : "Traži",
     "All" : "Sve",
     "Starred" : "Ozvezdano",

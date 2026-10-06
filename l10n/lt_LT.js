@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Biuras",
     "Office overview" : "Biuro apžvalga",
     "Office overview app for Nextcloud" : "„Nextcloud“ skirta biuro apžvalgos programėlė",
+    "Shared" : "Bendrinama",
     "Create new" : "Sukurti naują",
     "Scroll left" : "Slinkite kairėn",
     "Scroll right" : "Slinkite dešinėn",
@@ -17,8 +18,9 @@ OC.L10N.register(
     "Recent {category}" : "Paskutinė {category}",
     "Failed to create file" : "Nepavyko sukurti failo",
     "Failed to load files" : "Nepavyko įkelti failų",
+    "Loading" : "Įkeliama",
     "No office suite installed" : "Neįdiegtas biuro paketas",
-    "{count} found in {category}" : "{count} rasta {category}",
+    "Retry" : "Bandyti dar kartą",
     "Filter files" : "Filtruoti failus",
     "All" : "Visos",
     "Mine" : "Mano",
@@ -34,6 +36,7 @@ OC.L10N.register(
     "Filename" : "Failo pavadinimas",
     "Filename cannot be empty" : "Failo pavadinimas negali būti tuščias",
     "Filename contains invalid characters" : "Failo pavadinime yra neleistinų simbolių",
-    "{count} {category} found" : "Rasta {count} {category}"
+    "{count} {category} found" : "Rasta {count} {category}",
+    "{count} found in {category}" : "{count} rasta {category}"
 },
 "nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < 11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? 1 : n % 1 != 0 ? 2: 3);");

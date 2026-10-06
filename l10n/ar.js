@@ -18,7 +18,6 @@ OC.L10N.register(
     "Failed to create file" : "فشل في إنشاء الملف",
     "Failed to load files" : "تعذّر تحميل الملفات",
     "No office suite installed" : "لا يوجد حزمة برامج مكتبية مثبتة",
-    "{count} found in {category}" : "{count} تم ايجادة في {category}",
     "Filter files" : "تصفية الملفات",
     "All" : "الكل",
     "Mine" : "ملكي",
@@ -34,6 +33,7 @@ OC.L10N.register(
     "Filename" : "اسم الملف",
     "Filename cannot be empty" : "لا يجوز أن يُترك اسم الملف فارغًا",
     "Filename contains invalid characters" : "اسم الملف يحتوي على أحرف غير صالحة",
-    "{count} {category} found" : "{count}{category} وجد"
+    "{count} {category} found" : "{count}{category} وجد",
+    "{count} found in {category}" : "{count} تم ايجادة في {category}"
 },
 "nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;");

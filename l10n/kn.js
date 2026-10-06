@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Shared" : "﻿ಹಂಚಿಕೆಯ",
     "Search" : "Search",
     "All" : "﻿ಎಲ್ಲಾ"
 },

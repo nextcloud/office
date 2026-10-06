@@ -7,7 +7,8 @@ OC.L10N.register(
     "Diagrams" : "Diagramy",
     "Office" : "Office",
     "Office overview" : "Prehľad Office",
-    "Office overview app for Nextcloud" : "Aplikácia prehľad Office pre Nextcloud",
+    "Office overview app for Nextcloud" : "Prehľadová aplikácia Office pre Nextcloud",
+    "Shared" : "Sprístupnené",
     "Create new" : "Vytvoriť nový",
     "Scroll left" : "Posunúť doľava",
     "Scroll right" : "Posunúť doprava",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "Nedávne: {category}",
     "Failed to create file" : "Nepodarilo sa vytvoriť súbor.",
     "Failed to load files" : "Nepodarilo sa načítať súbory",
+    "Loading" : "Načítava sa",
     "No office suite installed" : "Nie je nainštalovaný žiadny kancelársky balík.",
-    "{count} found in {category}" : "{count} nájdené v {category}",
+    "Retry" : "Zopakovať",
     "Filter files" : "Filtrovať súbory",
     "All" : "Všetko",
     "Mine" : "Moje",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Názov súboru",
     "Filename cannot be empty" : "Názov súboru nemôže byť prázdny",
     "Filename contains invalid characters" : "Názov súboru obsahuje neplatné znaky",
-    "{count} {category} found" : "{count} {category} nájdené"
+    "{count} {category} found" : "{count} {category} nájdené",
+    "{count} found in {category}" : "{count} nájdené v {category}"
 },
 "nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);");

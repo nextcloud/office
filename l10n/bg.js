@@ -8,6 +8,7 @@ OC.L10N.register(
     "Create new" : "Създай нов",
     "Blank" : "Празен",
     "Search" : "Търсене",
+    "Retry" : "Опитай отново",
     "All" : "Всички",
     "Shared with me" : "Споделено с мен",
     "Starred" : "Със звезда",

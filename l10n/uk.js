@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Офіс",
     "Office overview" : "Огляд застосунку \"Офіс\"",
     "Office overview app for Nextcloud" : "Огляд застосунку \"Офіс для Nextcloud\"",
+    "Shared" : "Спільне",
     "Create new" : "Додати",
     "Scroll left" : "Прокрутити ліворуч",
     "Scroll right" : "Прокрутити праворуч",
@@ -17,8 +18,9 @@ OC.L10N.register(
     "Recent {category}" : "Нещодавно {category}",
     "Failed to create file" : "Не вдалося створити файл",
     "Failed to load files" : "Не вдалося завантажити файл",
+    "Loading" : "Завантаження",
     "No office suite installed" : "Не встановлено офісний пакет",
-    "{count} found in {category}" : "{count} знайдено у {category}",
+    "Retry" : "Спробувати ще раз",
     "Filter files" : "Відфільтрувати файли",
     "All" : "Всі",
     "Mine" : "Мої",
@@ -34,6 +36,7 @@ OC.L10N.register(
     "Filename" : "Ім'я файлу",
     "Filename cannot be empty" : "Ім'я файлу не може бути порожнім",
     "Filename contains invalid characters" : "Ім'я файлу містить неприпустимий символ",
-    "{count} {category} found" : "Знайдено {count}{category}"
+    "{count} {category} found" : "Знайдено {count}{category}",
+    "{count} found in {category}" : "{count} знайдено у {category}"
 },
 "nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);");

@@ -2,6 +2,7 @@ OC.L10N.register(
     "office",
     {
     "Documents" : "Sgrìobhainnean",
+    "Shared" : "Co-roinnte",
     "Create new" : "Cruthaich fear ùr",
     "Search" : "Lorg",
     "Create" : "Cruthaich",

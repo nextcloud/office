@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "オフィス",
     "Office overview" : "Officeの概要",
     "Office overview app for Nextcloud" : "Nextcloud用Office概要アプリ",
+    "Shared" : "共有中",
     "Create new" : "新規作成",
     "Scroll left" : "左にスクロール",
     "Scroll right" : "右にスクロール",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "最近の{category}",
     "Failed to create file" : "ファイルの作成に失敗しました",
     "Failed to load files" : "ファイルの読み込みに失敗しました",
+    "Loading" : "読み込み中",
     "No office suite installed" : "Officeスイートがインストールされていません",
-    "{count} found in {category}" : "{category}で{count}件が見つかりました",
+    "Retry" : "リトライ",
     "Filter files" : "ファイルをフィルタリングする",
     "All" : "すべて",
     "Mine" : "私のもの",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "ファイル名",
     "Filename cannot be empty" : "ファイル名は空にできません",
     "Filename contains invalid characters" : "ファイル名に無効な文字が含まれています",
-    "{count} {category} found" : "{count}件の{category}が見つかりました"
+    "{count} {category} found" : "{count}件の{category}が見つかりました",
+    "{count} found in {category}" : "{category}で{count}件が見つかりました"
 },
 "nplurals=1; plural=0;");
