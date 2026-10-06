@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Office",
     "Office overview" : "Office overview",
     "Office overview app for Nextcloud" : "Office overview app for Nextcloud",
+    "Shared" : "Shared",
     "Create new" : "Create new",
     "Scroll left" : "Scroll left",
     "Scroll right" : "Scroll right",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "Recent {category}",
     "Failed to create file" : "Failed to create file",
     "Failed to load files" : "Failed to load files",
+    "Loading" : "Loading",
     "No office suite installed" : "No office suite installed",
-    "{count} found in {category}" : "{count} found in {category}",
+    "Retry" : "Retry",
     "Filter files" : "Filter files",
     "All" : "All",
     "Mine" : "Mine",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Filename",
     "Filename cannot be empty" : "Filename cannot be empty",
     "Filename contains invalid characters" : "Filename contains invalid characters",
-    "{count} {category} found" : "{count} {category} found"
+    "{count} {category} found" : "{count} {category} found",
+    "{count} found in {category}" : "{count} found in {category}"
 },
 "nplurals=2; plural=(n != 1);");

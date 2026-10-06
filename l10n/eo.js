@@ -3,9 +3,12 @@ OC.L10N.register(
     {
     "Documents" : "Dokumentoj",
     "Office" : "Oficejo",
+    "Shared" : "Kunhavigita",
     "Create new" : "Krei nove",
     "Search {category}" : "Serĉi {category}",
     "Search" : "Serĉi",
+    "Loading" : "Ŝargado",
+    "Retry" : "Reprovi",
     "All" : "Ĉiuj",
     "Starred" : "Markita",
     "Filename" : "Dosiernomo",

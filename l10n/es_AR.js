@@ -2,9 +2,12 @@ OC.L10N.register(
     "office",
     {
     "Documents" : "Documentos",
+    "Shared" : "Compartido",
     "Create new" : "Crear nuevo",
     "Search {category}" : "Buscar {category}",
     "Search" : "Buscar",
+    "Loading" : "Cargando",
+    "Retry" : "Reintentar",
     "All" : "Todos",
     "Starred" : "Favoritos",
     "Filename" : "Nombre de archivo",

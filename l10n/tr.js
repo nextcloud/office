@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Ofis",
     "Office overview" : "Ofis özeti",
     "Office overview app for Nextcloud" : "Nextcloud için ofis özeti uygulaması",
+    "Shared" : "Paylaşılan",
     "Create new" : "Yeni oluştur",
     "Scroll left" : "Sola kaydır",
     "Scroll right" : "Sağa kaydır",
@@ -18,8 +19,9 @@ OC.L10N.register(
     "Recent {category}" : "Son {category}",
     "Failed to create file" : "Dosya oluşturulamadı",
     "Failed to load files" : "Dosyalar yüklenemedi",
+    "Loading" : "Yükleniyor",
     "No office suite installed" : "Herhangi bir ofis paketi kurulmamış",
-    "{count} found in {category}" : "{category} kategoride {count} bulundu",
+    "Retry" : "Yeniden dene",
     "Filter files" : "Dosyaları süz",
     "All" : "Tümü",
     "Mine" : "Benim",
@@ -35,6 +37,7 @@ OC.L10N.register(
     "Filename" : "Dosya adı",
     "Filename cannot be empty" : "Dosya adı boş olamaz",
     "Filename contains invalid characters" : "Dosya adı içinde geçersiz karakterler var",
-    "{count} {category} found" : "{count} {category} bulundu"
+    "{count} {category} found" : "{count} {category} bulundu",
+    "{count} found in {category}" : "{category} kategoride {count} bulundu"
 },
 "nplurals=2; plural=(n > 1);");

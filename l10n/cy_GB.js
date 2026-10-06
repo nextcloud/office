@@ -2,8 +2,10 @@ OC.L10N.register(
     "office",
     {
     "Office" : "Swyddfa",
+    "Shared" : "Rhannwyd",
     "Create new" : "Creu newydd",
     "Search" : "Chwilio",
+    "Retry" : "Ceisio eto",
     "All" : "Popeth",
     "Filename" : "Enw ffeil"
 },

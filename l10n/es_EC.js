@@ -3,10 +3,13 @@ OC.L10N.register(
     {
     "Documents" : "Documentos",
     "Office" : "Office",
+    "Shared" : "Compartido",
     "Create new" : "Crear nuevo",
     "Blank" : "En blanco",
     "Search {category}" : "Buscar {category}",
     "Search" : "Buscar",
+    "Loading" : "Cargando",
+    "Retry" : "Reintentar",
     "All" : "Todos",
     "Starred" : "Marcado como favorito",
     "Switch to list view" : "Cambiar a vista de lista",

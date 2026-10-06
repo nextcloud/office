@@ -2,9 +2,12 @@ OC.L10N.register(
     "office",
     {
     "Office" : "Birojs",
+    "Shared" : "Koplietots",
     "Create new" : "Izveidot jaunu",
     "Search {category}" : "Meklēt {category}",
     "Search" : "Meklēt",
+    "Loading" : "Ielādē",
+    "Retry" : "Mēģināt vēlreiz",
     "All" : "Visi",
     "Starred" : "Svarīgs",
     "Filename" : "Datnes nosaukums",

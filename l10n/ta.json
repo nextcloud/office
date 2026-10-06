@@ -1,5 +1,6 @@
 { "translations": {
     "Search" : "தேடுதல்",
+    "Loading" : "Loading",
     "All" : "எல்லாம்"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
 }

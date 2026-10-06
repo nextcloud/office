@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "Σουίτα Γραφείου",
     "Office overview" : "Επισκόπηση σουίτας γραφείου",
     "Office overview app for Nextcloud" : "Εφαρμογή επισκόπησης σουίτας γραφείου για το Nextcloud",
+    "Shared" : "Κοινοποιήθηκε",
     "Create new" : "Δημιουργία νέου",
     "Scroll left" : "Κύλιση αριστερά",
     "Scroll right" : "Κύλιση δεξιά",
@@ -17,8 +18,9 @@ OC.L10N.register(
     "Recent {category}" : "Πρόσφατα: {category}",
     "Failed to create file" : "Αποτυχία δημιουργίας αρχείου",
     "Failed to load files" : "Αποτυχία φόρτωσης αρχείων",
+    "Loading" : "Φόρτωση",
     "No office suite installed" : "Δεν υπάρχει εγκατεστημένη σουίτα γραφείου",
-    "{count} found in {category}" : "Βρέθηκαν {count} στην κατηγορία {category}",
+    "Retry" : "Δοκιμάστε ξανά",
     "Filter files" : "Φιλτράρισμα αρχείων",
     "All" : "Όλα",
     "Mine" : "Δικά μου",
@@ -34,6 +36,7 @@ OC.L10N.register(
     "Filename" : "Όνομα αρχείου",
     "Filename cannot be empty" : "Το όνομα αρχείου δεν μπορεί να είναι κενό",
     "Filename contains invalid characters" : "Το όνομα αρχείου περιέχει μη έγκυρους χαρακτήρες",
-    "{count} {category} found" : "Βρέθηκαν {count} {category}"
+    "{count} {category} found" : "Βρέθηκαν {count} {category}",
+    "{count} found in {category}" : "Βρέθηκαν {count} στην κατηγορία {category}"
 },
 "nplurals=2; plural=(n != 1);");

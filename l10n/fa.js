@@ -8,6 +8,7 @@ OC.L10N.register(
     "Office" : "دفتر کار",
     "Office overview" : "نمای کلی دفتر کار",
     "Office overview app for Nextcloud" : "برنامه نمای کلی دفتر کار برای نکست‌کلود",
+    "Shared" : "اشتراک‌گذاری شده",
     "Create new" : "ایجاد جدید",
     "Scroll left" : "پیمایش به چپ",
     "Scroll right" : "پیمایش به راست",
@@ -17,8 +18,9 @@ OC.L10N.register(
     "Recent {category}" : "{category} اخیر",
     "Failed to create file" : "ایجاد فایل با شکست مواجه شد",
     "Failed to load files" : "بارگیری فایل‌ها با شکست مواجه شد",
+    "Loading" : "در حال بارگذاری",
     "No office suite installed" : "هیچ مجموعه اداری نصب نشده است",
-    "{count} found in {category}" : "{count} مورد در {category} یافت شد",
+    "Retry" : "تلاش مجدد",
     "Filter files" : "فیلتر فایل‌ها",
     "All" : "همه",
     "Mine" : "مال من",
@@ -34,6 +36,7 @@ OC.L10N.register(
     "Filename" : "نام فایل",
     "Filename cannot be empty" : "نام فایل نمی‌تواند خالی باشد",
     "Filename contains invalid characters" : "نام فایل شامل کاراکترهای نامعتبر است",
-    "{count} {category} found" : "{count} {category} یافت شد"
+    "{count} {category} found" : "{count} {category} یافت شد",
+    "{count} found in {category}" : "{count} مورد در {category} یافت شد"
 },
 "nplurals=2; plural=(n > 1);");
