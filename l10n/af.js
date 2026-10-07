@@ -1,7 +1,9 @@
 OC.L10N.register(
     "office",
     {
+    "Shared" : "Gedeel",
     "Search" : "Soek",
+    "Retry" : "Herprobeer",
     "All" : "Alle",
     "Filename" : "Lêernaam"
 },
