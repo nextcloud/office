@@ -1,5 +1,7 @@
 { "translations": {
+    "Shared" : "Gedeel",
     "Search" : "Soek",
+    "Retry" : "Herprobeer",
     "All" : "Alle",
     "Filename" : "Lêernaam"
 },"pluralForm" :"nplurals=2; plural=(n != 1);"
