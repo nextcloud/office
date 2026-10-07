@@ -3,8 +3,11 @@ OC.L10N.register(
     {
     "Documents" : "Documentos",
     "Office" : "Oficina",
+    "Shared" : "Compartióse",
     "Blank" : "Baleru",
     "Search" : "Buscar",
+    "Loading" : "Cargando",
+    "Retry" : "Retentar",
     "All" : "Too",
     "Shared with me" : "Compartióse conmigo",
     "Switch to grid view" : "Cambiar a la vista de rexáu",

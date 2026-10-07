@@ -3,8 +3,10 @@ OC.L10N.register(
     {
     "Documents" : "Dieloù",
     "Office" : "Burev",
+    "Shared" : "Rannet",
     "Create new" : "Krouiñ unan nevez",
     "Search" : "Klask",
+    "Loading" : "Kargañ",
     "Retry" : "Klaskit en dro",
     "All" : "Pep tra",
     "Filename" : "Anv restr",
