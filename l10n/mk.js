@@ -10,6 +10,7 @@ OC.L10N.register(
     "Blank" : "Празно",
     "Search" : "Барај",
     "Loading" : "Се вчитува",
+    "No office suite installed" : "Не е инсталиран канцелариски пакет",
     "Retry" : "Обидете се повторно",
     "All" : "Сите",
     "Starred" : "Со ѕвезда",
