@@ -9,6 +9,7 @@ OC.L10N.register(
     "Office overview" : "Office Iwwersiicht",
     "Office overview app for Nextcloud" : "Office Iwwersiichts-App fir Nextcloud",
     "Shared" : "Gedeelt",
+    "Shared by {owner}" : "Gedeelt vu(n) {owner}",
     "Create new" : "Nei erstellen",
     "Scroll left" : "Lénks scrollen",
     "Scroll right" : "Riets scrollen",
