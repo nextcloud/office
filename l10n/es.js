@@ -4,7 +4,7 @@ OC.L10N.register(
     "Documents" : "Documentos",
     "Spreadsheets" : "Hojas de cálculo",
     "Presentations" : "Presentaciones",
-    "Office" : "Oficina",
+    "Office" : "Office",
     "Shared" : "Compartido",
     "Create new" : "Crear nuevo",
     "Blank" : "Vacío",
