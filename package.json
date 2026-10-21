@@ -35,7 +35,7 @@
     "@nextcloud/vite-config": "^2.5.4",
     "@types/escape-html": "^1.0.4",
     "@vitejs/plugin-vue": "^6.0.9",
-    "@vue/test-utils": "^2.5.0",
+    "@vue/test-utils": "^2.5.1",
     "@vue/tsconfig": "^0.9.1",
     "escape-html": "^1.0.3",
     "jsdom": "^30.0.1",
