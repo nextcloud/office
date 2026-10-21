@@ -38,7 +38,7 @@ OC.L10N.register(
     "Filename" : "Nume fișier",
     "_%n file found in {category}_::_%n files found in {category}_" : ["%n fișier găsit în {category}","%n fișiere găsite în {category}","%n de fișiere găsite în {category}"],
     "Filename cannot be empty" : "Numele fișierului nu poate fi gol",
-    "Filename contains invalid characters" : "Numele fișierului conține caractere invalide",
+    "Filename contains invalid characters" : "Numele fișierului conține caractere nepermise",
     "{count} {category} found" : "{category} găsite: {count}",
     "{count} found in {category}" : "Găsite în {category}: {count}"
 },
