@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Office\Controller;
 
 use OCA\Office\AppInfo\Application;
+use OCA\Office\Http\EditorPagePolicy;
 use OCA\Office\Service\DiscoveryService;
 use OCA\Office\TokenManager;
 use OCP\AppFramework\Controller;
@@ -160,12 +161,20 @@ class ShareController extends Controller {
 
 		$editorUrl = $this->discoveryService->buildEditorUrl($urlsrc, $wopiSrc, $wopi->getToken());
 
+		try {
+			$policy = EditorPagePolicy::forEditorUrl($editorUrl);
+		} catch (\InvalidArgumentException $e) {
+			$this->logger->error($e->getMessage(), ['exception' => $e]);
+			return new JSONResponse(['error' => 'Internal error'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
 		$response = new TemplateResponse(Application::APP_ID, 'editor', [], 'base');
 		$response->setParams([
 			'editorUrl' => $editorUrl,
 			'postMessageOrigin' => $wopi->getServerHost(),
 			'fileName' => $file->getName(),
 		]);
+		$response->setContentSecurityPolicy($policy);
 		return $response;
 	}
 

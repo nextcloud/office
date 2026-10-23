@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Office\Controller;
 
 use OCA\Office\AppInfo\Application;
+use OCA\Office\Http\EditorPagePolicy;
 use OCA\Office\Service\DiscoveryService;
 use OCA\Office\TokenManager;
 use OCP\AppFramework\Controller;
@@ -76,6 +77,7 @@ class EditorController extends Controller {
 			);
 
 			$editorUrl = $this->discoveryService->buildEditorUrl($urlsrc, $wopiSrc, $wopi->getToken());
+			$policy = EditorPagePolicy::forEditorUrl($editorUrl);
 
 		} catch (NotFoundException|NotPermittedException $e) {
 			$this->logger->warning($e->getMessage(), ['exception' => $e]);
@@ -91,6 +93,7 @@ class EditorController extends Controller {
 			'postMessageOrigin' => $wopi->getServerHost(),
 			'fileName' => $file->getName(),
 		]);
+		$response->setContentSecurityPolicy($policy);
 		return $response;
 	}
 }
