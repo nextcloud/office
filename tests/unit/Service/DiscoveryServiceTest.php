@@ -469,4 +469,21 @@ final class DiscoveryServiceTest extends TestCase {
 		$this->assertStringContainsString('access_token=' . urlencode('tok en/2'), $url);
 		$this->assertStringContainsString('wopisrc=' . urlencode('http://nc.local/wopi?a=b'), $url);
 	}
+
+	// --- editorReachableUrl() ---
+
+	public function testEditorReachableUrlSwapsTheOriginForCallbackUrl(): void {
+		$this->mockAppConfig(['callback_url' => 'http://nextcloud-internal:8080/']);
+
+		$this->assertSame(
+			'http://nextcloud-internal:8080/index.php/apps/office/wopi/files/82?access_token=tok',
+			$this->service->editorReachableUrl('https://cloud.example.com/index.php/apps/office/wopi/files/82?access_token=tok'),
+		);
+	}
+
+	public function testEditorReachableUrlIsUnchangedWithoutCallbackUrl(): void {
+		$this->mockAppConfig([]);
+
+		$this->assertSame('https://cloud.example.com/x', $this->service->editorReachableUrl('https://cloud.example.com/x'));
+	}
 }

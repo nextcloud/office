@@ -181,19 +181,7 @@ class DiscoveryService {
 			$urlsrc = $publicUrl . substr($urlsrc, strlen($internalUrl));
 		}
 
-		// Rewrite the WOPISrc origin to the callback_url origin so the editor server can reach
-		// Nextcloud for WOPI requests. WOPISrc is generated from the browser-facing request host,
-		// which may not be resolvable from inside the editor container. Mirrors the eurooffice
-		// "server address for internal requests" setting.
-		$callbackUrl = rtrim($this->appConfig->getValueString('office', 'callback_url', ''), '/');
-		if ($callbackUrl !== '') {
-			$parts = parse_url($wopiSrc);
-			if (is_array($parts) && isset($parts['host'])) {
-				$origin = ($parts['scheme'] ?? 'http') . '://' . $parts['host']
-					. (isset($parts['port']) ? ':' . $parts['port'] : '');
-				$wopiSrc = $callbackUrl . substr($wopiSrc, strlen($origin));
-			}
-		}
+		$wopiSrc = $this->editorReachableUrl($wopiSrc);
 
 		// Strip WOPI template placeholders like <wopisrc=WOPI_SOURCE&> leaving bare ? and & separators.
 		$url = preg_replace('/<[^>]+>/', '', $urlsrc);
@@ -202,6 +190,28 @@ class DiscoveryService {
 		$separator = str_contains($url, '?') ? '&' : '?';
 		$url .= $separator . 'wopisrc=' . urlencode($wopiSrc) . '&access_token=' . urlencode($token);
 		return $url;
+	}
+
+	/**
+	 * A Nextcloud URL as the editor server reaches it: the origin swapped for callback_url
+	 * when one is configured. Nextcloud generates absolute URLs from the browser-facing
+	 * host, which may not resolve inside the editor's network. Mirrors the eurooffice
+	 * "server address for internal requests" setting.
+	 */
+	public function editorReachableUrl(string $url): string {
+		$callbackUrl = rtrim($this->appConfig->getValueString('office', 'callback_url', ''), '/');
+		if ($callbackUrl === '') {
+			return $url;
+		}
+
+		$parts = parse_url($url);
+		if (!is_array($parts) || !isset($parts['host'])) {
+			return $url;
+		}
+
+		$origin = ($parts['scheme'] ?? 'http') . '://' . $parts['host']
+			. (isset($parts['port']) ? ':' . $parts['port'] : '');
+		return $callbackUrl . substr($url, strlen($origin));
 	}
 
 	private function getEditorUrl(): string {
