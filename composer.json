@@ -42,13 +42,15 @@
 		"rector": "rector && composer cs:fix"
 	},
 	"require": {
+		"php": "^8.3",
 		"bamarni/composer-bin-plugin": "^1.8",
-		"php": "^8.3"
+		"phpseclib/phpseclib": "^3.0"
 	},
 	"require-dev": {
 		"roave/security-advisories": "dev-latest"
 	},
 	"config": {
+		"autoloader-suffix": "Office",
 		"allow-plugins": {
 			"bamarni/composer-bin-plugin": true
 		},
