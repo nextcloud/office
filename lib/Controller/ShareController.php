@@ -76,36 +76,31 @@ class ShareController extends Controller {
 		// Password-protected share: NC core sets 'public_link_authenticated' in the session
 		// once the user has entered the password at /s/{token}. Check both legacy (string)
 		// and current (array of share IDs) formats, matching richdocuments' pattern.
-		// Authenticated users bypass the password check — they have a full NC session.
 		// getPassword() returns null (not '') for a share with no password at all - both
 		// must be treated as "no password", or every passwordless share incorrectly
 		// redirects unauthenticated guests away instead of letting them through.
-		if ($share->getPassword() !== null && $share->getPassword() !== '' && !$this->userSession->isLoggedIn()) {
-			$authenticated = $this->session->get('public_link_authenticated');
-			$isAuthenticated = (is_array($authenticated) && in_array($share->getId(), $authenticated, true))
-				|| $authenticated === $share->getId();
+		// (array) turns the legacy single-ID string into a one-element list and null into [].
+		$passwordPending = $share->getPassword() !== null && $share->getPassword() !== ''
+			&& !in_array($share->getId(), (array)$this->session->get('public_link_authenticated'), true);
 
-			if (!$isAuthenticated) {
-				// Redirect to the share page to complete the password challenge.
-				// After authentication, the user must reopen the file action.
-				$sharePageUrl = $this->urlGenerator->linkToRoute(
-					'files_sharing.sharecontroller.showShare',
-					['token' => $shareToken],
-				);
-				return new RedirectResponse($sharePageUrl);
-			}
+		// Logged-in users who can reach the file through their own folder skip the password below;
+		// everyone whose only access is this link has to pass it.
+		if ($passwordPending && !$this->userSession->isLoggedIn()) {
+			return $this->passwordChallenge($shareToken);
 		}
 
+		// Below, a logged-in user may still be pending the password: until it's entered, every
+		// failure leads to the challenge, so probing ?path= or ?fileId= reveals nothing.
 		if (($share->getPermissions() & \OCP\Constants::PERMISSION_READ) === 0) {
-			return new JSONResponse(['error' => 'Share is not readable'], Http::STATUS_FORBIDDEN);
+			return $this->refuse($passwordPending, $shareToken, new JSONResponse(['error' => 'Share is not readable'], Http::STATUS_FORBIDDEN));
 		}
 
 		try {
 			$file = $this->resolveFile($share, $fileId, $path);
 		} catch (NotFoundException $e) {
-			return new JSONResponse(['error' => 'File not found'], Http::STATUS_NOT_FOUND);
+			return $this->refuse($passwordPending, $shareToken, new JSONResponse(['error' => 'File not found'], Http::STATUS_NOT_FOUND));
 		} catch (NotPermittedException $e) {
-			return new JSONResponse(['error' => 'Access denied'], Http::STATUS_FORBIDDEN);
+			return $this->refuse($passwordPending, $shareToken, new JSONResponse(['error' => 'Access denied'], Http::STATUS_FORBIDDEN));
 		}
 
 		$extension = pathinfo($file->getName(), PATHINFO_EXTENSION);
@@ -113,30 +108,43 @@ class ShareController extends Controller {
 			?? $this->discoveryService->getUrlSrc($extension, 'view');
 
 		if ($urlsrc === null) {
-			return new JSONResponse(
+			return $this->refuse($passwordPending, $shareToken, new JSONResponse(
 				['error' => 'File type not supported by the editor'],
 				Http::STATUS_UNSUPPORTED_MEDIA_TYPE,
-			);
+			));
 		}
 
 		$canWrite = (bool)($share->getPermissions() & \OCP\Constants::PERMISSION_UPDATE);
 		$ownerUid = $share->getShareOwner();
 
 		try {
-			if ($this->userSession->isLoggedIn()) {
+			$wopi = null;
+			$user = $this->userSession->getUser();
+			if ($user !== null) {
 				// Authenticated user visiting a share link: issue a full user token via their
 				// own folder. hideDownload is intentionally not applied — the share's download
 				// restriction targets unauthenticated third parties, not collaborators with
 				// direct NC access.
-				$wopi = $this->tokenManager->generateToken($file->getId());
-			} else {
+				try {
+					$wopi = $this->tokenManager->generateToken($file->getId());
+				} catch (NotPermittedException) {
+					// The file isn't in their own folder: the link is their only access, so they
+					// get the same share-scoped token as a guest, under their own name.
+				}
+			}
+
+			if ($wopi === null) {
+				if ($passwordPending) {
+					return $this->passwordChallenge($shareToken);
+				}
+
 				$hideDownload = $share->getHideDownload();
 
 				// Sanitize guestName: strip control chars, cap at 64 chars, default to 'Guest'.
 				// Authenticated user's display name overrides guestName param to prevent spoofing.
 				$guestName = trim(preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? ''));
 				$guestName = mb_substr($guestName, 0, 64);
-				$displayName = $guestName !== '' ? $guestName : 'Guest';
+				$displayName = $user?->getDisplayName() ?? ($guestName !== '' ? $guestName : 'Guest');
 
 				$wopi = $this->tokenManager->generateGuestToken(
 					fileId: $file->getId(),
@@ -178,6 +186,21 @@ class ShareController extends Controller {
 		]);
 		$response->setContentSecurityPolicy($policy);
 		return $response;
+	}
+
+	/**
+	 * Send the visitor to the share page to enter the password. After authenticating
+	 * there, they reopen the file action.
+	 */
+	private function passwordChallenge(string $shareToken): RedirectResponse {
+		return new RedirectResponse($this->urlGenerator->linkToRoute(
+			'files_sharing.sharecontroller.showShare',
+			['token' => $shareToken],
+		));
+	}
+
+	private function refuse(bool $passwordPending, string $shareToken, JSONResponse $error): JSONResponse|RedirectResponse {
+		return $passwordPending ? $this->passwordChallenge($shareToken) : $error;
 	}
 
 	/**
