@@ -11,13 +11,20 @@ namespace OCA\Office\Listener;
 
 use OCA\Office\AppInfo\Application;
 use OCA\Office\Service\DiscoveryService;
+use OCP\AppFramework\Http\Events\BeforeTemplateRenderedEvent;
+use OCP\AppFramework\Http\Template\PublicTemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
 use OCP\Collaboration\Resources\LoadAdditionalScriptsEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\Util;
 
-/** @template-implements IEventListener<LoadAdditionalScriptsEvent> */
+/**
+ * Adds the "Open in Office" file action to the Files app, both for users and on public
+ * share pages (which Files renders as a public "files/index" page).
+ *
+ * @template-implements IEventListener<LoadAdditionalScriptsEvent|BeforeTemplateRenderedEvent>
+ */
 class LoadAdditionalScriptsListener implements IEventListener {
 	public function __construct(
 		private DiscoveryService $discoveryService,
@@ -27,7 +34,7 @@ class LoadAdditionalScriptsListener implements IEventListener {
 
 	#[\Override]
 	public function handle(Event $event): void {
-		if (!($event instanceof LoadAdditionalScriptsEvent)) {
+		if (!$event instanceof LoadAdditionalScriptsEvent && !$this->isPublicSharePage($event)) {
 			return;
 		}
 
@@ -40,5 +47,16 @@ class LoadAdditionalScriptsListener implements IEventListener {
 		$this->initialState->provideInitialState('supported-mimes', $mimes);
 
 		Util::addInitScript(Application::APP_ID, 'office-file-actions');
+	}
+
+	private function isPublicSharePage(Event $event): bool {
+		if (!$event instanceof BeforeTemplateRenderedEvent) {
+			return false;
+		}
+
+		$response = $event->getResponse();
+		return $response instanceof PublicTemplateResponse
+			&& $response->getApp() === 'files'
+			&& $response->getTemplateName() === 'index';
 	}
 }

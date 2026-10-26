@@ -12,6 +12,7 @@ use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\AppFramework\Http\Events\BeforeTemplateRenderedEvent;
 use OCP\Collaboration\Resources\LoadAdditionalScriptsEvent;
 use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
 
@@ -27,6 +28,8 @@ final class Application extends App implements IBootstrap {
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(LoadAdditionalEntriesEvent::class, AppMenuActionListener::class);
 		$context->registerEventListener(LoadAdditionalScriptsEvent::class, LoadAdditionalScriptsListener::class);
+		// Public share pages don't fire LoadAdditionalScriptsEvent.
+		$context->registerEventListener(BeforeTemplateRenderedEvent::class, LoadAdditionalScriptsListener::class);
 		// Cheap address check first, then the signature.
 		$context->registerMiddleware(WopiAllowlistMiddleware::class);
 		$context->registerMiddleware(WopiProofMiddleware::class);
