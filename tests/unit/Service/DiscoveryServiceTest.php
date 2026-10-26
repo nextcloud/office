@@ -26,6 +26,7 @@ final class DiscoveryServiceTest extends TestCase {
 	private IAppConfig&MockObject $appConfig;
 	private LoggerInterface&MockObject $logger;
 	private ICache&MockObject $cache;
+	private ICache&MockObject $localCache;
 	private DiscoveryService $service;
 
 	protected function setUp(): void {
@@ -34,10 +35,14 @@ final class DiscoveryServiceTest extends TestCase {
 		$this->appConfig = $this->createMock(IAppConfig::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->cache = $this->createMock(ICache::class);
+		$this->localCache = $this->createMock(ICache::class);
 
 		$this->cacheFactory->method('createDistributed')
 			->with('office')
 			->willReturn($this->cache);
+		$this->cacheFactory->method('createLocal')
+			->with('office')
+			->willReturn($this->localCache);
 
 		$this->service = new DiscoveryService(
 			$this->clientService,
@@ -117,7 +122,8 @@ final class DiscoveryServiceTest extends TestCase {
 			->with(
 				'http://eo/hosting/discovery',
 				$this->callback(static function (array $options): bool {
-					return $options['timeout'] === 45
+					return $options['timeout'] === 15
+						&& $options['connect_timeout'] === 5
 						&& $options['nextcloud']['allow_local_address'] === true
 						&& !isset($options['verify']);
 				})
@@ -150,9 +156,43 @@ final class DiscoveryServiceTest extends TestCase {
 		$this->service->fetch();
 	}
 
-	public function testResetCacheRemovesCacheKey(): void {
+	public function testResetCacheRemovesDiscoveryAndThisNodesFailureMarker(): void {
 		$this->cache->expects($this->once())->method('remove')->with('discovery');
+		$this->localCache->expects($this->once())->method('remove')->with('discovery_failed');
+
 		$this->service->resetCache();
+	}
+
+	public function testGetDoesNotFetchWhenEditorUrlIsNotConfigured(): void {
+		$this->cache->method('get')->willReturn(null);
+		$this->mockAppConfig([]);
+		$this->clientService->expects($this->never())->method('newClient');
+		$this->logger->expects($this->never())->method('error');
+
+		$this->assertNull($this->service->get());
+	}
+
+	public function testGetRemembersAFailedFetchBriefly(): void {
+		$this->cache->method('get')->willReturn(null);
+		$this->mockAppConfig(['wopi_url' => 'http://eo']);
+
+		$client = $this->createMock(IClient::class);
+		$client->method('get')->willThrowException(new \Exception('connection timed out'));
+		$this->clientService->method('newClient')->willReturn($client);
+
+		$this->cache->expects($this->never())->method('set');
+		$this->localCache->expects($this->once())->method('set')->with('discovery_failed', true, 60);
+
+		$this->assertNull($this->service->get());
+	}
+
+	public function testGetDoesNotRetryWhileAFailureIsRemembered(): void {
+		$this->cache->method('get')->willReturn(null);
+		$this->localCache->method('get')->with('discovery_failed')->willReturn(true);
+		$this->mockAppConfig(['wopi_url' => 'http://eo']);
+		$this->clientService->expects($this->never())->method('newClient');
+
+		$this->assertNull($this->service->get());
 	}
 
 	// --- getUrlSrc() ---

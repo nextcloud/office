@@ -18,6 +18,12 @@ use SimpleXMLElement;
 class DiscoveryService {
 	private const CACHE_KEY = 'discovery';
 	private const CACHE_TTL = 3600;
+	// get() runs while rendering every Files page (file actions), so an unreachable editor
+	// server must not be retried, and waited on, by every page load. Kept in the local cache:
+	// whether the editor is reachable is per web server, and one node's failure must not hide
+	// discovery from the others.
+	private const string FAILURE_CACHE_KEY = 'discovery_failed';
+	private const int FAILURE_CACHE_TTL = 60;
 
 	public function __construct(
 		private IClientService $clientService,
@@ -37,9 +43,15 @@ class DiscoveryService {
 			return $cached;
 		}
 
+		$localCache = $this->cacheFactory->createLocal('office');
+		if ($this->getEditorUrl() === '' || $localCache->get(self::FAILURE_CACHE_KEY) !== null) {
+			return null;
+		}
+
 		try {
 			return $this->fetch();
 		} catch (\Throwable $e) {
+			$localCache->set(self::FAILURE_CACHE_KEY, true, self::FAILURE_CACHE_TTL);
 			$this->logger->error('Failed to fetch WOPI discovery: ' . $e->getMessage(), ['exception' => $e]);
 			return null;
 		}
@@ -66,6 +78,8 @@ class DiscoveryService {
 	public function resetCache(): void {
 		$cache = $this->cacheFactory->createDistributed('office');
 		$cache->remove(self::CACHE_KEY);
+		// Only clears this node; other nodes retry once their marker expires.
+		$this->cacheFactory->createLocal('office')->remove(self::FAILURE_CACHE_KEY);
 	}
 
 	/**
@@ -187,7 +201,8 @@ class DiscoveryService {
 
 	private function getRequestOptions(): array {
 		$options = [
-			'timeout' => 45,
+			'connect_timeout' => 5,
+			'timeout' => 15,
 			'nextcloud' => ['allow_local_address' => true],
 		];
 
