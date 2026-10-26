@@ -4,6 +4,7 @@
  */
 
 import { mount } from '@vue/test-utils'
+import NcButton from '@nextcloud/vue/components/NcButton'
 import { beforeEach, describe, expect, it } from 'vitest'
 import AdminSettings from './AdminSettings.vue'
 
@@ -32,5 +33,11 @@ describe('AdminSettings', () => {
 		expect(wrapper.find('h2').text()).toBe('Office')
 		const values = wrapper.findAll('input[type="url"]').map((input) => (input.element as HTMLInputElement).value)
 		expect(values).toEqual(['http://eo-internal', 'https://office.example.com', ''])
+	})
+
+	it('styles the save button as the primary action', () => {
+		const button = mount(AdminSettings).findComponent(NcButton)
+
+		expect(button.props('variant')).toBe('primary')
 	})
 })

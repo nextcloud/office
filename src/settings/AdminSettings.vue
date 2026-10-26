@@ -93,7 +93,7 @@ async function save(): Promise<void> {
 
 		<NcButton
 			:disabled="saving"
-			type="primary"
+			variant="primary"
 			@click="save">
 			{{ t('office', 'Save') }}
 		</NcButton>
