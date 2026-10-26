@@ -20,10 +20,6 @@
     <ClassMustBeFinal>
       <code><![CDATA[SettingsController]]></code>
     </ClassMustBeFinal>
-    <InvalidArgument>
-      <code><![CDATA[\OCA\Office\Settings\Admin::class]]></code>
-      <code><![CDATA[\OCA\Office\Settings\Admin::class]]></code>
-    </InvalidArgument>
   </file>
   <file src="lib/Controller/ShareController.php">
     <ClassMustBeFinal>

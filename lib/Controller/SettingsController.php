@@ -13,7 +13,6 @@ use OCA\Office\AppInfo\Application;
 use OCA\Office\Service\DiscoveryService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\DataResponse;
@@ -32,8 +31,10 @@ class SettingsController extends Controller {
 
 	/**
 	 * Return the current admin settings.
+	 *
+	 * Both routes are admin-only (no #[NoAdminRequired]): the URLs set here decide which
+	 * server Nextcloud sends requests to and trusts as the editor.
 	 */
-	#[AuthorizedAdminSetting(settings: \OCA\Office\Settings\Admin::class)]
 	#[NoCSRFRequired]
 	#[FrontpageRoute(verb: 'GET', url: '/settings/admin')]
 	public function getAdmin(): DataResponse {
@@ -48,7 +49,6 @@ class SettingsController extends Controller {
 	/**
 	 * Persist admin settings.
 	 */
-	#[AuthorizedAdminSetting(settings: \OCA\Office\Settings\Admin::class)]
 	#[FrontpageRoute(verb: 'POST', url: '/settings/admin')]
 	public function setAdmin(string $wopi_url, string $public_wopi_url = '', string $callback_url = '', string $disable_certificate_verification = 'no'): DataResponse {
 		foreach (['wopi_url' => $wopi_url, 'public_wopi_url' => $public_wopi_url, 'callback_url' => $callback_url] as $field => $value) {
