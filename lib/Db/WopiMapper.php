@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
 
 /** @template-extends QBMapper<Wopi> */
 class WopiMapper extends QBMapper {
-	private const TOKEN_TTL = 36000; // 10 hours
+	private const int TOKEN_TTL = 36000; // 10 hours
 
 	public function __construct(
 		IDBConnection $db,
@@ -45,7 +45,6 @@ class WopiMapper extends QBMapper {
 	): Wopi {
 		$token = $this->random->generate(32, ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS);
 
-		/** @var Wopi $wopi */
 		$wopi = $this->insert(Wopi::fromParams([
 			'fileid' => $fileId,
 			'ownerUid' => $ownerUid,
@@ -79,7 +78,6 @@ class WopiMapper extends QBMapper {
 	): Wopi {
 		$token = $this->random->generate(32, ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS);
 
-		/** @var Wopi $wopi */
 		$wopi = $this->insert(Wopi::fromParams([
 			'fileid' => $fileId,
 			'ownerUid' => $ownerUid,
@@ -123,7 +121,6 @@ class WopiMapper extends QBMapper {
 		// Only identifiers: the row also holds the access token and the share token, both credentials.
 		$this->logger->debug('Loaded WOPI token record {id} for file {fileId}.', ['id' => $row['id'] ?? null, 'fileId' => $row['fileid'] ?? null]);
 
-		/** @var Wopi $wopi */
 		$wopi = Wopi::fromRow($row);
 
 		if ($wopi->isExpired()) {

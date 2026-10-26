@@ -14,8 +14,8 @@ use OCA\Office\Db\WopiMapper;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 
-class CleanupJob extends TimedJob {
-	private const BATCH_SIZE = 500;
+final class CleanupJob extends TimedJob {
+	private const int BATCH_SIZE = 500;
 	// Bounds one run to 50 000 rows per table; anything left is picked up next hour.
 	private const int MAX_BATCHES = 100;
 
@@ -28,6 +28,7 @@ class CleanupJob extends TimedJob {
 		$this->setInterval(3600); // run hourly
 	}
 
+	#[\Override]
 	protected function run(mixed $argument): void {
 		for ($i = 0; $i < self::MAX_BATCHES; $i++) {
 			$tokenIds = $this->wopiMapper->getExpiredTokenIds(self::BATCH_SIZE);

@@ -36,9 +36,9 @@ use OCP\DB\Types;
  * @method void setShareToken(?string $shareToken)
  * @method string|null getShareToken()
  */
-class Wopi extends Entity {
-	public const TOKEN_TYPE_USER = 0;
-	public const TOKEN_TYPE_GUEST = 1;
+final class Wopi extends Entity {
+	public const int TOKEN_TYPE_USER = 0;
+	public const int TOKEN_TYPE_GUEST = 1;
 
 	/** @var string|null */
 	protected $ownerUid;

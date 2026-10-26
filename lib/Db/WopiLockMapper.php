@@ -17,7 +17,7 @@ use OCP\IDBConnection;
 /** @template-extends QBMapper<WopiLock> */
 class WopiLockMapper extends QBMapper {
 	// WOPI spec: locks are valid for 30 minutes; editor must refresh before expiry.
-	public const LOCK_TTL = 1800;
+	public const int LOCK_TTL = 1800;
 
 	public function __construct(
 		IDBConnection $db,
@@ -36,7 +36,6 @@ class WopiLockMapper extends QBMapper {
 			->where($qb->expr()->eq('fileid', $qb->createNamedParameter($fileId, IQueryBuilder::PARAM_INT)));
 
 		try {
-			/** @var WopiLock $lock */
 			$lock = $this->findEntity($qb);
 			return $lock;
 		} catch (\OCP\AppFramework\Db\DoesNotExistException) {
@@ -48,16 +47,15 @@ class WopiLockMapper extends QBMapper {
 	 * Create or refresh a lock for a file.
 	 * If a lock already exists for the file it is updated in-place.
 	 */
-	public function upsertLock(int $fileId, string $lockId): WopiLock {
+	public function upsertLock(int $fileId, string $lockId): void {
 		$expiry = $this->timeFactory->getTime() + self::LOCK_TTL;
 		$existing = $this->findByFileId($fileId);
 
 		if ($existing !== null) {
 			$existing->setLockId($lockId);
 			$existing->setExpiry($expiry);
-			/** @var WopiLock $updated */
-			$updated = $this->update($existing);
-			return $updated;
+			$this->update($existing);
+			return;
 		}
 
 		$lock = new WopiLock();
@@ -66,9 +64,7 @@ class WopiLockMapper extends QBMapper {
 		$lock->setExpiry($expiry);
 
 		try {
-			/** @var WopiLock $inserted */
-			$inserted = $this->insert($lock);
-			return $inserted;
+			$this->insert($lock);
 		} catch (\OCP\DB\Exception $e) {
 			if ($e->getReason() !== \OCP\DB\Exception::REASON_UNIQUE_CONSTRAINT_VIOLATION) {
 				throw $e;
@@ -80,7 +76,7 @@ class WopiLockMapper extends QBMapper {
 			}
 			$raced->setLockId($lockId);
 			$raced->setExpiry($expiry);
-			return $this->update($raced);
+			$this->update($raced);
 		}
 	}
 

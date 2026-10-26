@@ -25,7 +25,7 @@ use OCP\Util;
  *
  * @template-implements IEventListener<LoadAdditionalScriptsEvent|BeforeTemplateRenderedEvent>
  */
-class LoadAdditionalScriptsListener implements IEventListener {
+final class LoadAdditionalScriptsListener implements IEventListener {
 	public function __construct(
 		private DiscoveryService $discoveryService,
 		private IInitialState $initialState,

@@ -9,5 +9,5 @@ declare(strict_types=1);
 
 namespace OCA\Office\Exception;
 
-class UnknownTokenException extends \Exception {
+final class UnknownTokenException extends \Exception {
 }

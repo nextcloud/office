@@ -37,7 +37,7 @@ use OCP\Share\IManager as IShareManager;
 use OCP\Share\IShare;
 use Psr\Log\LoggerInterface;
 
-class ShareController extends Controller {
+final class ShareController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,

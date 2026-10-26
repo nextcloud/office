@@ -20,7 +20,7 @@ use OCP\DB\Types;
  * @method void setExpiry(int $expiry)
  * @method int getExpiry()
  */
-class WopiLock extends Entity {
+final class WopiLock extends Entity {
 	/** @var int */
 	protected $fileid = 0;
 

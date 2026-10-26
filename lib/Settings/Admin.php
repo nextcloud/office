@@ -15,13 +15,14 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IAppConfig;
 use OCP\Settings\ISettings;
 
-class Admin implements ISettings {
+final class Admin implements ISettings {
 	public function __construct(
 		private IAppConfig $appConfig,
 		private DiscoveryService $discoveryService,
 	) {
 	}
 
+	#[\Override]
 	public function getForm(): TemplateResponse {
 		return new TemplateResponse(Application::APP_ID, 'settings/admin', [
 			'wopi_url' => $this->appConfig->getValueString(Application::APP_ID, 'wopi_url', ''),
@@ -37,10 +38,12 @@ class Admin implements ISettings {
 		]);
 	}
 
+	#[\Override]
 	public function getSection(): string {
 		return 'connected-accounts';
 	}
 
+	#[\Override]
 	public function getPriority(): int {
 		return 50;
 	}

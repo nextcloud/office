@@ -18,8 +18,8 @@ use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 
 class DiscoveryService {
-	private const CACHE_KEY = 'discovery';
-	private const CACHE_TTL = 3600;
+	private const string CACHE_KEY = 'discovery';
+	private const int CACHE_TTL = 3600;
 	// get() runs while rendering every Files page (file actions), so an unreachable editor
 	// server must not be retried, and waited on, by every page load. Kept in the local cache
 	// (memcache.local): whether the editor is reachable is per web server, and one node's

@@ -27,7 +27,7 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 use Psr\Log\LoggerInterface;
 
-class EditorController extends Controller {
+final class EditorController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,

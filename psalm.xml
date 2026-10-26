@@ -8,7 +8,6 @@
 	findUnusedBaselineEntry="true"
 	findUnusedCode="true"
 	phpVersion="8.3"
-	errorBaseline="psalm-baseline.xml"
 >
 	<projectFiles>
 		<directory name="lib" />
@@ -37,12 +36,29 @@
 				<directory name="lib/Controller" />
 			</errorLevel>
 		</PossiblyUnusedMethod>
-		<!-- Entity columns are read and written through Entity's magic accessors. -->
+		<!-- Entity columns are read and written through Entity's magic accessors, and set by
+		     Entity::fromRow()/fromParams() rather than a constructor. -->
 		<PossiblyUnusedProperty>
 			<errorLevel type="suppress">
 				<directory name="lib/Db" />
 			</errorLevel>
 		</PossiblyUnusedProperty>
+		<PropertyNotSetInConstructor>
+			<errorLevel type="suppress">
+				<directory name="lib/Db" />
+			</errorLevel>
+		</PropertyNotSetInConstructor>
+		<!-- Unit tests mock these, which PHPUnit can't do for final classes. -->
+		<ClassMustBeFinal>
+			<errorLevel type="suppress">
+				<file name="lib/Controller/SettingsController.php" />
+				<file name="lib/Controller/WopiController.php" />
+				<file name="lib/Db/WopiLockMapper.php" />
+				<file name="lib/Db/WopiMapper.php" />
+				<file name="lib/Service/DiscoveryService.php" />
+				<file name="lib/TokenManager.php" />
+			</errorLevel>
+		</ClassMustBeFinal>
 	</issueHandlers>
 	<extraFiles>
 		<directory name="vendor"/>
