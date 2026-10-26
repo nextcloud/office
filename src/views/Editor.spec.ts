@@ -45,6 +45,22 @@ describe('Editor', () => {
 		wrapper.unmount()
 	})
 
+	it('posts the token expiry as access_token_ttl so the editor can warn before saves start failing', () => {
+		setEditorData({
+			editorUrl: 'http://eo/hosting/wopi/word/edit?wopisrc=x&access_token=secret-token',
+			accessTokenTtl: 1700036000000,
+			postMessageOrigin: 'http://nc',
+			fileName: 'test.docx',
+		})
+		vi.spyOn(HTMLFormElement.prototype, 'submit').mockImplementation(() => {})
+
+		const wrapper = mount(Editor)
+
+		expect(wrapper.get('input[name="access_token_ttl"]').attributes('value')).toBe('1700036000000')
+
+		wrapper.unmount()
+	})
+
 	afterEach(() => {
 		vi.restoreAllMocks()
 	})

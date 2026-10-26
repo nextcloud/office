@@ -51,6 +51,7 @@ final class ShareControllerTest extends TestCase {
 		$wopi = new Wopi();
 		$wopi->setToken('tok123');
 		$wopi->setServerHost('http://nc.local/');
+		$wopi->setExpiry(1700036000);
 
 		$tokenManager = $this->createMock(TokenManager::class);
 		$tokenManager->method('generateGuestToken')->willReturn($wopi);
@@ -84,6 +85,7 @@ final class ShareControllerTest extends TestCase {
 		$policy = $response->getContentSecurityPolicy()->buildPolicy();
 		$this->assertMatchesRegularExpression('#frame-src [^;]*https://office\.example\.com:8443(;| |$)#', $policy);
 		$this->assertMatchesRegularExpression('#form-action [^;]*https://office\.example\.com:8443(;| |$)#', $policy);
+		$this->assertSame(1700036000000, $response->getParams()['accessTokenTtl']);
 	}
 
 	public function testUnusableEditorUrlFailsInsteadOfRenderingABlockedPage(): void {

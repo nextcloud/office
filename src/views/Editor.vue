@@ -4,6 +4,7 @@ import { generateUrl } from '@nextcloud/router'
 
 interface EditorData {
 	editorUrl: string
+	accessTokenTtl: number
 	postMessageOrigin: string
 	fileName: string
 }
@@ -83,6 +84,7 @@ onUnmounted(() => {
 			method="post"
 			hidden>
 			<input type="hidden" name="access_token" :value="accessToken">
+			<input type="hidden" name="access_token_ttl" :value="data.accessTokenTtl">
 		</form>
 		<iframe
 			ref="iframeRef"

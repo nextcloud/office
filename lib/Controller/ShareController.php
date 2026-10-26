@@ -171,6 +171,8 @@ class ShareController extends Controller {
 		$response = new TemplateResponse(Application::APP_ID, 'editor', [], 'base');
 		$response->setParams([
 			'editorUrl' => $editorUrl,
+			// WOPI access_token_ttl: absolute expiry in milliseconds since the epoch.
+			'accessTokenTtl' => $wopi->getExpiry() * 1000,
 			'postMessageOrigin' => $wopi->getServerHost(),
 			'fileName' => $file->getName(),
 		]);

@@ -41,6 +41,7 @@ final class EditorControllerTest extends TestCase {
 		$wopi = new Wopi();
 		$wopi->setToken('tok123');
 		$wopi->setServerHost('http://nc.local/');
+		$wopi->setExpiry(1700036000);
 
 		$tokenManager = $this->createMock(TokenManager::class);
 		$tokenManager->method('generateToken')->with(82)->willReturn($wopi);
@@ -74,6 +75,7 @@ final class EditorControllerTest extends TestCase {
 		$policy = $response->getContentSecurityPolicy()->buildPolicy();
 		$this->assertMatchesRegularExpression('#frame-src [^;]*https://office\.example\.com:8443(;| |$)#', $policy);
 		$this->assertMatchesRegularExpression('#form-action [^;]*https://office\.example\.com:8443(;| |$)#', $policy);
+		$this->assertSame(1700036000000, $response->getParams()['accessTokenTtl']);
 		$this->assertStringNotContainsString('eo-internal', $policy);
 	}
 
