@@ -60,11 +60,15 @@ class WopiMapper extends QBMapper {
 	}
 
 	/**
-	 * Generate and persist a WOPI token for a guest (share link) editor.
+	 * Generate and persist a WOPI token for a share-link session, bound to the share.
+	 * $editorUid is the logged-in visitor, or null for an anonymous guest.
 	 */
 	public function generateGuestToken(
 		int $fileId,
 		string $ownerUid,
+		#[\SensitiveParameter]
+		string $shareToken,
+		?string $editorUid,
 		string $guestDisplayname,
 		string $version,
 		bool $canWrite,
@@ -77,8 +81,9 @@ class WopiMapper extends QBMapper {
 		$wopi = $this->insert(Wopi::fromParams([
 			'fileid' => $fileId,
 			'ownerUid' => $ownerUid,
-			'editorUid' => null,
+			'editorUid' => $editorUid,
 			'guestDisplayname' => $guestDisplayname,
+			'shareToken' => $shareToken,
 			'version' => $version,
 			'canwrite' => $canWrite,
 			'hideDownload' => $hideDownload,
@@ -113,10 +118,8 @@ class WopiMapper extends QBMapper {
 			throw new UnknownTokenException('Could not find token.');
 		}
 
-		// Redact the token value before logging to avoid credential exposure in log files.
-		$safeRow = $row;
-		$safeRow['token'] = '***';
-		$this->logger->debug('Loaded WOPI token record: {row}.', ['row' => $safeRow]);
+		// Only identifiers: the row also holds the access token and the share token, both credentials.
+		$this->logger->debug('Loaded WOPI token record {id} for file {fileId}.', ['id' => $row['id'] ?? null, 'fileId' => $row['fileid'] ?? null]);
 
 		/** @var Wopi $wopi */
 		$wopi = Wopi::fromRow($row);

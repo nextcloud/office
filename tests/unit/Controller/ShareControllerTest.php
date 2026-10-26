@@ -53,6 +53,7 @@ final class ShareControllerTest extends TestCase {
 
 		$this->share = $this->createMock(IShare::class);
 		$this->share->method('getId')->willReturn('7');
+		$this->share->method('getToken')->willReturn('shareTok');
 		$this->share->method('getPermissions')->willReturnCallback(fn (): int => $this->permissions);
 		$this->share->method('getShareOwner')->willReturn('alice');
 		$this->share->method('getNode')->willReturnCallback(fn (): Node => $this->node);
@@ -102,6 +103,7 @@ final class ShareControllerTest extends TestCase {
 	private function loggedInAs(string $displayName): void {
 		$user = $this->createMock(IUser::class);
 		$user->method('getDisplayName')->willReturn($displayName);
+		$user->method('getUID')->willReturn(strtolower($displayName));
 		$this->userSession->method('isLoggedIn')->willReturn(true);
 		$this->userSession->method('getUser')->willReturn($user);
 	}
@@ -146,7 +148,7 @@ final class ShareControllerTest extends TestCase {
 		$this->loggedInAs('Bob');
 		$this->tokenManager->method('generateToken')->willThrowException(new NotPermittedException());
 		$this->tokenManager->expects($this->once())->method('generateGuestToken')
-			->with(82, 'alice', 'Bob', false, false)
+			->with(82, 'alice', 'shareTok', 'bob', 'Bob', false, false)
 			->willReturn($this->wopi());
 		$this->editorUrlResolves();
 
@@ -158,7 +160,7 @@ final class ShareControllerTest extends TestCase {
 		$this->share->method('getHideDownload')->willReturn(true);
 		$this->tokenManager->method('generateToken')->willThrowException(new NotPermittedException());
 		$this->tokenManager->expects($this->once())->method('generateGuestToken')
-			->with(82, 'alice', 'Bob', false, true)
+			->with(82, 'alice', 'shareTok', 'bob', 'Bob', false, true)
 			->willReturn($this->wopi());
 		$this->editorUrlResolves();
 

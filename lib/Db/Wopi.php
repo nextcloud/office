@@ -33,6 +33,8 @@ use OCP\DB\Types;
  * @method string getToken()
  * @method void setExpiry(int $expiry)
  * @method int getExpiry()
+ * @method void setShareToken(?string $shareToken)
+ * @method string|null getShareToken()
  */
 class Wopi extends Entity {
 	public const TOKEN_TYPE_USER = 0;
@@ -68,6 +70,9 @@ class Wopi extends Entity {
 	/** @var int|null */
 	protected $expiry;
 
+	/** @var string|null */
+	protected $shareToken;
+
 	public function __construct() {
 		$this->addType('ownerUid', Types::STRING);
 		$this->addType('editorUid', Types::STRING);
@@ -79,21 +84,25 @@ class Wopi extends Entity {
 		$this->addType('serverHost', Types::STRING);
 		$this->addType('token', Types::STRING);
 		$this->addType('expiry', Types::INTEGER);
+		$this->addType('shareToken', Types::STRING);
 	}
 
-	public function isGuest(): bool {
-		return $this->guestDisplayname !== null && $this->editorUid === null;
+	/**
+	 * Opened through a share link: file access and rights come from the share,
+	 * re-checked on every request, whether or not the visitor is logged in.
+	 */
+	public function isShareSession(): bool {
+		return $this->shareToken !== null;
+	}
+
+	/**
+	 * No Nextcloud user behind the session (an anonymous share-link visitor).
+	 */
+	public function isAnonymous(): bool {
+		return $this->editorUid === null;
 	}
 
 	public function isExpired(): bool {
 		return $this->expiry !== null && $this->expiry < time();
-	}
-
-	/**
-	 * Return the UID that should be used for file access.
-	 * Guests use the file owner's UID for NC file operations.
-	 */
-	public function getUserForFileAccess(): string {
-		return $this->isGuest() ? (string)$this->ownerUid : (string)$this->editorUid;
 	}
 }

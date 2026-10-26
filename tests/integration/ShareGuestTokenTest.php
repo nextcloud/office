@@ -137,11 +137,14 @@ class ShareGuestTokenTest extends IntegrationTestCase {
 	 */
 	public function testGuestTokenGrantsAnonymousWopiAccess(): void {
 		$file = $this->createTestFile('guest-token.docx', 'guest-accessible content');
+		$share = $this->createLinkShare($file, Constants::PERMISSION_READ);
 
 		$tokenManager = Server::get(TokenManager::class);
 		$wopi = $tokenManager->generateGuestToken(
 			fileId: $file->getId(),
 			ownerUid: static::TEST_USER,
+			shareToken: $share->getToken(),
+			editorUid: null,
 			guestName: 'Integration Guest',
 			canWrite: false,
 			hideDownload: true,
@@ -156,5 +159,25 @@ class ShareGuestTokenTest extends IntegrationTestCase {
 		$this->assertFalse($body['UserCanWrite']);
 		$this->assertTrue($body['HideExportOption']);
 		$this->assertTrue($body['DisablePrint']);
+	}
+
+	public function testDeletingTheShareEndsTheGuestsWopiAccess(): void {
+		$file = $this->createTestFile('guest-revoked.docx', 'revocable content');
+		$share = $this->createLinkShare($file, Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE);
+		$wopi = Server::get(TokenManager::class)->generateGuestToken(
+			fileId: $file->getId(),
+			ownerUid: static::TEST_USER,
+			shareToken: $share->getToken(),
+			editorUid: null,
+			guestName: 'Integration Guest',
+			canWrite: true,
+			hideDownload: false,
+		);
+		$this->assertSame(200, static::$http->get($this->wopiFilesUrl($file->getId(), $wopi->getToken()))->getStatusCode());
+
+		Server::get(IManager::class)->deleteShare($share);
+
+		// The token itself is still within its TTL; only the share is gone.
+		$this->assertSame(404, static::$http->get($this->wopiFilesUrl($file->getId(), $wopi->getToken()))->getStatusCode());
 	}
 }

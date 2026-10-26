@@ -163,10 +163,21 @@ final class TokenManagerTest extends TestCase {
 
 		$this->wopiMapper->expects($this->once())
 			->method('generateGuestToken')
-			->with(82, 'owner-uid', 'Guest Name', $this->anything(), true, true, $this->anything())
+			->with(82, 'owner-uid', 'shareTok', null, 'Guest Name', $this->anything(), true, true, $this->anything())
 			->willReturn(new Wopi());
 
-		$this->manager()->generateGuestToken(82, 'owner-uid', 'Guest Name', true, true);
+		$this->manager()->generateGuestToken(82, 'owner-uid', 'shareTok', null, 'Guest Name', true, true);
+	}
+
+	public function testGenerateGuestTokenBindsTheShareAndTheLoggedInVisitor(): void {
+		$this->userFolderReturning($this->fileMock(), 'owner-uid');
+
+		$this->wopiMapper->expects($this->once())
+			->method('generateGuestToken')
+			->with(82, 'owner-uid', 'shareTok', 'bob', 'Bob', $this->anything(), false, false, $this->anything())
+			->willReturn(new Wopi());
+
+		$this->manager()->generateGuestToken(82, 'owner-uid', 'shareTok', 'bob', 'Bob', false, false);
 	}
 
 	public function testGenerateGuestTokenResolvesFileViaOwnerFolderNotCurrentUser(): void {
@@ -178,7 +189,7 @@ final class TokenManagerTest extends TestCase {
 		// TokenManager's own userId ('current-user') must play no part in a guest
 		// token - the file is resolved via the file OWNER's folder, since guests
 		// have no folder of their own.
-		$this->manager('current-user')->generateGuestToken(82, 'owner-uid', 'Guest', true, false);
+		$this->manager('current-user')->generateGuestToken(82, 'owner-uid', 'shareTok', null, 'Guest', true, false);
 	}
 
 	public function testGenerateGuestTokenCapturesServerHostFromUrlGenerator(): void {
@@ -187,10 +198,10 @@ final class TokenManagerTest extends TestCase {
 
 		$this->wopiMapper->expects($this->once())
 			->method('generateGuestToken')
-			->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), 'https://nc.example.com/')
+			->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), 'https://nc.example.com/')
 			->willReturn(new Wopi());
 
-		$this->manager()->generateGuestToken(82, 'owner-uid', 'Guest', true, false);
+		$this->manager()->generateGuestToken(82, 'owner-uid', 'shareTok', null, 'Guest', true, false);
 	}
 
 	public function testGenerateGuestTokenDispatchesBeforeNodeReadEvent(): void {
@@ -201,21 +212,21 @@ final class TokenManagerTest extends TestCase {
 			->method('dispatchTyped')
 			->with($this->isInstanceOf(BeforeNodeReadEvent::class));
 
-		$this->manager()->generateGuestToken(82, 'owner-uid', 'Guest', true, false);
+		$this->manager()->generateGuestToken(82, 'owner-uid', 'shareTok', null, 'Guest', true, false);
 	}
 
 	public function testGenerateGuestTokenThrowsWhenFileNotReadable(): void {
 		$this->userFolderReturning($this->fileMock(['readable' => false]), 'owner-uid');
 
 		$this->expectException(NotPermittedException::class);
-		$this->manager()->generateGuestToken(82, 'owner-uid', 'Guest', true, false);
+		$this->manager()->generateGuestToken(82, 'owner-uid', 'shareTok', null, 'Guest', true, false);
 	}
 
 	public function testGenerateGuestTokenThrowsWhenFileNotFound(): void {
 		$this->userFolderReturning(null, 'owner-uid');
 
 		$this->expectException(NotPermittedException::class);
-		$this->manager()->generateGuestToken(82, 'owner-uid', 'Guest', true, false);
+		$this->manager()->generateGuestToken(82, 'owner-uid', 'shareTok', null, 'Guest', true, false);
 	}
 
 	public function testGenerateGuestTokenReturnsWopiEntityFromMapper(): void {
@@ -223,7 +234,7 @@ final class TokenManagerTest extends TestCase {
 		$expected = new Wopi();
 		$this->wopiMapper->method('generateGuestToken')->willReturn($expected);
 
-		$result = $this->manager()->generateGuestToken(82, 'owner-uid', 'Guest', true, false);
+		$result = $this->manager()->generateGuestToken(82, 'owner-uid', 'shareTok', null, 'Guest', true, false);
 
 		$this->assertSame($expected, $result);
 	}

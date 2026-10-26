@@ -14,6 +14,8 @@ use OCA\Office\Db\WopiLockMapper;
 use OCA\Office\Db\WopiMapper;
 use OCA\Office\Exception\ExpiredTokenException;
 use OCA\Office\Exception\UnknownTokenException;
+use OCA\Office\Service\WopiAccess;
+use OCA\Office\Service\WopiAccessResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
@@ -23,7 +25,6 @@ use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\StreamResponse;
 use OCP\Files\File;
-use OCP\Files\IRootFolder;
 use OCP\Files\Lock\ILockManager;
 use OCP\Files\Lock\LockContext;
 use OCP\Files\Lock\NoLockProviderException;
@@ -42,7 +43,7 @@ class WopiController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private IRootFolder $rootFolder,
+		private WopiAccessResolver $accessResolver,
 		private WopiMapper $wopiMapper,
 		private WopiLockMapper $wopiLockMapper,
 		private IUserManager $userManager,
@@ -66,7 +67,8 @@ class WopiController extends Controller {
 	): JSONResponse {
 		try {
 			$wopi = $this->wopiMapper->getWopiForToken($access_token);
-			$file = $this->getFileForToken($wopi);
+			$access = $this->accessResolver->resolve($wopi);
+			$file = $access->file;
 		} catch (UnknownTokenException $e) {
 			$this->logger->debug($e->getMessage(), ['exception' => $e]);
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
@@ -85,12 +87,14 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
+		$isAnonymous = $wopi->isAnonymous();
+		$isShareSession = $wopi->isShareSession();
 		$user = $this->userManager->get($wopi->getEditorUid() ?? '');
-		$displayName = $wopi->isGuest()
+		$displayName = $isAnonymous
 			? ($wopi->getGuestDisplayname() ?? 'Guest')
 			: ($user?->getDisplayName() ?? $wopi->getEditorUid() ?? '');
 
-		$canWrite = (bool)$wopi->getCanwrite();
+		$canWrite = $access->canWrite;
 
 		try {
 			$locks = $this->lockManager->getLocks($wopi->getFileid());
@@ -103,18 +107,16 @@ class WopiController extends Controller {
 		} catch (NoLockProviderException|PreConditionNotMetException) {
 		}
 
-		$hideDownload = $wopi->getHideDownload();
-
-		$isGuest = $wopi->isGuest();
+		$hideDownload = $access->hideDownload;
 
 		return new JSONResponse([
 			'BaseFileName' => $file->getName(),
 			'Size' => $file->getSize(),
 			'Version' => (string)$file->getMTime(),
-			'UserId' => $isGuest ? 'Guest-' . substr(md5($wopi->getToken()), 0, 8) : $wopi->getEditorUid(),
+			'UserId' => $isAnonymous ? 'Guest-' . substr(md5($wopi->getToken()), 0, 8) : $wopi->getEditorUid(),
 			'OwnerId' => $wopi->getOwnerUid(),
 			'UserFriendlyName' => $displayName,
-			'IsAnonymousUser' => $isGuest,
+			'IsAnonymousUser' => $isAnonymous,
 			'UserCanWrite' => $canWrite,
 			// PutRelativeFile (Save As) deferred to Phase 6.
 			'UserCanNotWriteRelative' => true,
@@ -126,15 +128,17 @@ class WopiController extends Controller {
 			'SupportsLocks' => true,
 			'SupportsGetLock' => true,
 			'SupportsExtendedLockLength' => true,
-			'SupportsRename' => !$isGuest,
-			'UserCanRename' => !$isGuest,
-			'EnableInsertRemoteImage' => !$isGuest,
-			'EnableShare' => !$isGuest,
+			// Share-link sessions act on someone else's file through the link: no renaming or resharing,
+			// even for a logged-in visitor.
+			'SupportsRename' => !$isShareSession,
+			'UserCanRename' => !$isShareSession,
+			'EnableInsertRemoteImage' => !$isShareSession,
+			'EnableShare' => !$isShareSession,
 			'HideExportOption' => $hideDownload,
 			'DisablePrint' => $hideDownload,
 			'DisableExport' => $hideDownload,
 			'HideUserList' => '',
-			'EnableOwnerTermination' => $canWrite && !$isGuest,
+			'EnableOwnerTermination' => $canWrite && !$isShareSession,
 			'HasContentRange' => true,
 			// ServerPrivateInfo is intentionally empty — credentials must never travel via CheckFileInfo.
 			'ServerPrivateInfo' => [],
@@ -170,12 +174,11 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
-		try {
-			$file = $this->getFileForToken($wopi);
-		} catch (NotFoundException|NotPermittedException $e) {
-			$this->logger->warning($e->getMessage(), ['exception' => $e]);
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
+		$access = $this->resolveAccess($wopi);
+		if (!$access instanceof WopiAccess) {
+			return $access;
 		}
+		$file = $access->file;
 
 		if ($file->getSize() === 0) {
 			$empty = new Http\Response();
@@ -229,16 +232,14 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
-		if (!$wopi->getCanwrite()) {
+		$access = $this->resolveAccess($wopi);
+		if (!$access instanceof WopiAccess) {
+			return $access;
+		}
+		if (!$access->canWrite) {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
-
-		try {
-			$file = $this->getFileForToken($wopi);
-		} catch (NotFoundException|NotPermittedException $e) {
-			$this->logger->warning($e->getMessage(), ['exception' => $e]);
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
-		}
+		$file = $access->file;
 
 		// Enforce WOPI lock: if a non-expired lock exists the client must supply the matching lock ID.
 		$lockId = $this->request->getHeader('X-WOPI-Lock');
@@ -335,7 +336,11 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
-		if (!$wopi->getCanwrite()) {
+		$access = $this->resolveAccess($wopi);
+		if (!$access instanceof WopiAccess) {
+			return $access;
+		}
+		if (!$access->canWrite) {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
@@ -347,7 +352,7 @@ class WopiController extends Controller {
 			'UNLOCK' => $this->handleUnlock($fileId, $lockId),
 			'REFRESH_LOCK' => $this->handleRefreshLock($fileId, $lockId),
 			'GET_LOCK' => $this->handleGetLock($fileId),
-			'RENAME_FILE' => $this->handleRenameFile($fileId, $wopi),
+			'RENAME_FILE' => $this->handleRenameFile($fileId, $wopi, $access->file),
 			default => new JSONResponse(['error' => 'Unsupported WOPI operation'], Http::STATUS_NOT_IMPLEMENTED),
 		};
 	}
@@ -424,9 +429,9 @@ class WopiController extends Controller {
 		return $response;
 	}
 
-	private function handleRenameFile(int $fileId, Wopi $wopi): Http\Response {
-		// Only authenticated users may rename; guests receive a 403.
-		if ($wopi->isGuest()) {
+	private function handleRenameFile(int $fileId, Wopi $wopi, File $file): Http\Response {
+		// Renaming acts on the owner's file: not through a share link, logged in or not.
+		if ($wopi->isShareSession()) {
 			return new JSONResponse([], Http::STATUS_FORBIDDEN);
 		}
 
@@ -456,13 +461,6 @@ class WopiController extends Controller {
 			if ($lockId !== $existing->getLockId()) {
 				return $this->lockConflict($existing->getLockId(), 'File is locked');
 			}
-		}
-
-		try {
-			$file = $this->getFileForToken($wopi);
-		} catch (NotFoundException|NotPermittedException $e) {
-			$this->logger->warning($e->getMessage(), ['exception' => $e]);
-			return new JSONResponse([], Http::STATUS_NOT_FOUND);
 		}
 
 		$extension = pathinfo($file->getName(), PATHINFO_EXTENSION);
@@ -512,26 +510,17 @@ class WopiController extends Controller {
 		return $response;
 	}
 
-	private function getFileForToken(Wopi $wopi): File {
-		$uid = $wopi->getUserForFileAccess();
-		$userFolder = $this->rootFolder->getUserFolder($uid);
-		$nodes = $userFolder->getById($wopi->getFileid());
-
-		if (empty($nodes)) {
-			throw new NotFoundException('File not found for WOPI token');
+	/**
+	 * The token's file and current rights, or the response to send when the file
+	 * or the share it was opened through is gone.
+	 */
+	private function resolveAccess(Wopi $wopi): WopiAccess|JSONResponse {
+		try {
+			return $this->accessResolver->resolve($wopi);
+		} catch (NotFoundException $e) {
+			$this->logger->info($e->getMessage(), ['fileId' => $wopi->getFileid()]);
+			return new JSONResponse([], Http::STATUS_NOT_FOUND);
 		}
-
-		// Prefer nodes with write permission when multiple exist (e.g. same file mounted in several places)
-		usort($nodes, static function (\OCP\Files\Node $a, \OCP\Files\Node $b): int {
-			return ($b->getPermissions() & \OCP\Constants::PERMISSION_UPDATE) <=> ($a->getPermissions() & \OCP\Constants::PERMISSION_UPDATE);
-		});
-
-		$node = array_shift($nodes);
-		if (!$node instanceof File) {
-			throw new NotFoundException('WOPI token points to a directory, not a file');
-		}
-
-		return $node;
 	}
 
 	private function getFileRange(File $file, string $rangeHeader): Http\Response {

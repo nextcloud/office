@@ -45,9 +45,6 @@
     <PossiblyFalseArgument>
       <code><![CDATA[$content]]></code>
     </PossiblyFalseArgument>
-    <RedundantCastGivenDocblockType>
-      <code><![CDATA[(bool)$wopi->getCanwrite()]]></code>
-    </RedundantCastGivenDocblockType>
   </file>
   <file src="lib/Db/Wopi.php">
     <ClassMustBeFinal>

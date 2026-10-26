@@ -153,6 +153,8 @@ class ShareController extends Controller {
 				$wopi = $this->tokenManager->generateGuestToken(
 					fileId: $file->getId(),
 					ownerUid: $ownerUid,
+					shareToken: $share->getToken(),
+					editorUid: $user?->getUID(),
 					guestName: $displayName,
 					canWrite: $canWrite,
 					hideDownload: $hideDownload,

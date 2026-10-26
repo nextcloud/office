@@ -70,12 +70,17 @@ class TokenManager {
 	 *
 	 * @param int $fileId NC file ID (must be reachable via $ownerUid)
 	 * @param string $ownerUid File owner whose storage is used for I/O
+	 * @param string $shareToken The share the session is opened through; access is re-checked against it
+	 * @param string|null $editorUid The logged-in visitor, or null for an anonymous guest
 	 * @param string $guestName Display name shown in the editor
 	 * @param bool $canWrite Whether the share allows editing
 	 */
 	public function generateGuestToken(
 		int $fileId,
 		string $ownerUid,
+		#[\SensitiveParameter]
+		string $shareToken,
+		?string $editorUid,
 		string $guestName,
 		bool $canWrite,
 		bool $hideDownload,
@@ -95,6 +100,8 @@ class TokenManager {
 		return $this->wopiMapper->generateGuestToken(
 			fileId: $fileId,
 			ownerUid: $ownerUid,
+			shareToken: $shareToken,
+			editorUid: $editorUid,
 			guestDisplayname: $guestName,
 			version: $version,
 			canWrite: $canWrite,

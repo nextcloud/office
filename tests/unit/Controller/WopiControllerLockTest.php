@@ -16,6 +16,7 @@ use OCA\Office\Db\WopiLockMapper;
 use OCA\Office\Db\WopiMapper;
 use OCA\Office\Exception\ExpiredTokenException;
 use OCA\Office\Exception\UnknownTokenException;
+use OCA\Office\Service\WopiAccessResolver;
 use OCP\AppFramework\Http;
 use OCP\Constants;
 use OCP\Files\File;
@@ -26,6 +27,7 @@ use OCP\Files\NotFoundException;
 use OCP\Files\Storage\IStorage;
 use OCP\IRequest;
 use OCP\IUserManager;
+use OCP\Share\IManager as IShareManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -37,6 +39,10 @@ final class WopiControllerLockTest extends TestCase {
 	private IUserManager&MockObject $userManager;
 	private ILockManager&MockObject $lockManager;
 	private LoggerInterface&MockObject $logger;
+	private IShareManager&MockObject $shareManager;
+	/** @var list<File> What the editor's user folder returns for the token's file id. */
+	private array $userFolderNodes = [];
+	private ?string $lookedUpUid = null;
 
 	protected function setUp(): void {
 		$this->rootFolder = $this->createMock(IRootFolder::class);
@@ -45,6 +51,16 @@ final class WopiControllerLockTest extends TestCase {
 		$this->userManager = $this->createMock(IUserManager::class);
 		$this->lockManager = $this->createMock(ILockManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
+		$this->shareManager = $this->createMock(IShareManager::class);
+
+		// Every user token resolves through the editor's folder; by default it holds an ordinary file.
+		$this->userFolderNodes = [$this->fileForRename('report.docx')];
+		$userFolder = $this->createMock(Folder::class);
+		$userFolder->method('getById')->willReturnCallback(fn (int $id): array => $id === 82 ? $this->userFolderNodes : []);
+		$this->rootFolder->method('getUserFolder')->willReturnCallback(function (string $uid) use ($userFolder): Folder {
+			$this->lookedUpUid = $uid;
+			return $userFolder;
+		});
 
 		// Default: simulate a lock provider that just runs the callback (as if
 		// the app-level advisory lock was acquired without contention).
@@ -65,7 +81,7 @@ final class WopiControllerLockTest extends TestCase {
 		return new WopiController(
 			'office',
 			$request,
-			$this->rootFolder,
+			new WopiAccessResolver($this->rootFolder, $this->shareManager),
 			$this->wopiMapper,
 			$this->wopiLockMapper,
 			$this->userManager,
@@ -115,10 +131,25 @@ final class WopiControllerLockTest extends TestCase {
 		return $file;
 	}
 
-	private function mockFileLookup(File $file, int $fileid = 82, string $uid = 'admin'): void {
-		$userFolder = $this->createMock(Folder::class);
-		$userFolder->method('getById')->with($fileid)->willReturn([$file]);
-		$this->rootFolder->method('getUserFolder')->with($uid)->willReturn($userFolder);
+	private function mockFileLookup(File $file): void {
+		$this->userFolderNodes = [$file];
+	}
+
+	private function linkShare(int $permissions, bool $hideDownload = false, ?\OCP\Files\Node $node = null): \OCP\Share\IShare&MockObject {
+		$share = $this->createMock(\OCP\Share\IShare::class);
+		$share->method('getPermissions')->willReturn($permissions);
+		$share->method('getHideDownload')->willReturn($hideDownload);
+		$share->method('getNode')->willReturn($node ?? $this->sharedFile());
+
+		return $share;
+	}
+
+	private function sharedFile(int $id = 82): File&MockObject {
+		$file = $this->fileForRename('report.docx');
+		$file->method('getId')->willReturn($id);
+		$file->method('getMTime')->willReturn(1700000000);
+
+		return $file;
 	}
 
 	/**
@@ -249,6 +280,110 @@ final class WopiControllerLockTest extends TestCase {
 		$this->lockedFileForPut(expectWrite: true);
 
 		$this->assertSame(Http::STATUS_OK, $this->putFile([])->getStatus());
+	}
+
+	// --- Share-link sessions: access follows the live share ---
+
+	private function linkSession(?string $editorUid = null): Wopi {
+		$wopi = $this->wopi(['editorUid' => $editorUid, 'guestDisplayname' => 'Visitor']);
+		$wopi->setShareToken('shareTok');
+		$this->wopiMapper->method('getWopiForToken')->willReturn($wopi);
+
+		return $wopi;
+	}
+
+	private function shareIsGone(): void {
+		$this->shareManager->method('getShareByToken')->willThrowException(new \OCP\Share\Exceptions\ShareNotFound());
+	}
+
+	public function testRevokedShareEndsCheckFileInfo(): void {
+		$this->linkSession();
+		$this->shareIsGone();
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $this->controller([])->checkFileInfo(82, 'tok123')->getStatus());
+	}
+
+	public function testRevokedShareEndsGetFile(): void {
+		$this->linkSession();
+		$this->shareIsGone();
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $this->controller([])->getFile(82, 'tok123')->getStatus());
+	}
+
+	public function testRevokedShareEndsPutFile(): void {
+		$this->linkSession();
+		$this->shareIsGone();
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $this->controller(['X-WOPI-Lock' => 'eo-lock'])->putFile(82, 'tok123')->getStatus());
+	}
+
+	public function testRevokedShareEndsLockOperations(): void {
+		$this->linkSession();
+		$this->shareIsGone();
+
+		$response = $this->controller(['X-WOPI-Override' => 'LOCK', 'X-WOPI-Lock' => 'eo-lock'])->executeOperation(82, 'tok123');
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+	}
+
+	public function testShareNarrowedToReadOnlyBlocksPutFile(): void {
+		$this->linkSession();
+		$this->shareManager->method('getShareByToken')->willReturn($this->linkShare(Constants::PERMISSION_READ));
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $this->controller(['X-WOPI-Lock' => 'eo-lock'])->putFile(82, 'tok123')->getStatus());
+	}
+
+	public function testShareNarrowedToReadOnlyBlocksLockOperations(): void {
+		$this->linkSession();
+		$this->shareManager->method('getShareByToken')->willReturn($this->linkShare(Constants::PERMISSION_READ));
+
+		$response = $this->controller(['X-WOPI-Override' => 'LOCK', 'X-WOPI-Lock' => 'eo-lock'])->executeOperation(82, 'tok123');
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
+
+	public function testShareNarrowedToReadOnlyShowsAsReadOnlyInCheckFileInfo(): void {
+		$this->linkSession();
+		$this->shareManager->method('getShareByToken')->willReturn($this->linkShare(Constants::PERMISSION_READ, hideDownload: true));
+
+		$data = $this->controller([])->checkFileInfo(82, 'tok123')->getData();
+
+		$this->assertFalse($data['UserCanWrite']);
+		$this->assertTrue($data['DisableExport']);
+	}
+
+	public function testLoggedInLinkVisitorIsNamedButCannotRenameOrReshare(): void {
+		$this->linkSession('bob');
+		$this->shareManager->method('getShareByToken')->willReturn($this->linkShare(Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE));
+
+		$data = $this->controller([])->checkFileInfo(82, 'tok123')->getData();
+
+		$this->assertSame('bob', $data['UserId']);
+		$this->assertFalse($data['IsAnonymousUser']);
+		$this->assertFalse($data['SupportsRename']);
+		$this->assertFalse($data['UserCanRename']);
+		$this->assertFalse($data['EnableShare']);
+		$this->assertNull($this->lookedUpUid, 'a link session must not resolve through the visitor\'s own folder');
+	}
+
+	public function testLoggedInLinkVisitorCannotRenameTheFile(): void {
+		$this->linkSession('bob');
+		$this->shareManager->method('getShareByToken')->willReturn($this->linkShare(Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE));
+
+		$response = $this->controller(['X-WOPI-Override' => 'RENAME_FILE', 'X-WOPI-RequestedName' => 'Renamed'])->executeOperation(82, 'tok123');
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
+	}
+
+	public function testAnonymousLinkVisitorIsAnonymous(): void {
+		$this->linkSession();
+		$this->shareManager->method('getShareByToken')->willReturn($this->linkShare(Constants::PERMISSION_READ));
+
+		$data = $this->controller([])->checkFileInfo(82, 'tok123')->getData();
+
+		$this->assertTrue($data['IsAnonymousUser']);
+		$this->assertSame('Visitor', $data['UserFriendlyName']);
+		$this->assertStringStartsWith('Guest-', $data['UserId']);
 	}
 
 	// --- executeOperation() dispatch guard ---
@@ -529,9 +664,11 @@ final class WopiControllerLockTest extends TestCase {
 		$this->assertSame('Renamed.docx', $response->getData()['Name']);
 	}
 
-	public function testRenameFileGuestReturns403(): void {
+	public function testRenameFileThroughShareLinkReturns403(): void {
 		$wopi = $this->wopi(['editorUid' => null, 'guestDisplayname' => 'Guest User']);
+		$wopi->setShareToken('shareTok');
 		$this->wopiMapper->method('getWopiForToken')->willReturn($wopi);
+		$this->shareManager->method('getShareByToken')->willReturn($this->linkShare(Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE));
 
 		$controller = $this->controller([
 			'X-WOPI-Override' => 'RENAME_FILE',
@@ -629,9 +766,7 @@ final class WopiControllerLockTest extends TestCase {
 		$this->wopiMapper->method('getWopiForToken')->willReturn($this->wopi());
 		$this->wopiLockMapper->method('findByFileId')->willReturn(null);
 
-		$userFolder = $this->createMock(Folder::class);
-		$userFolder->method('getById')->willReturn([]);
-		$this->rootFolder->method('getUserFolder')->willReturn($userFolder);
+		$this->userFolderNodes = [];
 
 		$controller = $this->controller([
 			'X-WOPI-Override' => 'RENAME_FILE',
