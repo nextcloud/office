@@ -40,6 +40,7 @@ class WopiMapper extends QBMapper {
 		string $editorUid,
 		string $version,
 		bool $canWrite,
+		bool $hideDownload,
 		string $serverHost,
 	): Wopi {
 		$token = $this->random->generate(32, ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS);
@@ -51,6 +52,7 @@ class WopiMapper extends QBMapper {
 			'editorUid' => $editorUid,
 			'version' => $version,
 			'canwrite' => $canWrite,
+			'hideDownload' => $hideDownload,
 			'serverHost' => $serverHost,
 			'token' => $token,
 			'expiry' => $this->newExpiry(),

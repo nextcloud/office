@@ -15,7 +15,10 @@ use OCP\EventDispatcher\IEventDispatcher;
 use OCP\Files\Events\Node\BeforeNodeReadEvent;
 use OCP\Files\File;
 use OCP\Files\IRootFolder;
+use OCP\Files\Node;
+use OCP\Files\NotFoundException;
 use OCP\Files\NotPermittedException;
+use OCP\Files\Storage\ISharedStorage;
 use OCP\IURLGenerator;
 
 class TokenManager {
@@ -45,6 +48,7 @@ class TokenManager {
 		}
 
 		$canWrite = $file->isUpdateable();
+		$hideDownload = $this->isDownloadDisabled($userFolder->getById($fileId));
 
 		$owner = $file->getOwner();
 		$ownerUid = $owner !== null ? $owner->getUID() : (string)$this->userId;
@@ -61,8 +65,33 @@ class TokenManager {
 			editorUid: (string)$this->userId,
 			version: $version,
 			canWrite: $canWrite,
+			hideDownload: $hideDownload,
 			serverHost: $serverHost,
 		);
+	}
+
+	/**
+	 * Whether a share the user received the file through forbids downloading it. The same
+	 * file can reach a user along several paths; one that forbids it is enough.
+	 *
+	 * @param Node[] $nodes
+	 */
+	private function isDownloadDisabled(array $nodes): bool {
+		foreach ($nodes as $node) {
+			try {
+				$storage = $node->getStorage();
+			} catch (NotFoundException) {
+				continue;
+			}
+			if (!$storage->instanceOfStorage(ISharedStorage::class)) {
+				continue;
+			}
+			if ($storage->getShare()->getAttributes()?->getAttribute('permissions', 'download') === false) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

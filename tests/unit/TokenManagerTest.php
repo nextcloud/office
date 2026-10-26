@@ -62,14 +62,59 @@ final class TokenManagerTest extends TestCase {
 		$file->method('isUpdateable')->willReturn($overrides['updateable'] ?? true);
 		$file->method('getMTime')->willReturn($overrides['mtime'] ?? 1700000000);
 		$file->method('getOwner')->willReturn($overrides['owner'] ?? null);
+		$file->method('getStorage')->willReturn($this->createMock(\OCP\Files\Storage\IStorage::class));
 
 		return $file;
 	}
 
-	private function userFolderReturning(?File $file, string $expectedUid = 'admin'): void {
+	/** @param list<File> $otherPaths further nodes of the same file, e.g. received through shares */
+	private function userFolderReturning(?File $file, string $expectedUid = 'admin', array $otherPaths = []): void {
 		$folder = $this->createMock(Folder::class);
 		$folder->method('getFirstNodeById')->willReturn($file);
+		$folder->method('getById')->willReturn($file === null ? [] : [$file, ...$otherPaths]);
 		$this->rootFolder->method('getUserFolder')->with($expectedUid)->willReturn($folder);
+	}
+
+	private function nodeReceivedThroughShare(?bool $download): File&MockObject {
+		$attributes = $this->createMock(\OCP\Share\IAttributes::class);
+		$attributes->method('getAttribute')->willReturnCallback(
+			static fn (string $scope, string $key): mixed => $scope === 'permissions' && $key === 'download' ? $download : null,
+		);
+		$share = $this->createMock(\OCP\Share\IShare::class);
+		$share->method('getAttributes')->willReturn($attributes);
+
+		$storage = $this->createMock(\OCP\Files\Storage\ISharedStorage::class);
+		$storage->method('instanceOfStorage')->willReturnCallback(static fn (string $class): bool => $class === \OCP\Files\Storage\ISharedStorage::class);
+		$storage->method('getShare')->willReturn($share);
+
+		$node = $this->createMock(File::class);
+		$node->method('getStorage')->willReturn($storage);
+
+		return $node;
+	}
+
+	/** @return array<string, array{list<?bool>, bool}> */
+	public static function downloadAttributes(): array {
+		return [
+			'own file only' => [[], false],
+			'received share allows download' => [[true], false],
+			'received share without the attribute' => [[null], false],
+			'received share forbids download' => [[false], true],
+			'one of two paths forbids download' => [[true, false], true],
+		];
+	}
+
+	/** @param list<?bool> $shares */
+	#[\PHPUnit\Framework\Attributes\DataProvider('downloadAttributes')]
+	public function testGenerateTokenHidesDownloadWhenAShareForbidsIt(array $shares, bool $expected): void {
+		$this->userFolderReturning($this->fileMock(), 'admin', array_map(fn (?bool $d): File => $this->nodeReceivedThroughShare($d), $shares));
+
+		$this->wopiMapper->expects($this->once())
+			->method('generateFileToken')
+			->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), $expected, $this->anything())
+			->willReturn(new Wopi());
+
+		$this->manager()->generateToken(82);
 	}
 
 	// --- generateToken() (authenticated user) ---
@@ -80,7 +125,7 @@ final class TokenManagerTest extends TestCase {
 
 		$this->wopiMapper->expects($this->once())
 			->method('generateFileToken')
-			->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), 'https://nc.example.com/')
+			->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), $this->anything(), 'https://nc.example.com/')
 			->willReturn(new Wopi());
 
 		$this->manager()->generateToken(82);
@@ -93,7 +138,7 @@ final class TokenManagerTest extends TestCase {
 
 		$this->wopiMapper->expects($this->once())
 			->method('generateFileToken')
-			->with(82, 'owner-uid', 'admin', '1700000000', true, $this->anything())
+			->with(82, 'owner-uid', 'admin', '1700000000', true, false, $this->anything())
 			->willReturn(new Wopi());
 
 		$this->manager('admin')->generateToken(82);
@@ -104,7 +149,7 @@ final class TokenManagerTest extends TestCase {
 
 		$this->wopiMapper->expects($this->once())
 			->method('generateFileToken')
-			->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), false, $this->anything())
+			->with($this->anything(), $this->anything(), $this->anything(), $this->anything(), false, $this->anything(), $this->anything())
 			->willReturn(new Wopi());
 
 		$this->manager()->generateToken(82);
