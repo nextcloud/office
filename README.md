@@ -179,11 +179,11 @@ present, navigates directly to that URL instead of `/f/{fileid}`.
 | `SupportsLocks` | `true` | Locks are stored by the app (`office_wopi_locks`), independent of any NC lock provider |
 | `SupportsGetLock` | `true` | GetLock is implemented |
 | `SupportsExtendedLockLength` | `true` | `lock_id` column is `VARCHAR(1024)` |
-| `SupportsRename` | per session | `true` for authenticated users; `false` for guests |
-| `UserCanRename` | per session | `true` for authenticated users; `false` for guests |
+| `SupportsRename` | per session | `true` for user tokens; `false` for share-link tokens, including logged-in users whose only access is the link |
+| `UserCanRename` | per session | `true` for user tokens; `false` for share-link tokens, including logged-in users whose only access is the link |
 | `UserCanNotWriteRelative` | `true` | PutRelativeFile deferred to Phase 6 |
 | `UserCanWrite` | per token | stamped at token-issue time from file/share permissions |
-| `IsAnonymousUser` | per session | `true` for guest (share-link) sessions |
+| `IsAnonymousUser` | per session | `true` for share-link sessions, including logged-in users whose only access is the link |
 | `HasContentRange` | `true` | partial file reads via HTTP Range are supported |
 | `HideExportOption` | per token | derived from share `hide_download` flag |
 | `DisablePrint` | per token | derived from share `hide_download` flag |
