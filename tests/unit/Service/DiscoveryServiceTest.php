@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Office\Tests\Unit\Service;
 
 use OCA\Office\Service\DiscoveryService;
+use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Http\Client\IClient;
 use OCP\Http\Client\IClientService;
 use OCP\Http\Client\IResponse;
@@ -28,14 +29,37 @@ final class DiscoveryServiceTest extends TestCase {
 	private ICache&MockObject $cache;
 	private ICache&MockObject $localCache;
 	private DiscoveryService $service;
+	/** @var array<string, string|int> In-memory app config. */
+	private array $config = [];
+	private int $now = 1793016000;
 
 	protected function setUp(): void {
 		$this->clientService = $this->createMock(IClientService::class);
 		$this->cacheFactory = $this->createMock(ICacheFactory::class);
 		$this->appConfig = $this->createMock(IAppConfig::class);
+		$this->appConfig->method('getValueString')->willReturnCallback(
+			fn (string $app, string $key, string $default = ''): string => (string)($this->config[$key] ?? $default),
+		);
+		$this->appConfig->method('getValueInt')->willReturnCallback(
+			fn (string $app, string $key, int $default = 0): int => (int)($this->config[$key] ?? $default),
+		);
+		$this->appConfig->method('setValueString')->willReturnCallback(function (string $app, string $key, string $value): bool {
+			$this->config[$key] = $value;
+			return true;
+		});
+		$this->appConfig->method('setValueInt')->willReturnCallback(function (string $app, string $key, int $value): bool {
+			$this->config[$key] = $value;
+			return true;
+		});
+		$this->appConfig->method('deleteKey')->willReturnCallback(function (string $app, string $key): void {
+			unset($this->config[$key]);
+		});
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->cache = $this->createMock(ICache::class);
 		$this->localCache = $this->createMock(ICache::class);
+
+		$time = $this->createMock(ITimeFactory::class);
+		$time->method('getTime')->willReturnCallback(fn (): int => $this->now);
 
 		$this->cacheFactory->method('createDistributed')
 			->with('office')
@@ -49,6 +73,7 @@ final class DiscoveryServiceTest extends TestCase {
 			$this->cacheFactory,
 			$this->appConfig,
 			$this->logger,
+			$time,
 		);
 	}
 
@@ -58,8 +83,7 @@ final class DiscoveryServiceTest extends TestCase {
 
 	/** @param array<string, string> $values */
 	private function mockAppConfig(array $values): void {
-		$this->appConfig->method('getValueString')
-			->willReturnCallback(static fn (string $app, string $key, string $default = '') => $values[$key] ?? $default);
+		$this->config = $values;
 	}
 
 	private function withDiscoveryXml(string $xml): void {
@@ -485,5 +509,102 @@ final class DiscoveryServiceTest extends TestCase {
 		$this->mockAppConfig([]);
 
 		$this->assertSame('https://cloud.example.com/x', $this->service->editorReachableUrl('https://cloud.example.com/x'));
+	}
+
+	// --- getProofKeys() / refreshProofKeys() ---
+
+	public function testGetProofKeysReadsCurrentAndOldKey(): void {
+		$this->withDiscoveryXml('<wopi-discovery><net-zone/><proof-key oldvalue="x" oldmodulus="T2xk" oldexponent="AQAB" value="y" modulus="Q3Vy" exponent="AQAB"/></wopi-discovery>');
+
+		$keys = $this->service->getProofKeys();
+
+		$this->assertNotNull($keys);
+		$this->assertSame('Q3Vy', $keys->modulus);
+		$this->assertSame('AQAB', $keys->exponent);
+		$this->assertSame('T2xk', $keys->oldModulus);
+	}
+
+	public function testGetProofKeysFallsBackToTheCurrentKeyWithoutAnOldOne(): void {
+		$this->withDiscoveryXml('<wopi-discovery><proof-key modulus="Q3Vy" exponent="AQAB"/></wopi-discovery>');
+
+		$this->assertSame('Q3Vy', $this->service->getProofKeys()?->oldModulus);
+	}
+
+	public function testGetProofKeysIsNullWhenTheEditorDoesNotSign(): void {
+		$this->withDiscoveryXml($this->fixture('discovery-onlyoffice.xml'));
+
+		$this->assertNull($this->service->getProofKeys());
+	}
+
+	private const string SIGNING = '<wopi-discovery><proof-key modulus="Q3Vy" exponent="AQAB" oldmodulus="T2xk" oldexponent="AQAB"/></wopi-discovery>';
+	private const string ROTATED = '<wopi-discovery><proof-key modulus="TmV3" exponent="AQAB" oldmodulus="Q3Vy" oldexponent="AQAB"/></wopi-discovery>';
+
+	/** @param list<?string> $documents what successive discovery reads return (null: unavailable) */
+	private function discoveryReturns(array $documents): void {
+		$this->cache->method('get')->willReturnCallback(static function () use (&$documents): ?string {
+			return count($documents) > 1 ? array_shift($documents) : $documents[0];
+		});
+	}
+
+	public function testKnownKeysAreReusedWithoutRereadingDiscoveryForAnHour(): void {
+		$this->discoveryReturns([self::SIGNING, self::ROTATED]);
+		$this->service->getProofKeys();
+
+		$this->now += 3599;
+		$this->assertSame('Q3Vy', $this->service->getProofKeys()?->modulus);
+
+		$this->now += 1;
+		$this->assertSame('TmV3', $this->service->getProofKeys()?->modulus);
+	}
+
+	public function testLastKnownKeysStayInForceWhileDiscoveryIsUnreadable(): void {
+		// Not cached any more, and the editor can't be reached for a fresh copy.
+		$this->discoveryReturns([self::SIGNING, null]);
+		$this->config['wopi_url'] = 'http://eo';
+		$client = $this->createMock(IClient::class);
+		$client->method('get')->willThrowException(new \Exception('connection refused'));
+		$this->clientService->method('newClient')->willReturn($client);
+		$this->service->getProofKeys();
+
+		$this->now += 7200;
+
+		$this->assertSame('Q3Vy', $this->service->getProofKeys()?->modulus);
+	}
+
+	public function testAnEditorThatStopsSigningIsSeenAfterTheNextCheck(): void {
+		$this->discoveryReturns([self::SIGNING, '<wopi-discovery/>']);
+		$this->service->getProofKeys();
+
+		$this->now += 3600;
+
+		$this->assertNull($this->service->getProofKeys());
+	}
+
+	public function testRefreshPicksUpRotatedKeysAtOncePerPeriod(): void {
+		$this->discoveryReturns([self::SIGNING, self::ROTATED]);
+		$this->service->getProofKeys();
+		$this->cache->expects($this->once())->method('remove')->with('discovery');
+
+		$this->assertSame('TmV3', $this->service->refreshProofKeys()?->modulus);
+		$this->now += 60;
+		$this->service->refreshProofKeys();
+	}
+
+	public function testRefreshIsAllowedAgainAfterThePeriod(): void {
+		$this->discoveryReturns([self::SIGNING]);
+		$this->cache->expects($this->exactly(2))->method('remove')->with('discovery');
+
+		$this->service->refreshProofKeys();
+		$this->now += 300;
+		$this->service->refreshProofKeys();
+	}
+
+	public function testResetCacheForgetsTheKeysOfThePreviousEditor(): void {
+		$this->discoveryReturns([self::SIGNING, '<wopi-discovery/>']);
+		$this->service->getProofKeys();
+
+		$this->service->resetCache();
+
+		$this->assertNull($this->service->getProofKeys());
 	}
 }

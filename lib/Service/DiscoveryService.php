@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace OCA\Office\Service;
 
+use OCA\Office\AppInfo\Application;
+use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
 use OCP\ICacheFactory;
@@ -25,12 +27,25 @@ class DiscoveryService {
 	// null cache and failures aren't remembered; a Redis local cache shares the marker.
 	private const string FAILURE_CACHE_KEY = 'discovery_failed';
 	private const int FAILURE_CACHE_TTL = 60;
+	// The editor's proof keys, remembered in app config rather than a memcache: WOPI requests
+	// check them on every call, which must not mean a discovery fetch per request on instances
+	// without memcache.local, and once the editor has been seen signing, a failed discovery
+	// fetch must not switch the checks off.
+	private const string PROOF_KEYS_CONFIG = 'proof_keys';
+	private const string PROOF_KEYS_CHECKED_AT_CONFIG = 'proof_keys_checked_at';
+	private const string PROOF_KEYS_REFRESHED_AT_CONFIG = 'proof_keys_refreshed_at';
+	private const int PROOF_KEYS_TTL = 3600;
+	// A proof that doesn't verify against the known keys may mean the editor's keys changed;
+	// rereading discovery for it is allowed once per period, so forged proofs can't turn every
+	// WOPI request into a discovery fetch.
+	private const int PROOF_REFRESH_PERIOD = 300;
 
 	public function __construct(
 		private IClientService $clientService,
 		private ICacheFactory $cacheFactory,
 		private IAppConfig $appConfig,
 		private LoggerInterface $logger,
+		private ITimeFactory $timeFactory,
 	) {
 	}
 
@@ -81,6 +96,9 @@ class DiscoveryService {
 		$cache->remove(self::CACHE_KEY);
 		// Only clears this node; other nodes retry once their marker expires.
 		$this->cacheFactory->createLocal('office')->remove(self::FAILURE_CACHE_KEY);
+		// A different editor server has different keys.
+		$this->appConfig->deleteKey(Application::APP_ID, self::PROOF_KEYS_CONFIG);
+		$this->appConfig->deleteKey(Application::APP_ID, self::PROOF_KEYS_CHECKED_AT_CONFIG);
 	}
 
 	/**
@@ -158,6 +176,92 @@ class DiscoveryService {
 		}
 
 		return array_values(array_unique($mimes));
+	}
+
+	/**
+	 * The editor's proof keys, or null when it doesn't sign its requests.
+	 *
+	 * Rechecked against discovery once per PROOF_KEYS_TTL. While discovery can't be read,
+	 * the last known keys stay in force.
+	 */
+	public function getProofKeys(): ?WopiProofKeys {
+		$now = $this->timeFactory->getTime();
+		if ($this->appConfig->getValueInt(Application::APP_ID, self::PROOF_KEYS_CHECKED_AT_CONFIG) > $now - self::PROOF_KEYS_TTL) {
+			return $this->storedProofKeys();
+		}
+
+		$xml = $this->get();
+		if ($xml === null) {
+			return $this->storedProofKeys();
+		}
+
+		try {
+			$keys = $this->parseProofKeys($xml);
+		} catch (\Exception $e) {
+			$this->logger->error('Failed to parse WOPI discovery XML: ' . $e->getMessage());
+			return $this->storedProofKeys();
+		}
+
+		// Four base64 values, which never contain '|'.
+		$this->appConfig->setValueString(Application::APP_ID, self::PROOF_KEYS_CONFIG, $keys === null
+			? ''
+			: implode('|', [$keys->modulus, $keys->exponent, $keys->oldModulus, $keys->oldExponent]));
+		$this->appConfig->setValueInt(Application::APP_ID, self::PROOF_KEYS_CHECKED_AT_CONFIG, $now);
+
+		return $keys;
+	}
+
+	/**
+	 * Reread the proof keys from the editor now, at most once per PROOF_REFRESH_PERIOD;
+	 * otherwise return the known keys.
+	 */
+	public function refreshProofKeys(): ?WopiProofKeys {
+		$now = $this->timeFactory->getTime();
+		if ($this->appConfig->getValueInt(Application::APP_ID, self::PROOF_KEYS_REFRESHED_AT_CONFIG) <= $now - self::PROOF_REFRESH_PERIOD) {
+			$this->appConfig->setValueInt(Application::APP_ID, self::PROOF_KEYS_REFRESHED_AT_CONFIG, $now);
+			$this->appConfig->setValueInt(Application::APP_ID, self::PROOF_KEYS_CHECKED_AT_CONFIG, 0);
+			$this->cacheFactory->createDistributed('office')->remove(self::CACHE_KEY);
+		}
+
+		return $this->getProofKeys();
+	}
+
+	/**
+	 * @throws \Exception on malformed XML
+	 */
+	private function parseProofKeys(string $xml): ?WopiProofKeys {
+		$parsed = new SimpleXMLElement($xml, LIBXML_NONET | LIBXML_NOCDATA);
+
+		$elements = $parsed->xpath('//proof-key');
+		if (!is_array($elements) || $elements === []) {
+			return null;
+		}
+
+		$attributes = $elements[0]->attributes();
+		$modulus = (string)($attributes['modulus'] ?? '');
+		$exponent = (string)($attributes['exponent'] ?? '');
+		if ($modulus === '' || $exponent === '') {
+			return null;
+		}
+
+		$oldModulus = (string)($attributes['oldmodulus'] ?? '');
+		$oldExponent = (string)($attributes['oldexponent'] ?? '');
+
+		return new WopiProofKeys(
+			$modulus,
+			$exponent,
+			$oldModulus !== '' ? $oldModulus : $modulus,
+			$oldExponent !== '' ? $oldExponent : $exponent,
+		);
+	}
+
+	private function storedProofKeys(): ?WopiProofKeys {
+		$parts = explode('|', $this->appConfig->getValueString(Application::APP_ID, self::PROOF_KEYS_CONFIG));
+		if (count($parts) !== 4 || in_array('', $parts, true)) {
+			return null;
+		}
+
+		return new WopiProofKeys($parts[0], $parts[1], $parts[2], $parts[3]);
 	}
 
 	/**
