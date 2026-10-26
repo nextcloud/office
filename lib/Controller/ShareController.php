@@ -154,7 +154,7 @@ class ShareController extends Controller {
 
 				// Sanitize guestName: strip control chars, cap at 64 chars, default to 'Guest'.
 				// Authenticated user's display name overrides guestName param to prevent spoofing.
-				$guestName = trim(preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? ''));
+				$guestName = trim((string)preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? ''));
 				$guestName = mb_substr($guestName, 0, 64);
 				$displayName = $user?->getDisplayName() ?? ($guestName !== '' ? $guestName : 'Guest');
 

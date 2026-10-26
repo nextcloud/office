@@ -96,7 +96,7 @@ class WopiLockMapper extends QBMapper {
 			->where($qb->expr()->lt('expiry', $qb->createNamedParameter($this->timeFactory->getTime(), IQueryBuilder::PARAM_INT)))
 			->setMaxResults($limit);
 
-		return array_column($qb->executeQuery()->fetchAll(), 'id');
+		return array_map('intval', array_column($qb->executeQuery()->fetchAll(), 'id'));
 	}
 
 	/**

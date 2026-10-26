@@ -531,7 +531,8 @@ class WopiController extends Controller {
 	}
 
 	private function getFileRange(File $file, string $rangeHeader): Http\Response {
-		$size = $file->getSize();
+		// getSize() is int|float only for sizes beyond PHP_INT_MAX on 32-bit builds.
+		$size = (int)$file->getSize();
 		if (preg_match('/bytes=(\d+)-(\d+)?/', $rangeHeader, $m)) {
 			$start = (int)$m[1];
 			$end = isset($m[2]) ? (int)$m[2] : $size - 1;

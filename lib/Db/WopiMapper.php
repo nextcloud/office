@@ -143,10 +143,10 @@ class WopiMapper extends QBMapper {
 		$qb->select('id')
 			->from('office_wopi')
 			->where($qb->expr()->lt('expiry', $qb->createNamedParameter(time() - 60, IQueryBuilder::PARAM_INT)))
-			->setFirstResult($offset)
+			->setFirstResult($offset ?? 0)
 			->setMaxResults($limit);
 
-		return array_column($qb->executeQuery()->fetchAll(), 'id');
+		return array_map('intval', array_column($qb->executeQuery()->fetchAll(), 'id'));
 	}
 
 	/**

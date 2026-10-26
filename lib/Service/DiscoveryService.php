@@ -54,8 +54,9 @@ class DiscoveryService {
 	 */
 	public function get(): ?string {
 		$cache = $this->cacheFactory->createDistributed('office');
+		/** @psalm-suppress MixedAssignment ICache::get() is untyped; only a string is a cached document */
 		$cached = $cache->get(self::CACHE_KEY);
-		if ($cached !== null) {
+		if (is_string($cached)) {
 			return $cached;
 		}
 
@@ -139,7 +140,7 @@ class DiscoveryService {
 			sprintf('//app/action[@ext="%s" and @name="%s"]', $extension, $action)
 		);
 
-		if ($actions === false || $actions === []) {
+		if (!is_array($actions) || $actions === []) {
 			return null;
 		}
 
@@ -168,7 +169,7 @@ class DiscoveryService {
 
 		$names = $parsed->xpath('//app/@name');
 		$mimes = [];
-		foreach ($names !== false ? $names : [] as $name) {
+		foreach (is_array($names) ? $names : [] as $name) {
 			$mime = (string)$name;
 			if ($mime !== '' && str_contains($mime, '/')) {
 				$mimes[] = $mime;
@@ -288,8 +289,7 @@ class DiscoveryService {
 		$wopiSrc = $this->editorReachableUrl($wopiSrc);
 
 		// Strip WOPI template placeholders like <wopisrc=WOPI_SOURCE&> leaving bare ? and & separators.
-		$url = preg_replace('/<[^>]+>/', '', $urlsrc);
-		$url = rtrim($url, '?&');
+		$url = rtrim((string)preg_replace('/<[^>]+>/', '', $urlsrc), '?&');
 		// Preserve the ? already in the base URL if present; otherwise start the query string.
 		$separator = str_contains($url, '?') ? '&' : '?';
 		$url .= $separator . 'wopisrc=' . urlencode($wopiSrc) . '&access_token=' . urlencode($token);

@@ -25,19 +25,11 @@
     <ClassMustBeFinal>
       <code><![CDATA[ShareController]]></code>
     </ClassMustBeFinal>
-    <PossiblyNullArgument>
-      <code><![CDATA[preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? '')]]></code>
-    </PossiblyNullArgument>
   </file>
   <file src="lib/Controller/WopiController.php">
     <ClassMustBeFinal>
       <code><![CDATA[WopiController]]></code>
     </ClassMustBeFinal>
-    <InvalidOperand>
-      <code><![CDATA[$end - $start]]></code>
-      <code><![CDATA[$size - 1]]></code>
-      <code><![CDATA[$size - 1]]></code>
-    </InvalidOperand>
   </file>
   <file src="lib/Db/Wopi.php">
     <ClassMustBeFinal>
@@ -69,10 +61,6 @@
     <MissingClassConstType>
       <code><![CDATA[LOCK_TTL = 1800]]></code>
     </MissingClassConstType>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[array_column($qb->executeQuery()->fetchAll(), 'id')]]></code>
-      <code><![CDATA[int[]]]></code>
-    </MixedReturnTypeCoercion>
     <PossiblyUnusedReturnValue>
       <code><![CDATA[WopiLock]]></code>
     </PossiblyUnusedReturnValue>
@@ -89,13 +77,6 @@
     <MissingClassConstType>
       <code><![CDATA[TOKEN_TTL = 36000]]></code>
     </MissingClassConstType>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[array_column($qb->executeQuery()->fetchAll(), 'id')]]></code>
-      <code><![CDATA[int[]]]></code>
-    </MixedReturnTypeCoercion>
-    <PossiblyNullArgument>
-      <code><![CDATA[$offset]]></code>
-    </PossiblyNullArgument>
     <UnnecessaryVarAnnotation>
       <code><![CDATA[Wopi]]></code>
       <code><![CDATA[Wopi]]></code>
@@ -149,22 +130,6 @@
       <code><![CDATA[CACHE_KEY = 'discovery']]></code>
       <code><![CDATA[CACHE_TTL = 3600]]></code>
     </MissingClassConstType>
-    <MixedAssignment>
-      <code><![CDATA[$name]]></code>
-    </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$cached]]></code>
-    </MixedReturnStatement>
-    <PossiblyNullArgument>
-      <code><![CDATA[$url]]></code>
-    </PossiblyNullArgument>
-    <PossiblyNullArrayAccess>
-      <code><![CDATA[$actions[0]]]></code>
-      <code><![CDATA[$actions[0]['urlsrc']]]></code>
-    </PossiblyNullArrayAccess>
-    <PossiblyNullIterator>
-      <code><![CDATA[$names !== false ? $names : []]]></code>
-    </PossiblyNullIterator>
   </file>
   <file src="lib/Settings/Admin.php">
     <ClassMustBeFinal>
