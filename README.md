@@ -202,7 +202,9 @@ flag at token-issue time.
 
 - **KG1** — Password-protected shares: users must authenticate at `/s/{token}` before
   navigating to the editor.
-- **KG2** — Authenticated users arriving through share links receive guest tokens.
+- **KG2** — Authenticated users arriving through share links get a user token when the
+  file is in their own folder, and otherwise the share-scoped guest token under their own
+  display name (after the link password, if the share has one).
 - **KG3** — Federated/remote shares not tested.
 
 ---
@@ -231,7 +233,7 @@ flag at token-issue time.
 
 The WOPI token row (`oc_office_wopi`) is the authority for per-session flags
 (`canwrite`, `hideDownload`, `ownerUid`). Flags are stamped at token-generation
-time and not re-read on subsequent WOPI requests — this avoids a per-request
-`IShareManager` lookup on every CheckFileInfo heartbeat, matching the richdocuments
-pattern. Trade-off: share revocation mid-session is not enforced within the token TTL
-(10 h).
+time and not re-read on subsequent WOPI requests, and guest tokens are not linked
+to their share, so deleting or restricting a share does not affect tokens already
+issued within their TTL (10 h). richdocuments differs here: it stores the share
+token on the WOPI row and re-resolves the share on every request.
