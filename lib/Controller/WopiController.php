@@ -119,7 +119,9 @@ class WopiController extends Controller {
 			'PostMessageOrigin' => $wopi->getServerHost(),
 			'LastModifiedTime' => $this->toISO8601($file->getMTime()),
 			'SupportsUpdate' => true,
-			'SupportsLocks' => $this->lockManager->isLockProviderAvailable(),
+			// WOPI locks live in office_wopi_locks, not in an NC lock provider, and PutFile requires one
+			// on non-empty files: clients only send LOCK when this is true, so it must not depend on files_lock.
+			'SupportsLocks' => true,
 			'SupportsGetLock' => true,
 			'SupportsExtendedLockLength' => true,
 			'SupportsRename' => !$isGuest,

@@ -176,7 +176,7 @@ present, navigates directly to that URL instead of `/f/{fileid}`.
 | Flag | Value | Notes |
 |---|---|---|
 | `SupportsUpdate` | `true` | PutFile is implemented |
-| `SupportsLocks` | dynamic | `true` when an NC lock provider is available |
+| `SupportsLocks` | `true` | Locks are stored by the app (`office_wopi_locks`), independent of any NC lock provider |
 | `SupportsGetLock` | `true` | GetLock is implemented |
 | `SupportsExtendedLockLength` | `true` | `lock_id` column is `VARCHAR(1024)` |
 | `SupportsRename` | per session | `true` for authenticated users; `false` for guests |

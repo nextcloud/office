@@ -132,6 +132,22 @@ final class WopiControllerLockTest extends TestCase {
 		return $headers[$name] ?? null;
 	}
 
+	// --- CheckFileInfo lock capability ---
+
+	public function testCheckFileInfoAdvertisesLocksWithoutAnNcLockProvider(): void {
+		$this->lockManager->method('isLockProviderAvailable')->willReturn(false);
+		$this->wopiMapper->method('getWopiForToken')->willReturn($this->wopi());
+		$file = $this->fileForRename('report.docx');
+		$file->method('getSize')->willReturn(1024);
+		$file->method('getMTime')->willReturn(1700000000);
+		$this->mockFileLookup($file);
+
+		$response = $this->controller([])->checkFileInfo(82, 'tok123');
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertTrue($response->getData()['SupportsLocks']);
+	}
+
 	// --- executeOperation() dispatch guard ---
 
 	public function testAllOverridesReturn403WhenTokenCannotWrite(): void {
