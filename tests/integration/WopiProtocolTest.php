@@ -139,20 +139,20 @@ class WopiProtocolTest extends IntegrationTestCase {
 		$this->assertSame('holder-lock', $response->getHeaderLine('X-WOPI-Lock'));
 	}
 
-	public function testPutFileWithStaleItemVersionReturns409(): void {
-		$file = $this->createTestFile('putfile-itemversion.docx', 'not empty');
+	public function testPutFileWithStaleTimestampReturns409(): void {
+		$file = $this->createTestFile('putfile-timestamp.docx', 'not empty');
 		$wopi = $this->generateToken($file);
 		$filesUrl = $this->wopiFilesUrl($file->getId(), $wopi->getToken());
 
 		static::$http->post($filesUrl, ['headers' => ['X-WOPI-Override' => 'LOCK', 'X-WOPI-Lock' => 'version-lock']]);
 
 		$response = static::$http->post($this->wopiContentsUrl($file->getId(), $wopi->getToken()), [
-			'headers' => ['X-WOPI-Lock' => 'version-lock', 'X-WOPI-ItemVersion' => '111111111'],
+			'headers' => ['X-WOPI-Lock' => 'version-lock', 'X-COOL-WOPI-Timestamp' => '2000-01-01T00:00:00.000Z'],
 			'body' => 'stale version write attempt',
 		]);
 
 		$this->assertSame(409, $response->getStatusCode());
-		$this->assertNotEmpty($response->getHeaderLine('X-WOPI-ItemVersion'));
+		$this->assertSame(['COOLStatusCode' => 1010], json_decode((string)$response->getBody(), true));
 	}
 
 	public function testLockNewFileReturns200(): void {

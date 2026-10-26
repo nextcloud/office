@@ -37,6 +37,8 @@ use OCP\PreConditionNotMetException;
 use Psr\Log\LoggerInterface;
 
 class WopiController extends Controller {
+	private const int COOL_STATUS_DOC_CHANGED = 1010;
+
 	public function __construct(
 		string $appName,
 		IRequest $request,
@@ -252,12 +254,24 @@ class WopiController extends Controller {
 			return $this->lockConflict('', 'A lock is required to save a non-empty file');
 		}
 
-		// Enforce optimistic version check: reject out-of-band edits that would be silently overwritten.
-		$clientVersion = $this->request->getHeader('X-WOPI-ItemVersion');
-		if ($clientVersion !== '' && $clientVersion !== (string)$file->getMTime()) {
-			$response = new JSONResponse(['message' => 'Version mismatch'], Http::STATUS_CONFLICT);
-			$response->addHeader('X-WOPI-ItemVersion', (string)$file->getMTime());
-			return $response;
+		// Editors echo back the LastModifiedTime from CheckFileInfo or the previous PutFile; a mismatch means
+		// the file changed outside this editing session. Collabora (X-COOL-WOPI-Timestamp) answers
+		// COOLStatusCode 1010 with a "document changed" prompt, as with richdocuments. Euro-Office
+		// (X-LOOL-WOPI-Timestamp) has no handling for it and only refreshes its timestamp from a successful
+		// PutFile, so a 409 would fail every later save of the session: write anyway, the previous content
+		// stays in the file's versions, and log the overwrite.
+		$coolTimestamp = $this->request->getHeader('X-COOL-WOPI-Timestamp');
+		$loolTimestamp = $this->request->getHeader('X-LOOL-WOPI-Timestamp');
+		if ($coolTimestamp !== '' && !$this->isCurrentTimestamp($coolTimestamp, $file)) {
+			$this->logger->info('Rejected save of file {fileId}: changed outside the editing session', ['fileId' => $fileId]);
+			return new JSONResponse(['COOLStatusCode' => self::COOL_STATUS_DOC_CHANGED], Http::STATUS_CONFLICT);
+		}
+		if ($coolTimestamp === '' && $loolTimestamp !== '' && !$this->isCurrentTimestamp($loolTimestamp, $file)) {
+			$this->logger->warning('Save of file {fileId} overwrites a change made outside the editing session', [
+				'fileId' => $fileId,
+				'editorTimestamp' => $loolTimestamp,
+				'fileTimestamp' => $this->toISO8601($file->getMTime()),
+			]);
 		}
 
 		try {
@@ -286,7 +300,9 @@ class WopiController extends Controller {
 			return new JSONResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 
-		return new JSONResponse(['LastModifiedTime' => $this->toISO8601($file->getMTime())]);
+		$response = new JSONResponse(['LastModifiedTime' => $this->toISO8601($file->getMTime())]);
+		$response->addHeader('X-WOPI-ItemVersion', (string)$file->getMTime());
+		return $response;
 	}
 
 	/**
@@ -594,6 +610,18 @@ class WopiController extends Controller {
 			$write();
 		} catch (OwnerLockedException $e) {
 			throw new LockedException($file->getPath(), $e);
+		}
+	}
+
+	/**
+	 * Compare at second resolution rather than as strings, so the check doesn't depend on the editor
+	 * echoing our exact ISO 8601 format (richdocuments emits microseconds, this app milliseconds).
+	 */
+	private function isCurrentTimestamp(string $editorTimestamp, File $file): bool {
+		try {
+			return (new \DateTimeImmutable($editorTimestamp))->getTimestamp() === $file->getMTime();
+		} catch (\Exception) {
+			return false;
 		}
 	}
 

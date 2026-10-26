@@ -23,6 +23,7 @@ use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\Files\Lock\ILockManager;
 use OCP\Files\NotFoundException;
+use OCP\Files\Storage\IStorage;
 use OCP\IRequest;
 use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -146,6 +147,108 @@ final class WopiControllerLockTest extends TestCase {
 
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 		$this->assertTrue($response->getData()['SupportsLocks']);
+	}
+
+	// --- PutFile out-of-band change detection ---
+
+	private const int MTIME = 1700000000;
+	private const string MTIME_ISO = '2023-11-14T22:13:20.000Z';
+	private const string STALE_ISO = '2023-11-14T22:00:00.000Z';
+	private const int SAVED_MTIME = 1700000060;
+
+	/** The mock's mtime moves to SAVED_MTIME once putContent() runs, like a real write. */
+	private function lockedFileForPut(bool $expectWrite): File&MockObject {
+		$storage = $this->createMock(IStorage::class);
+		$storage->method('free_space')->willReturn(-1);
+
+		$mtime = self::MTIME;
+		$file = $this->createMock(File::class);
+		$file->method('getSize')->willReturn(1024);
+		$file->method('getMTime')->willReturnCallback(static function () use (&$mtime): int {
+			return $mtime;
+		});
+		$file->method('getStorage')->willReturn($storage);
+		$file->method('getInternalPath')->willReturn('files/report.docx');
+		$file->method('getPermissions')->willReturn(Constants::PERMISSION_ALL);
+		$file->expects($expectWrite ? $this->once() : $this->never())
+			->method('putContent')
+			->willReturnCallback(static function () use (&$mtime): void {
+				$mtime = self::SAVED_MTIME;
+			});
+
+		$this->wopiMapper->method('getWopiForToken')->willReturn($this->wopi());
+		$this->wopiLockMapper->method('findByFileId')->willReturn($this->lock('eo-lock'));
+		$this->mockFileLookup($file);
+
+		return $file;
+	}
+
+	/** @param array<string, string> $headers */
+	private function putFile(array $headers): Http\Response {
+		return $this->controller(['X-WOPI-Lock' => 'eo-lock'] + $headers)->putFile(82, 'tok123');
+	}
+
+	public function testPutFileRejectsStaleCollaboraTimestamp(): void {
+		$this->lockedFileForPut(expectWrite: false);
+
+		$response = $this->putFile(['X-COOL-WOPI-Timestamp' => self::STALE_ISO]);
+
+		$this->assertSame(Http::STATUS_CONFLICT, $response->getStatus());
+		$this->assertSame(['COOLStatusCode' => 1010], $response->getData());
+	}
+
+	public function testPutFileWritesStaleEuroOfficeSaveAndLogsTheOverwrite(): void {
+		// Euro-Office can't recover from a 409 here: it would fail every later save of the session.
+		$this->lockedFileForPut(expectWrite: true);
+		$this->logger->expects($this->once())->method('warning');
+
+		$response = $this->putFile(['X-LOOL-WOPI-Timestamp' => self::STALE_ISO]);
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testCollaboraTimestampDecidesWhenBothAreSent(): void {
+		$this->lockedFileForPut(expectWrite: false);
+
+		$response = $this->putFile(['X-COOL-WOPI-Timestamp' => self::STALE_ISO, 'X-LOOL-WOPI-Timestamp' => self::MTIME_ISO]);
+
+		$this->assertSame(Http::STATUS_CONFLICT, $response->getStatus());
+	}
+
+	/** @return array<string, array{string, string}> */
+	public static function currentTimestamps(): array {
+		return [
+			'Euro-Office' => ['X-LOOL-WOPI-Timestamp', self::MTIME_ISO],
+			'Collabora' => ['X-COOL-WOPI-Timestamp', self::MTIME_ISO],
+			'Collabora, microsecond format' => ['X-COOL-WOPI-Timestamp', '2023-11-14T22:13:20.000000Z'],
+		];
+	}
+
+	#[\PHPUnit\Framework\Attributes\DataProvider('currentTimestamps')]
+	public function testPutFileWritesWhenEditorTimestampIsCurrent(string $header, string $timestamp): void {
+		$this->lockedFileForPut(expectWrite: true);
+		$this->logger->expects($this->never())->method('warning');
+
+		$response = $this->putFile([$header => $timestamp]);
+
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+	}
+
+	public function testPutFileReturnsTheTimestampOfTheNewContent(): void {
+		// Editors take their next X-*-WOPI-Timestamp from this response; returning the pre-write mtime
+		// would make the next save look stale.
+		$this->lockedFileForPut(expectWrite: true);
+
+		$response = $this->putFile(['X-LOOL-WOPI-Timestamp' => self::MTIME_ISO]);
+
+		$this->assertSame(['LastModifiedTime' => '2023-11-14T22:14:20.000Z'], $response->getData());
+		$this->assertSame((string)self::SAVED_MTIME, $this->header($response, 'X-WOPI-ItemVersion'));
+	}
+
+	public function testPutFileWithoutTimestampHeaderStillWrites(): void {
+		$this->lockedFileForPut(expectWrite: true);
+
+		$this->assertSame(Http::STATUS_OK, $this->putFile([])->getStatus());
 	}
 
 	// --- executeOperation() dispatch guard ---
