@@ -6,6 +6,7 @@ namespace OCA\Office\AppInfo;
 
 use OCA\Office\Listener\AppMenuActionListener;
 use OCA\Office\Listener\LoadAdditionalScriptsListener;
+use OCA\Office\Middleware\WopiAllowlistMiddleware;
 use OCA\Office\Middleware\WopiProofMiddleware;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -26,6 +27,8 @@ final class Application extends App implements IBootstrap {
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(LoadAdditionalEntriesEvent::class, AppMenuActionListener::class);
 		$context->registerEventListener(LoadAdditionalScriptsEvent::class, LoadAdditionalScriptsListener::class);
+		// Cheap address check first, then the signature.
+		$context->registerMiddleware(WopiAllowlistMiddleware::class);
 		$context->registerMiddleware(WopiProofMiddleware::class);
 	}
 
