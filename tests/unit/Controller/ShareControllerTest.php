@@ -37,6 +37,7 @@ final class ShareControllerTest extends TestCase {
 	private IShare&MockObject $share;
 	private Node $node;
 	private ?string $urlsrc = 'http://eo-internal/hosting/wopi/word/edit?<rs=DC_LLCC&>';
+	private bool $discoveryAvailable = true;
 	private ISession&MockObject $session;
 	private IUserSession&MockObject $userSession;
 	private TokenManager&MockObject $tokenManager;
@@ -67,6 +68,7 @@ final class ShareControllerTest extends TestCase {
 		$urlGenerator->method('linkToRoute')->willReturn('/index.php/s/shareTok');
 
 		$this->discoveryService = $this->createMock(DiscoveryService::class);
+		$this->discoveryService->method('isAvailable')->willReturnCallback(fn (): bool => $this->discoveryAvailable);
 		$this->discoveryService->method('getUrlSrc')->willReturnCallback(fn (): ?string => $this->urlsrc);
 
 		$this->controller = new ShareController(
@@ -185,6 +187,20 @@ final class ShareControllerTest extends TestCase {
 		$this->loggedInAs('Bob');
 		$this->passwordProtected();
 		$this->urlsrc = null;
+
+		$this->assertInstanceOf(RedirectResponse::class, $this->controller->openShare('shareTok'));
+	}
+
+	public function testUnreachableEditorServerIs503NotUnsupportedType(): void {
+		$this->discoveryAvailable = false;
+
+		$this->assertSame(Http::STATUS_SERVICE_UNAVAILABLE, $this->controller->openShare('shareTok')->getStatus());
+	}
+
+	public function testPendingPasswordHidesThatTheEditorIsUnreachable(): void {
+		$this->loggedInAs('Bob');
+		$this->passwordProtected();
+		$this->discoveryAvailable = false;
 
 		$this->assertInstanceOf(RedirectResponse::class, $this->controller->openShare('shareTok'));
 	}

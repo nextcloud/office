@@ -103,6 +103,10 @@ class ShareController extends Controller {
 			return $this->refuse($passwordPending, $shareToken, new JSONResponse(['error' => 'Access denied'], Http::STATUS_FORBIDDEN));
 		}
 
+		if (!$this->discoveryService->isAvailable()) {
+			return $this->refuse($passwordPending, $shareToken, new JSONResponse(['error' => 'Editor server unavailable'], Http::STATUS_SERVICE_UNAVAILABLE));
+		}
+
 		$extension = pathinfo($file->getName(), PATHINFO_EXTENSION);
 		$urlsrc = $this->discoveryService->getUrlSrc($extension, 'edit')
 			?? $this->discoveryService->getUrlSrc($extension, 'view');

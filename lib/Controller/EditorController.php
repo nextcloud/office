@@ -58,6 +58,10 @@ class EditorController extends Controller {
 				return new JSONResponse(['error' => 'File not found'], \OCP\AppFramework\Http::STATUS_NOT_FOUND);
 			}
 
+			if (!$this->discoveryService->isAvailable()) {
+				return new JSONResponse(['error' => 'Editor server unavailable'], \OCP\AppFramework\Http::STATUS_SERVICE_UNAVAILABLE);
+			}
+
 			$extension = pathinfo($file->getName(), PATHINFO_EXTENSION);
 			$urlsrc = $this->discoveryService->getUrlSrc($extension, 'edit')
 				?? $this->discoveryService->getUrlSrc($extension, 'view');

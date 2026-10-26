@@ -83,6 +83,14 @@ class DiscoveryService {
 	}
 
 	/**
+	 * Whether discovery can be read right now, so callers can tell an unreachable or
+	 * unconfigured editor server apart from a file type it doesn't handle.
+	 */
+	public function isAvailable(): bool {
+		return $this->get() !== null;
+	}
+
+	/**
 	 * Return the urlsrc template for the given file extension and action name.
 	 *
 	 * @param string $extension e.g. 'docx'

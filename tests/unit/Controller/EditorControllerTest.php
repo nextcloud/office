@@ -26,6 +26,7 @@ use Psr\Log\LoggerInterface;
 
 final class EditorControllerTest extends TestCase {
 	private DiscoveryService&MockObject $discoveryService;
+	private bool $discoveryAvailable = true;
 	private EditorController $controller;
 
 	protected function setUp(): void {
@@ -50,6 +51,7 @@ final class EditorControllerTest extends TestCase {
 		$urlGenerator->method('linkToRouteAbsolute')->willReturn('http://nc.local/index.php/apps/office/wopi/files/82');
 
 		$this->discoveryService = $this->createMock(DiscoveryService::class);
+		$this->discoveryService->method('isAvailable')->willReturnCallback(fn (): bool => $this->discoveryAvailable);
 		$this->discoveryService->method('getUrlSrc')->willReturn('http://eo-internal/hosting/wopi/word/edit?<rs=DC_LLCC&>');
 
 		$this->controller = new EditorController(
@@ -85,5 +87,13 @@ final class EditorControllerTest extends TestCase {
 		$response = $this->controller->open(82);
 
 		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $response->getStatus());
+	}
+
+	public function testUnreachableEditorServerIs503NotUnsupportedType(): void {
+		$this->discoveryAvailable = false;
+
+		$response = $this->controller->open(82);
+
+		$this->assertSame(Http::STATUS_SERVICE_UNAVAILABLE, $response->getStatus());
 	}
 }

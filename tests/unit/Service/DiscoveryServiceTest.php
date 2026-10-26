@@ -195,6 +195,19 @@ final class DiscoveryServiceTest extends TestCase {
 		$this->assertNull($this->service->get());
 	}
 
+	public function testIsAvailableReflectsWhetherDiscoveryCanBeRead(): void {
+		$this->cache->method('get')->willReturn(null);
+		$this->mockAppConfig([]);
+
+		$this->assertFalse($this->service->isAvailable());
+	}
+
+	public function testIsAvailableWithCachedDiscovery(): void {
+		$this->withDiscoveryXml('<wopi-discovery/>');
+
+		$this->assertTrue($this->service->isAvailable());
+	}
+
 	// --- getUrlSrc() ---
 
 	public function testGetUrlSrcRejectsNonAlnumExtension(): void {
