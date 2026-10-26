@@ -15,6 +15,8 @@ use OCA\Office\Service\DiscoveryService;
 use OCA\Office\TokenManager;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
+use OCP\AppFramework\Http\Attribute\BruteForceProtection;
 use OCP\AppFramework\Http\Attribute\FrontpageRoute;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -59,6 +61,10 @@ class ShareController extends Controller {
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
 	#[PublicPage]
+	// Every successful call stores a 10 h WOPI token, and the route takes a guessable-length
+	// share token: limit anonymous callers and throttle guessing like core's share pages do.
+	#[AnonRateLimit(limit: 30, period: 60)]
+	#[BruteForceProtection(action: 'officeOpenShare')]
 	#[FrontpageRoute(verb: 'GET', url: '/open/share/{shareToken}')]
 	public function openShare(
 		string $shareToken,
@@ -70,7 +76,9 @@ class ShareController extends Controller {
 			$share = $this->shareManager->getShareByToken($shareToken);
 		} catch (ShareNotFound $e) {
 			$this->logger->debug('Share token not found: ' . $e->getMessage());
-			return new JSONResponse(['error' => 'Share not found'], Http::STATUS_NOT_FOUND);
+			$response = new JSONResponse(['error' => 'Share not found'], Http::STATUS_NOT_FOUND);
+			$response->throttle(['action' => 'officeOpenShare']);
+			return $response;
 		}
 
 		// Password-protected share: NC core sets 'public_link_authenticated' in the session

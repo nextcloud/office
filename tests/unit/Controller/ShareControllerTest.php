@@ -59,7 +59,12 @@ final class ShareControllerTest extends TestCase {
 		$this->share->method('getNode')->willReturnCallback(fn (): Node => $this->node);
 
 		$shareManager = $this->createMock(IShareManager::class);
-		$shareManager->method('getShareByToken')->with('shareTok')->willReturn($this->share);
+		$shareManager->method('getShareByToken')->willReturnCallback(function (string $token): IShare {
+			if ($token !== 'shareTok') {
+				throw new \OCP\Share\Exceptions\ShareNotFound();
+			}
+			return $this->share;
+		});
 
 		$this->session = $this->createMock(ISession::class);
 		$this->userSession = $this->createMock(IUserSession::class);
@@ -268,5 +273,24 @@ final class ShareControllerTest extends TestCase {
 		$this->tokenManager->expects($this->never())->method('generateGuestToken');
 
 		$this->assertInstanceOf(RedirectResponse::class, $this->controller->openShare('shareTok'));
+	}
+
+	public function testUnknownShareTokenCountsAsAGuess(): void {
+		$response = $this->controller->openShare('guessed');
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+		$this->assertTrue($response->isThrottled());
+		$this->assertSame(['action' => 'officeOpenShare'], $response->getThrottleMetadata());
+	}
+
+	public function testOpenShareIsRateLimitedAndBruteForceProtected(): void {
+		$method = new \ReflectionMethod(ShareController::class, 'openShare');
+
+		$rateLimit = $method->getAttributes(\OCP\AppFramework\Http\Attribute\AnonRateLimit::class)[0]->newInstance();
+		$this->assertSame(30, $rateLimit->getLimit());
+		$this->assertSame(60, $rateLimit->getPeriod());
+
+		$bruteForce = $method->getAttributes(\OCP\AppFramework\Http\Attribute\BruteForceProtection::class)[0]->newInstance();
+		$this->assertSame('officeOpenShare', $bruteForce->getAction());
 	}
 }
