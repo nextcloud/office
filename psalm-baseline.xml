@@ -42,9 +42,6 @@
       <code><![CDATA[$size - 1]]></code>
       <code><![CDATA[$size - 1]]></code>
     </InvalidOperand>
-    <PossiblyFalseArgument>
-      <code><![CDATA[$content]]></code>
-    </PossiblyFalseArgument>
   </file>
   <file src="lib/Db/Wopi.php">
     <ClassMustBeFinal>

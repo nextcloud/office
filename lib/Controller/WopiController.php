@@ -275,8 +275,14 @@ class WopiController extends Controller {
 			]);
 		}
 
+		$content = $this->openRequestBody();
+		if ($content === false) {
+			// putContent(false) would store an empty file in place of the document.
+			$this->logger->error('Could not read the PutFile request body for file {fileId}', ['fileId' => $fileId]);
+			return new JSONResponse([], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
 		try {
-			$content = fopen('php://input', 'rb');
 			try {
 				$freespace = $file->getStorage()->free_space($file->getInternalPath());
 				$contentLength = (int)$this->request->getHeader('Content-Length');
@@ -289,6 +295,7 @@ class WopiController extends Controller {
 				});
 			} finally {
 				// putContent() may close the stream internally; guard to avoid a warning.
+				/** @psalm-suppress RedundantConditionGivenDocblockType psalm can't see putContent() closing it */
 				if (is_resource($content)) {
 					fclose($content);
 				}
@@ -612,6 +619,13 @@ class WopiController extends Controller {
 		} catch (\Exception) {
 			return false;
 		}
+	}
+
+	/**
+	 * @return resource|false
+	 */
+	protected function openRequestBody() {
+		return fopen('php://input', 'rb');
 	}
 
 	private function toISO8601(int $timestamp): string {

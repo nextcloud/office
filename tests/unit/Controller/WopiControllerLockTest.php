@@ -276,6 +276,20 @@ final class WopiControllerLockTest extends TestCase {
 		$this->assertSame((string)self::SAVED_MTIME, $this->header($response, 'X-WOPI-ItemVersion'));
 	}
 
+	public function testUnreadableRequestBodyLeavesTheDocumentAlone(): void {
+		$this->lockedFileForPut(expectWrite: false);
+		$request = $this->createMock(IRequest::class);
+		$request->method('getHeader')->willReturnCallback(static fn (string $name): string => $name === 'X-WOPI-Lock' ? 'eo-lock' : '');
+		$controller = new class('office', $request, new WopiAccessResolver($this->rootFolder, $this->shareManager), $this->wopiMapper, $this->wopiLockMapper, $this->userManager, $this->lockManager, $this->logger) extends WopiController {
+			#[\Override]
+			protected function openRequestBody() {
+				return false;
+			}
+		};
+
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->putFile(82, 'tok123')->getStatus());
+	}
+
 	public function testPutFileWithoutTimestampHeaderStillWrites(): void {
 		$this->lockedFileForPut(expectWrite: true);
 
