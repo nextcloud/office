@@ -40,7 +40,14 @@ services:
 
 Restart the container after saving.
 
-### 2. Enable the app
+### 2. Install PHP dependencies and enable the app
+
+The app bundles phpseclib for WOPI proof verification; `vendor/` is not in git:
+
+```bash
+composer install --no-dev   # releases ship this vendor/ directory
+```
+
 
 ```bash
 docker compose exec --user www-data nextcloud php occ app:enable office
@@ -132,11 +139,37 @@ Browser                  NC (WOPI host)                  Euro-Office (WOPI clien
 |---|---|
 | `EditorController` | Renders editor page; mints WOPI token; builds editor URL from discovery XML |
 | `WopiController` | WOPI protocol endpoint — handles all `/wopi/files/` requests |
+| `WopiAccessResolver` | Resolves a token to its file and current rights; share-link tokens through the live share |
+| `WopiProofMiddleware` / `WopiProofVerifier` | Require the editor's proof signature when discovery publishes keys |
+| `WopiAllowlistMiddleware` | Optional `wopi_allowlist` of editor addresses for the WOPI endpoints |
 | `TokenManager` | Creates and validates WOPI tokens; manages token TTL and guest vs user access |
 | `DiscoveryService` | Fetches and caches the editor's discovery XML; resolves MIME → action URL |
 | `ShareController` | Issues guest tokens for public share links |
 | `WopiMapper` / `WopiLockMapper` | Persistence for WOPI tokens and file locks |
 | `CleanupJob` | Background job — expires stale locks and tokens |
+
+---
+
+## Who may call the WOPI endpoints
+
+The WOPI routes are public: the access token authorises the request. Because the token
+is in the page of whoever opened the document, the app also checks the caller:
+
+- **Proof keys.** When the editor's discovery publishes a `<proof-key>`, every WOPI
+  request must carry a valid `X-WOPI-Proof` / `X-WOPI-ProofOld` signature and an
+  `X-WOPI-TimeStamp` no older than 20 minutes, or it gets 403. Collabora always signs;
+  Euro-Office signs when its WOPI keys are configured (its images generate them with
+  `WOPI_ENABLED=true`, the same switch that turns WOPI on). The integration tests still
+  call the WOPI endpoints unsigned, so against an editor with proof keys they get 403
+  until the test harness signs its own requests.
+- **Allowlist.** `occ config:app:set office wopi_allowlist --value="10.0.0.0/24 192.0.2.7"`
+  restricts the WOPI endpoints to those addresses (IPs or CIDR ranges); empty leaves
+  them open.
+
+With neither, the admin page shows a warning. The keys are remembered in app config and
+rechecked hourly; a proof that doesn't verify triggers one reread (at most every 5
+minutes) to pick up regenerated keys. Without `vendor/` (see setup) WOPI requests are
+refused and the log says why.
 
 ---
 
