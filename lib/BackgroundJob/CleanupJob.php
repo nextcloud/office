@@ -16,6 +16,8 @@ use OCP\BackgroundJob\TimedJob;
 
 class CleanupJob extends TimedJob {
 	private const BATCH_SIZE = 500;
+	// Bounds one run to 50 000 rows per table; anything left is picked up next hour.
+	private const int MAX_BATCHES = 100;
 
 	public function __construct(
 		ITimeFactory $time,
@@ -27,13 +29,19 @@ class CleanupJob extends TimedJob {
 	}
 
 	protected function run(mixed $argument): void {
-		$tokenIds = $this->wopiMapper->getExpiredTokenIds(self::BATCH_SIZE);
-		if (!empty($tokenIds)) {
+		for ($i = 0; $i < self::MAX_BATCHES; $i++) {
+			$tokenIds = $this->wopiMapper->getExpiredTokenIds(self::BATCH_SIZE);
+			if ($tokenIds === []) {
+				break;
+			}
 			$this->wopiMapper->deleteByIds($tokenIds);
 		}
 
-		$lockIds = $this->wopiLockMapper->getExpiredLockIds(self::BATCH_SIZE);
-		if (!empty($lockIds)) {
+		for ($i = 0; $i < self::MAX_BATCHES; $i++) {
+			$lockIds = $this->wopiLockMapper->getExpiredLockIds(self::BATCH_SIZE);
+			if ($lockIds === []) {
+				break;
+			}
 			$this->wopiLockMapper->deleteByIds($lockIds);
 		}
 	}
