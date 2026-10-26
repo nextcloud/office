@@ -38,6 +38,7 @@ final class ShareControllerTest extends TestCase {
 	private Node $node;
 	private ?string $urlsrc = 'http://eo-internal/hosting/wopi/word/edit?<rs=DC_LLCC&>';
 	private bool $discoveryAvailable = true;
+	private int $permissions = Constants::PERMISSION_READ;
 	private ISession&MockObject $session;
 	private IUserSession&MockObject $userSession;
 	private TokenManager&MockObject $tokenManager;
@@ -52,7 +53,7 @@ final class ShareControllerTest extends TestCase {
 
 		$this->share = $this->createMock(IShare::class);
 		$this->share->method('getId')->willReturn('7');
-		$this->share->method('getPermissions')->willReturn(Constants::PERMISSION_READ);
+		$this->share->method('getPermissions')->willReturnCallback(fn (): int => $this->permissions);
 		$this->share->method('getShareOwner')->willReturn('alice');
 		$this->share->method('getNode')->willReturnCallback(fn (): Node => $this->node);
 
@@ -181,6 +182,24 @@ final class ShareControllerTest extends TestCase {
 		$this->node = $folder;
 
 		$this->assertInstanceOf(RedirectResponse::class, $this->controller->openShare('shareTok', path: 'secret-plans.docx'));
+	}
+
+	public function testPendingPasswordHidesThatTheShareIsUnreadable(): void {
+		$this->loggedInAs('Bob');
+		$this->passwordProtected();
+		$this->permissions = 0;
+
+		$this->assertInstanceOf(RedirectResponse::class, $this->controller->openShare('shareTok'));
+	}
+
+	public function testPendingPasswordHidesThatAPathIsNotPermitted(): void {
+		$this->loggedInAs('Bob');
+		$this->passwordProtected();
+		$folder = $this->createMock(Folder::class);
+		$folder->method('get')->willThrowException(new NotPermittedException());
+		$this->node = $folder;
+
+		$this->assertInstanceOf(RedirectResponse::class, $this->controller->openShare('shareTok', path: 'locked.docx'));
 	}
 
 	public function testPendingPasswordHidesTheFileType(): void {

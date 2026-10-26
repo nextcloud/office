@@ -32,12 +32,15 @@ use OCP\Share\IManager;
 use OCP\Share\IShare;
 
 class ShareGuestTokenTest extends IntegrationTestCase {
-	private function createLinkShare(\OCP\Files\File $file, int $permissions): IShare {
+	private function createLinkShare(\OCP\Files\File $file, int $permissions, ?string $password = null): IShare {
 		$shareManager = Server::get(IManager::class);
 		$share = $shareManager->newShare();
 		$share->setNode($file);
 		$share->setShareType(IShare::TYPE_LINK);
 		$share->setPermissions($permissions);
+		if ($password !== null) {
+			$share->setPassword($password);
+		}
 		$share->setSharedBy(static::TEST_USER);
 		$share->setShareOwner(static::TEST_USER);
 
@@ -72,14 +75,14 @@ class ShareGuestTokenTest extends IntegrationTestCase {
 		$this->assertSame(415, $response->getStatusCode());
 	}
 
-	public function testOpenShareAuthenticatedUserBypassesPasswordCheckButHitsEoDiscoveryLimitation(): void {
+	public function testOpenShareLetsLoggedInUserWithoutOwnAccessThroughTheLink(): void {
 		$file = $this->createTestFile('share-authenticated-visit.docx');
 		$share = $this->createLinkShare($file, Constants::PERMISSION_READ | Constants::PERMISSION_UPDATE);
 
-		// A logged-in visitor skips the password-check branch entirely
-		// (`!isLoggedIn()` is false, by design - this was already correct even
-		// before the passwordless-guest fix) and reaches the discovery-dependent
-		// code, which then 415s for the same EO-zero-actions reason as
+		// admin can't reach the test user's file through their own folder, so the link
+		// is their only access: they get the share-scoped token instead of a 403 and
+		// reach the discovery-dependent code, which then 415s for the same
+		// EO-zero-actions reason as
 		// EditorControllerTest::testOpenReturns415GivenEosCurrentZeroActionDiscovery.
 		$response = static::$http->get('/index.php/apps/office/open/share/' . $share->getToken(), [
 			'auth' => ['admin', 'admin'],
@@ -87,6 +90,20 @@ class ShareGuestTokenTest extends IntegrationTestCase {
 		]);
 
 		$this->assertSame(415, $response->getStatusCode());
+	}
+
+	public function testOpenShareSendsLoggedInUserWithoutOwnAccessToThePasswordPage(): void {
+		$file = $this->createTestFile('share-authenticated-password.docx');
+		$share = $this->createLinkShare($file, Constants::PERMISSION_READ, 'Link-password#2026');
+
+		// Being logged in doesn't stand in for the link password when the link is
+		// the visitor's only access to the file.
+		$response = static::$http->get('/index.php/apps/office/open/share/' . $share->getToken(), [
+			'auth' => ['admin', 'admin'],
+			'allow_redirects' => false,
+		]);
+
+		$this->assertSame(303, $response->getStatusCode());
 	}
 
 	public function testOpenShareReturns403ForUnreadableShareAsUnauthenticatedGuest(): void {
