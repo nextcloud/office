@@ -182,29 +182,30 @@ present, navigates directly to that URL instead of `/f/{fileid}`.
 | `SupportsRename` | per session | `true` for user tokens; `false` for share-link tokens, including logged-in users whose only access is the link |
 | `UserCanRename` | per session | `true` for user tokens; `false` for share-link tokens, including logged-in users whose only access is the link |
 | `UserCanNotWriteRelative` | `true` | PutRelativeFile deferred to Phase 6 |
-| `UserCanWrite` | per token | stamped at token-issue time from file/share permissions |
-| `IsAnonymousUser` | per session | `true` for share-link sessions, including logged-in users whose only access is the link |
+| `UserCanWrite` | per request | the token's write right, narrowed to the share's current permissions for share-link sessions |
+| `IsAnonymousUser` | per session | `true` when no Nextcloud user is behind the session (anonymous share-link visitors) |
 | `HasContentRange` | `true` | partial file reads via HTTP Range are supported |
-| `HideExportOption` | per token | derived from share `hide_download` flag |
-| `DisablePrint` | per token | derived from share `hide_download` flag |
-| `DisableExport` | per token | derived from share `hide_download` flag |
+| `HideExportOption` | per request | the token's flag or the share's current `hide_download` |
+| `DisablePrint` | per request | the token's flag or the share's current `hide_download` |
+| `DisableExport` | per request | the token's flag or the share's current `hide_download` |
 
 ---
 
 ## Public share support
 
-Share link visitors (`/s/{token}`) receive a guest WOPI token via `ShareController`.
-File access, locking, and `CheckFileInfo` flags (`HideExportOption`, `DisablePrint`,
-`UserCanWrite`, etc.) are all derived from the share's permissions and `hide_download`
-flag at token-issue time.
+Share link visitors (`/s/{token}`) receive a share-link WOPI token via `ShareController`,
+bound to the share. File access, locking, and `CheckFileInfo` flags (`HideExportOption`,
+`DisablePrint`, `UserCanWrite`, etc.) follow the share's current permissions and
+`hide_download` flag on every request.
 
 **Known gaps:**
 
 - **KG1** — Password-protected shares: users must authenticate at `/s/{token}` before
   navigating to the editor.
 - **KG2** — Authenticated users arriving through share links get a user token when the
-  file is in their own folder, and otherwise the share-scoped guest token under their own
-  display name (after the link password, if the share has one).
+  file is in their own folder, and otherwise a share-link token that names them (after the
+  link password, if the share has one). Versions and activity don't record them as the
+  author yet: WOPI requests set no user scope.
 - **KG3** — Federated/remote shares not tested.
 
 ---
@@ -231,9 +232,9 @@ flag at token-issue time.
 
 ## Backend architecture notes
 
-The WOPI token row (`oc_office_wopi`) is the authority for per-session flags
-(`canwrite`, `hideDownload`, `ownerUid`). Flags are stamped at token-generation
-time and not re-read on subsequent WOPI requests, and guest tokens are not linked
-to their share, so deleting or restricting a share does not affect tokens already
-issued within their TTL (10 h). richdocuments differs here: it stores the share
-token on the WOPI row and re-resolves the share on every request.
+The WOPI token row (`oc_office_wopi`) stamps `canwrite` and `hideDownload` when the
+token is issued. `WopiAccessResolver` resolves each request's file and effective
+rights: user tokens through the editor's own folder; share-link tokens (with a
+`share_token`) through the live share, as richdocuments does, so deleting, expiring
+or narrowing a share takes effect on the next WOPI request rather than when the
+token expires (10 h).
