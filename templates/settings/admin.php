@@ -22,6 +22,7 @@ Util::addScript(Application::APP_ID, Application::APP_ID . '-settings-admin');
 	'public_wopi_url' => $_['public_wopi_url'],
 	'callback_url' => $_['callback_url'],
 	'disable_certificate_verification' => $_['disable_certificate_verification'],
+	'wopi_caller_unchecked' => $_['wopi_caller_unchecked'],
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>
 </script>
 <div id="office-settings-admin"></div>

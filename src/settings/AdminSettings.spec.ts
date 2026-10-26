@@ -16,7 +16,7 @@ vi.mock('@nextcloud/axios', () => ({
 	isAxiosError: (e: unknown) => (e as { isAxiosError?: boolean })?.isAxiosError === true,
 }))
 
-function setAdminData(data: Record<string, string>) {
+function setAdminData(data: Record<string, string | boolean | null>) {
 	const el = document.createElement('script')
 	el.id = 'office-admin-data'
 	el.type = 'application/json'
@@ -42,6 +42,19 @@ describe('AdminSettings', () => {
 		expect(wrapper.find('h2').text()).toBe('Office')
 		const values = wrapper.findAll('input[type="url"]').map((input) => (input.element as HTMLInputElement).value)
 		expect(values).toEqual(['http://eo-internal', 'https://office.example.com', ''])
+	})
+
+	it.each([
+		[true, true],
+		[false, false],
+		[null, false],
+	])('warns about unchecked WOPI callers only when the server reports them (%s)', (unchecked, shown) => {
+		document.body.innerHTML = ''
+		setAdminData({ wopi_url: 'http://eo-internal', public_wopi_url: '', callback_url: '', disable_certificate_verification: 'no', wopi_caller_unchecked: unchecked })
+
+		const wrapper = mount(AdminSettings)
+
+		expect(wrapper.text().includes('does not sign its requests')).toBe(shown)
 	})
 
 	it('styles the save button as the primary action', () => {

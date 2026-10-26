@@ -13,6 +13,7 @@ interface AdminData {
 	public_wopi_url: string
 	callback_url: string
 	disable_certificate_verification: string
+	wopi_caller_unchecked: boolean | null
 }
 
 const initial: AdminData = JSON.parse(
@@ -54,6 +55,10 @@ async function save(): Promise<void> {
 <template>
 	<div class="office-admin-settings">
 		<h2>{{ t('office', 'Office') }}</h2>
+
+		<NcNoteCard v-if="initial.wopi_caller_unchecked === true" type="warning">
+			{{ t('office', 'The editor server does not sign its requests, so Nextcloud cannot tell it apart from anyone else holding a document\'s access token. Configure the editor\'s WOPI proof keys, or restrict access to the editor\'s addresses with "occ config:app:set office wopi_allowlist".') }}
+		</NcNoteCard>
 
 		<NcNoteCard v-if="error" type="error">
 			{{ error }}

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace OCA\Office\Settings;
 
 use OCA\Office\AppInfo\Application;
+use OCA\Office\Service\DiscoveryService;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IAppConfig;
 use OCP\Settings\ISettings;
@@ -17,6 +18,7 @@ use OCP\Settings\ISettings;
 class Admin implements ISettings {
 	public function __construct(
 		private IAppConfig $appConfig,
+		private DiscoveryService $discoveryService,
 	) {
 	}
 
@@ -26,6 +28,12 @@ class Admin implements ISettings {
 			'public_wopi_url' => $this->appConfig->getValueString(Application::APP_ID, 'public_wopi_url', ''),
 			'callback_url' => $this->appConfig->getValueString(Application::APP_ID, 'callback_url', ''),
 			'disable_certificate_verification' => $this->appConfig->getValueString(Application::APP_ID, 'disable_certificate_verification', 'no'),
+			// Warn when nothing checks who calls the WOPI endpoints: the editor publishes no
+			// proof keys and no wopi_allowlist is set. Unknown (null) while discovery is unreachable.
+			'wopi_caller_unchecked' => $this->discoveryService->isAvailable()
+				? $this->discoveryService->getProofKeys() === null
+					&& trim($this->appConfig->getValueString(Application::APP_ID, 'wopi_allowlist', '')) === ''
+				: null,
 		]);
 	}
 
