@@ -17,6 +17,33 @@
 			<directory name="vendor-bin" />
 		</ignoreFiles>
 	</projectFiles>
+	<issueHandlers>
+		<!-- Nextcloud wires these by name (info.xml, DI container, routing attributes, the migration runner),
+		     which psalm can't see. Real unused code elsewhere is still reported. -->
+		<UnusedClass>
+			<errorLevel type="suppress">
+				<directory name="lib/AppInfo" />
+				<directory name="lib/BackgroundJob" />
+				<directory name="lib/Controller" />
+				<directory name="lib/Listener" />
+				<directory name="lib/Migration" />
+				<directory name="lib/Settings" />
+			</errorLevel>
+		</UnusedClass>
+		<PossiblyUnusedMethod>
+			<errorLevel type="suppress">
+				<referencedMethod name="*::__construct" />
+				<!-- Route methods are called by the framework's router. -->
+				<directory name="lib/Controller" />
+			</errorLevel>
+		</PossiblyUnusedMethod>
+		<!-- Entity columns are read and written through Entity's magic accessors. -->
+		<PossiblyUnusedProperty>
+			<errorLevel type="suppress">
+				<directory name="lib/Db" />
+			</errorLevel>
+		</PossiblyUnusedProperty>
+	</issueHandlers>
 	<extraFiles>
 		<directory name="vendor"/>
 		<directory name="vendor-bin/nextcloud-ocp/vendor"/>

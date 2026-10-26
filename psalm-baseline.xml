@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="6.16.1@f1f5de594dc76faf8784e02d3dc4716c91c6f6ac">
+<files psalm-version="6.19.1@e2ca44251c1f1aa2e35452d426895746b47de64e">
   <file src="lib/BackgroundJob/CleanupJob.php">
     <ClassMustBeFinal>
       <code><![CDATA[CleanupJob]]></code>
@@ -10,17 +10,11 @@
     <MissingOverrideAttribute>
       <code><![CDATA[protected function run(mixed $argument): void {]]></code>
     </MissingOverrideAttribute>
-    <UnusedClass>
-      <code><![CDATA[CleanupJob]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Controller/EditorController.php">
     <ClassMustBeFinal>
       <code><![CDATA[EditorController]]></code>
     </ClassMustBeFinal>
-    <UnusedClass>
-      <code><![CDATA[EditorController]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Controller/SettingsController.php">
     <ClassMustBeFinal>
@@ -30,9 +24,6 @@
       <code><![CDATA[\OCA\Office\Settings\Admin::class]]></code>
       <code><![CDATA[\OCA\Office\Settings\Admin::class]]></code>
     </InvalidArgument>
-    <UnusedClass>
-      <code><![CDATA[SettingsController]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Controller/ShareController.php">
     <ClassMustBeFinal>
@@ -41,9 +32,6 @@
     <PossiblyNullArgument>
       <code><![CDATA[preg_replace('/[\x00-\x1f\x7f]/u', '', $guestName ?? '')]]></code>
     </PossiblyNullArgument>
-    <UnusedClass>
-      <code><![CDATA[ShareController]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Controller/WopiController.php">
     <ClassMustBeFinal>
@@ -60,9 +48,6 @@
     <RedundantCastGivenDocblockType>
       <code><![CDATA[(bool)$wopi->getCanwrite()]]></code>
     </RedundantCastGivenDocblockType>
-    <UnusedClass>
-      <code><![CDATA[WopiController]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Db/Wopi.php">
     <ClassMustBeFinal>
@@ -72,14 +57,6 @@
       <code><![CDATA[TOKEN_TYPE_GUEST = 1]]></code>
       <code><![CDATA[TOKEN_TYPE_USER = 0]]></code>
     </MissingClassConstType>
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$canwrite]]></code>
-      <code><![CDATA[$fileid]]></code>
-      <code><![CDATA[$hideDownload]]></code>
-      <code><![CDATA[$serverHost]]></code>
-      <code><![CDATA[$token]]></code>
-      <code><![CDATA[$version]]></code>
-    </PossiblyUnusedProperty>
     <PropertyNotSetInConstructor>
       <code><![CDATA[$fileid]]></code>
       <code><![CDATA[$serverHost]]></code>
@@ -91,10 +68,6 @@
     <ClassMustBeFinal>
       <code><![CDATA[WopiLock]]></code>
     </ClassMustBeFinal>
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$fileid]]></code>
-      <code><![CDATA[$lockId]]></code>
-    </PossiblyUnusedProperty>
     <PropertyNotSetInConstructor>
       <code><![CDATA[WopiLock]]></code>
     </PropertyNotSetInConstructor>
@@ -110,9 +83,6 @@
       <code><![CDATA[array_column($qb->executeQuery()->fetchAll(), 'id')]]></code>
       <code><![CDATA[int[]]]></code>
     </MixedReturnTypeCoercion>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
     <PossiblyUnusedReturnValue>
       <code><![CDATA[WopiLock]]></code>
     </PossiblyUnusedReturnValue>
@@ -136,9 +106,6 @@
     <PossiblyNullArgument>
       <code><![CDATA[$offset]]></code>
     </PossiblyNullArgument>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
     <UnnecessaryVarAnnotation>
       <code><![CDATA[Wopi]]></code>
       <code><![CDATA[Wopi]]></code>
@@ -159,9 +126,6 @@
     <ClassMustBeFinal>
       <code><![CDATA[LoadAdditionalScriptsListener]]></code>
     </ClassMustBeFinal>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="lib/Migration/Version1000Date20260522000000.php">
     <ClassMustBeFinal>
@@ -170,9 +134,6 @@
     <UnnecessaryVarAnnotation>
       <code><![CDATA[ISchemaWrapper]]></code>
     </UnnecessaryVarAnnotation>
-    <UnusedClass>
-      <code><![CDATA[Version1000Date20260522000000]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Migration/Version1001Date20260523000000.php">
     <ClassMustBeFinal>
@@ -181,9 +142,6 @@
     <UnnecessaryVarAnnotation>
       <code><![CDATA[ISchemaWrapper]]></code>
     </UnnecessaryVarAnnotation>
-    <UnusedClass>
-      <code><![CDATA[Version1001Date20260523000000]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Migration/Version1002Date20260523000000.php">
     <ClassMustBeFinal>
@@ -192,9 +150,6 @@
     <UnnecessaryVarAnnotation>
       <code><![CDATA[ISchemaWrapper]]></code>
     </UnnecessaryVarAnnotation>
-    <UnusedClass>
-      <code><![CDATA[Version1002Date20260523000000]]></code>
-    </UnusedClass>
   </file>
   <file src="lib/Service/DiscoveryService.php">
     <ClassMustBeFinal>
@@ -220,9 +175,6 @@
     <PossiblyNullIterator>
       <code><![CDATA[$names !== false ? $names : []]]></code>
     </PossiblyNullIterator>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="lib/Settings/Admin.php">
     <ClassMustBeFinal>
@@ -233,16 +185,10 @@
       <code><![CDATA[public function getPriority(): int {]]></code>
       <code><![CDATA[public function getSection(): string {]]></code>
     </MissingOverrideAttribute>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="lib/TokenManager.php">
     <ClassMustBeFinal>
       <code><![CDATA[TokenManager]]></code>
     </ClassMustBeFinal>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
   </file>
 </files>
