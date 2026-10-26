@@ -3,10 +3,18 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import NcButton from '@nextcloud/vue/components/NcButton'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { generateUrl } from '@nextcloud/router'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AdminSettings from './AdminSettings.vue'
+
+const { postMock } = vi.hoisted(() => ({ postMock: vi.fn() }))
+
+vi.mock('@nextcloud/axios', () => ({
+	default: { post: postMock },
+	isAxiosError: (e: unknown) => (e as { isAxiosError?: boolean })?.isAxiosError === true,
+}))
 
 function setAdminData(data: Record<string, string>) {
 	const el = document.createElement('script')
@@ -19,6 +27,7 @@ function setAdminData(data: Record<string, string>) {
 describe('AdminSettings', () => {
 	beforeEach(() => {
 		document.body.innerHTML = ''
+		postMock.mockReset()
 		setAdminData({
 			wopi_url: 'http://eo-internal',
 			public_wopi_url: 'https://office.example.com',
@@ -39,5 +48,36 @@ describe('AdminSettings', () => {
 		const button = mount(AdminSettings).findComponent(NcButton)
 
 		expect(button.props('variant')).toBe('primary')
+	})
+
+	it('saves through the router-generated URL so subdirectory installs work', async () => {
+		postMock.mockResolvedValue({ data: {} })
+		const wrapper = mount(AdminSettings)
+
+		await wrapper.findComponent(NcButton).trigger('click')
+		await flushPromises()
+
+		expect(generateUrl).toHaveBeenCalledWith('/apps/office/settings/admin')
+		expect(postMock).toHaveBeenCalledWith('/apps/office/settings/admin', {
+			wopi_url: 'http://eo-internal',
+			public_wopi_url: 'https://office.example.com',
+			callback_url: '',
+			disable_certificate_verification: 'no',
+		})
+		expect(wrapper.text()).toContain('Settings saved')
+	})
+
+	it('shows the server\'s validation message when saving is rejected', async () => {
+		postMock.mockRejectedValue({
+			isAxiosError: true,
+			message: 'Request failed with status code 400',
+			response: { data: { error: 'wopi_url must use the http or https scheme' } },
+		})
+		const wrapper = mount(AdminSettings)
+
+		await wrapper.findComponent(NcButton).trigger('click')
+		await flushPromises()
+
+		expect(wrapper.text()).toContain('wopi_url must use the http or https scheme')
 	})
 })

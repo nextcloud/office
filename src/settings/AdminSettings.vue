@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import axios, { isAxiosError } from '@nextcloud/axios'
 import { translate as t } from '@nextcloud/l10n'
+import { generateUrl } from '@nextcloud/router'
 import { ref } from 'vue'
 import NcButton from '@nextcloud/vue/components/NcButton'
 import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
@@ -31,24 +33,18 @@ async function save(): Promise<void> {
 	success.value = false
 
 	try {
-		const response = await fetch('/index.php/apps/office/settings/admin', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json', requesttoken: (window as any).OC.requestToken },
-			body: JSON.stringify({
-				wopi_url: wopiUrl.value,
-				public_wopi_url: publicWopiUrl.value,
-				callback_url: callbackUrl.value,
-				disable_certificate_verification: disableCertVerification.value ? 'yes' : 'no',
-			}),
+		await axios.post(generateUrl('/apps/office/settings/admin'), {
+			wopi_url: wopiUrl.value,
+			public_wopi_url: publicWopiUrl.value,
+			callback_url: callbackUrl.value,
+			disable_certificate_verification: disableCertVerification.value ? 'yes' : 'no',
 		})
-
-		if (!response.ok) {
-			throw new Error(`HTTP ${response.status}`)
-		}
 
 		success.value = true
 	} catch (e) {
-		error.value = (e as Error).message
+		error.value = isAxiosError(e) && typeof e.response?.data?.error === 'string'
+			? e.response.data.error
+			: (e as Error).message
 	} finally {
 		saving.value = false
 	}
