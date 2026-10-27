@@ -82,6 +82,20 @@ every component needs outside a running NC page
 stub. `src/test-utils/fixtures.ts` has `makeNode()`/`makeCreator()` factories
 for building test data. CI runs the suite on PRs via `test-unit.yml`.
 
+```bash
+composer test:unit          # PHPUnit against the OCP stubs, no server needed
+composer test:integration   # against a running Nextcloud with this app enabled
+OFFICE_IT_CONTAINER=nextcloud tests/run-integration.sh   # from the host, in the dev container
+```
+
+The integration runner takes `OFFICE_TEST_BASE_URL` (the URL the server answers on,
+default `http://localhost`) and `NEXTCLOUD_ROOT` (default `/var/www/html`). It starts
+its own stub editor, so no Euro-Office is needed. For the run it points `wopi_url` at
+the stub and clears `public_wopi_url`, `callback_url` and `wopi_allowlist`, and puts
+them back when phpunit exits; an interrupted run (Ctrl-C) leaves them changed. With
+`overwritehost` or `overwriteprotocol` set, `OFFICE_TEST_BASE_URL` must match them, or
+the signed WOPI requests get 403.
+
 ### 5. Committing changes
 
 Commit **source only** (`src/`, `lib/`, …) — do **not** commit the built

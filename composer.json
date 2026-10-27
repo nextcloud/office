@@ -30,7 +30,7 @@
 		"cs:fix": "php-cs-fixer fix",
 		"psalm": "psalm --threads=1 --no-cache",
 		"test:unit": "phpunit -c tests/phpunit.xml --colors=always --fail-on-warning --fail-on-risky",
-		"test:integration": "echo 'Integration tests run in-container only: docker exec -u www-data -w /var/www/html/apps-extra/office nextcloud php vendor/bin/phpunit tests/integration -c tests/phpunit.integration.xml' && exit 1",
+		"test:integration": "tests/run-integration.sh",
 		"openapi": "generate-spec",
 		"rector": "rector && composer cs:fix"
 	},

@@ -14,7 +14,12 @@ declare(strict_types=1);
  */
 $nextcloudRoot = getenv('NEXTCLOUD_ROOT') ?: '/var/www/html';
 
+// The server's test bootstrap otherwise loads every app in apps/, enabled or not, and a
+// disabled app's providers then query tables that were never created (files_external's
+// oc_external_mounts). Load what the web server loads: the enabled apps.
+putenv('TEST_DONT_LOAD_APPS=1');
 require_once $nextcloudRoot . '/tests/bootstrap.php';
+\OC_App::loadApps();
 
 /**
  * Deliberately NOT requiring this app's own vendor/autoload.php here.
