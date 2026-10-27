@@ -1,6 +1,7 @@
 OC.L10N.register(
     "office",
     {
+    "Shared" : "ভাগাভাগিকৃত",
     "Search" : "Search",
     "All" : "সবাই",
     "Starred" : "তারা চিহ্নিত"
