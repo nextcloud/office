@@ -152,9 +152,8 @@ is in the page of whoever opened the document, the app also checks the caller:
   request must carry a valid `X-WOPI-Proof` / `X-WOPI-ProofOld` signature and an
   `X-WOPI-TimeStamp` no older than 20 minutes, or it gets 403. Collabora always signs;
   Euro-Office signs when its WOPI keys are configured (its images generate them with
-  `WOPI_ENABLED=true`, the same switch that turns WOPI on). The integration tests still
-  call the WOPI endpoints unsigned, so against an editor with proof keys they get 403
-  until the test harness signs its own requests.
+  `WOPI_ENABLED=true`, the same switch that turns WOPI on). The integration tests run
+  against a stub editor that publishes a proof key and signs their requests.
 - **Allowlist.** `occ config:app:set office wopi_allowlist --value="10.0.0.0/24 192.0.2.7"`
   restricts the WOPI endpoints to those addresses (IPs or CIDR ranges); empty leaves
   them open.

@@ -29,27 +29,29 @@ require_once $nextcloudRoot . '/tests/bootstrap.php';
  * stub ones. That surfaced as a hard fatal:
  *   Declaration of OC\User\User::setEnabled(bool $enabled = true) must be
  *   compatible with OCP\IUser::setEnabled(bool $enabled = true): void
- * The stub OCP\ mapping in this app's composer.json autoload-dev exists
- * ONLY for tests/bootstrap-unit.php, where no real OCP exists to shadow.
+ * The stub OCP\ mapping exists ONLY in tests/bootstrap-unit.php, where no
+ * real OCP exists to shadow.
  *
  * OCA\Office\ itself doesn't need autoloading here either -
  * \OC_App::loadApp() below registers it via the real server's own
- * app-loading mechanism. The only thing left unresolved is the shared
- * IntegrationTestCase base class: PHPUnit's own <directory suffix="Test.php">
- * discovery requires each *Test.php file itself (that's what actually
- * defines those classes), but it never touches IntegrationTestCase.php since
- * that filename doesn't match the suffix pattern - require it explicitly so
+ * app-loading mechanism. The only things left unresolved are the shared
+ * IntegrationTestCase base class and the StubEditor it uses: PHPUnit's own
+ * <directory suffix="Test.php"> discovery requires each *Test.php file itself
+ * (that's what actually defines those classes), but it never touches
+ * IntegrationTestCase.php or StubEditor.php since those filenames don't
+ * match the suffix pattern - require them explicitly so
  * `extends IntegrationTestCase` resolves. (Tried eagerly require_once-ing
  * every file in tests/integration/ here instead; that silently broke
  * PHPUnit's own discovery for 2 of the 6 classes - it appears to use a
  * before/after get_declared_classes() diff per file to identify which class
  * a file defines, and finds nothing new for a file this bootstrap already
- * loaded. A single explicit require for just the non-Test.php file avoids
+ * loaded. Explicit requires for just the non-Test.php files avoid
  * that entirely. Also: no PSR-4 autoload rule is used for this namespace -
  * the "Integration" segment (PascalCase, by convention) doesn't match the
  * "integration" directory (lowercase, per the plan) and would silently fail
  * to resolve on this container's case-sensitive filesystem.)
  */
+require_once __DIR__ . '/integration/StubEditor.php';
 require_once __DIR__ . '/integration/IntegrationTestCase.php';
 
 \OC_App::loadApp(OCA\Office\AppInfo\Application::APP_ID);
