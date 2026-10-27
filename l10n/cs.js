@@ -16,6 +16,7 @@ OC.L10N.register(
     "Search" : "Hledat",
     "Recent {category}" : "Nedávné {category}",
     "Failed to load files" : "Nepodařilo se načíst soubory",
+    "Loading" : "Načítání",
     "Retry" : "Zkusit znovu",
     "Filter files" : "Filtrovat soubory",
     "All" : "Vše",

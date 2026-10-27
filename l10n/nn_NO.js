@@ -4,6 +4,7 @@ OC.L10N.register(
     "Documents" : "Dokument",
     "Shared" : "Delt",
     "Search" : "Søk",
+    "Loading" : "Lastar inn",
     "Retry" : "Forsøk att",
     "All" : "Alle",
     "Create" : "Opprett",

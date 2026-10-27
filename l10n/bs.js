@@ -3,6 +3,7 @@ OC.L10N.register(
     {
     "Shared" : "Podijeljen",
     "Search" : "Search",
+    "Loading" : "Učitavanje",
     "All" : "Sve",
     "Starred" : "Označeno",
     "Create" : "Kreiraj"
