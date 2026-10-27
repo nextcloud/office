@@ -73,6 +73,7 @@ abstract class IntegrationTestCase extends TestCase {
 			editorUid: static::TEST_USER,
 			version: (string)$file->getMTime(),
 			canWrite: $canWrite,
+			hideDownload: false,
 			serverHost: self::baseUrl(),
 		);
 	}

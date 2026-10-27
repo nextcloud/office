@@ -55,7 +55,9 @@ class CleanupJobTest extends IntegrationTestCase {
 	public function testCleanupJobPurgesExpiredLock(): void {
 		$file = $this->createTestFile('cleanup-lock.docx');
 		$wopiLockMapper = Server::get(WopiLockMapper::class);
-		$lock = $wopiLockMapper->upsertLock($file->getId(), 'expiring-lock');
+		$wopiLockMapper->upsertLock($file->getId(), 'expiring-lock');
+		$lock = $wopiLockMapper->findByFileId($file->getId());
+		$this->assertNotNull($lock);
 		$lock->setExpiry(time() - 60);
 		$wopiLockMapper->update($lock);
 
