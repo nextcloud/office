@@ -36,14 +36,13 @@
 	},
 	"require": {
 		"php": "^8.3",
-		"bamarni/composer-bin-plugin": "^1.8",
-		"phpseclib/phpseclib": "^3.0"
+		"bamarni/composer-bin-plugin": "^1.8"
 	},
 	"require-dev": {
+		"phpseclib/phpseclib": "^3.0.55",
 		"roave/security-advisories": "dev-latest"
 	},
 	"config": {
-		"autoloader-suffix": "Office",
 		"allow-plugins": {
 			"bamarni/composer-bin-plugin": true
 		},

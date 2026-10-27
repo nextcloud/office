@@ -55,13 +55,6 @@ final class WopiProofMiddleware extends Middleware {
 			return;
 		}
 
-		if (!$this->verifier->isAvailable()) {
-			if ($this->logThrottle->allows('wopi-proof-library', 300)) {
-				$this->logger->error('Cannot verify WOPI proofs: the bundled phpseclib is missing; run composer install --no-dev in the office app');
-			}
-			throw new WopiProofException('Proof verification unavailable');
-		}
-
 		if (!$this->verifier->isFresh($this->request->getHeader('X-WOPI-TimeStamp'))) {
 			throw new WopiProofException('Missing or expired X-WOPI-TimeStamp');
 		}

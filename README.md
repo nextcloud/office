@@ -40,14 +40,7 @@ services:
 
 Restart the container after saving.
 
-### 2. Install PHP dependencies and enable the app
-
-The app bundles phpseclib for WOPI proof verification; `vendor/` is not in git:
-
-```bash
-composer install --no-dev   # releases ship this vendor/ directory
-```
-
+### 2. Enable the app
 
 ```bash
 docker compose exec --user www-data nextcloud php occ app:enable office
@@ -168,8 +161,8 @@ is in the page of whoever opened the document, the app also checks the caller:
 
 With neither, the admin page shows a warning. The keys are remembered in app config and
 rechecked hourly; a proof that doesn't verify triggers one reread (at most every 5
-minutes) to pick up regenerated keys. Without `vendor/` (see setup) WOPI requests are
-refused and the log says why.
+minutes) to pick up regenerated keys. Verification uses the phpseclib 3 that Nextcloud
+ships.
 
 ---
 

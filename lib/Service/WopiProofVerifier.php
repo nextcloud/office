@@ -29,13 +29,6 @@ final class WopiProofVerifier {
 	}
 
 	/**
-	 * phpseclib is bundled in vendor/; a checkout without composer install lacks it.
-	 */
-	public function isAvailable(): bool {
-		return class_exists(PublicKeyLoader::class);
-	}
-
-	/**
 	 * X-WOPI-TimeStamp must be no older than 20 minutes (MS-WOPI), so a captured
 	 * request can't be replayed later.
 	 */

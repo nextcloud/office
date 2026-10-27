@@ -6,8 +6,8 @@ declare(strict_types=1);
 $loader = require_once __DIR__ . '/../vendor/autoload.php';
 
 // The OCP and PSR stubs are mapped here, for unit tests only. In composer.json's autoload-dev
-// they would also be in a developer's vendor/autoload.php, which Nextcloud loads through
-// composer/autoload.php, and shadow the running server's own OCP classes.
+// they would be in vendor/autoload.php for anything that loads it, and shadow a real
+// server's OCP classes.
 $stubs = __DIR__ . '/../vendor-bin/nextcloud-ocp/vendor';
 $loader->addPsr4('OCP\\', $stubs . '/nextcloud/ocp/OCP/');
 $loader->addPsr4('Psr\\EventDispatcher\\', $stubs . '/psr/event-dispatcher/src/');
