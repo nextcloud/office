@@ -4,6 +4,7 @@ OC.L10N.register(
     "Documents" : "Dokumenti",
     "Shared" : "Deljeno",
     "Search" : "Traži",
+    "Loading" : "Učitavam",
     "All" : "Sve",
     "Starred" : "Ozvezdano",
     "Filename cannot be empty" : "Naziv fajla ne može biti prazan"

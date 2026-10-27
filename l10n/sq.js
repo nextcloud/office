@@ -7,6 +7,7 @@ OC.L10N.register(
     "Create new" : "Krijo të ri",
     "Search {category}" : "Kërko {category}",
     "Search" : "Kërko",
+    "Loading" : "Po ngarkohet",
     "Retry" : "Riprovoni",
     "All" : "Të gjithë",
     "Starred" : "Me yll",
