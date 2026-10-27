@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	Representative OnlyOffice/Euro-Office WOPI discovery document.
+	EO currently advertises zero editor actions in this dev setup (wopi.enable=false
+	server-side), so this fixture is hand-built from the OnlyOffice WOPI docs
+	(https://api.onlyoffice.com/docs/docs-api/using-wopi/overview/) rather than
+	captured output. App names are product names ("Word", "Excel", ...), NOT MIME
+	types - this is what makes DiscoveryService::getSupportedMimeTypes() return []
+	against this fixture (see DiscoveryServiceTest::testGetSupportedMimeTypesReturnsEmptyArrayForOnlyOfficeStyleDiscovery).
+-->
+<wopi-discovery>
+	<net-zone name="external-http">
+		<app name="Word" favIconUrl="http://eo/web-apps/apps/documenteditor/main/resources/img/favicon.ico">
+			<action name="edit" ext="docx" default="true" urlsrc="http://eo/hosting/wopi/word/edit?&lt;rs=DC_LLCC&amp;&gt;&lt;dchat=DISABLE_CHAT&amp;&gt;"/>
+			<action name="view" ext="docx" urlsrc="http://eo/hosting/wopi/word/view?&lt;rs=DC_LLCC&amp;&gt;"/>
+		</app>
+		<app name="Excel" favIconUrl="http://eo/web-apps/apps/spreadsheeteditor/main/resources/img/favicon.ico">
+			<action name="edit" ext="xlsx" default="true" urlsrc="http://eo/hosting/wopi/cell/edit?&lt;rs=DC_LLCC&amp;&gt;"/>
+		</app>
+		<app name="PowerPoint" favIconUrl="http://eo/web-apps/apps/presentationeditor/main/resources/img/favicon.ico">
+			<action name="view" ext="pptx" urlsrc="http://eo/hosting/wopi/slide/view?&lt;rs=DC_LLCC&amp;&gt;"/>
+		</app>
+		<app name="Pdf" favIconUrl="http://eo/web-apps/apps/pdfeditor/main/resources/img/favicon.ico">
+			<action name="view" ext="pdf" urlsrc="http://eo/hosting/wopi/word/view?&lt;rs=DC_LLCC&amp;&gt;"/>
+		</app>
+	</net-zone>
+</wopi-discovery>

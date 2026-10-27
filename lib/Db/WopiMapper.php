@@ -1,0 +1,167 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+namespace OCA\Office\Db;
+
+use OCA\Office\Exception\ExpiredTokenException;
+use OCA\Office\Exception\UnknownTokenException;
+use OCP\AppFramework\Db\QBMapper;
+use OCP\AppFramework\Utility\ITimeFactory;
+use OCP\DB\QueryBuilder\IQueryBuilder;
+use OCP\IDBConnection;
+use OCP\Security\ISecureRandom;
+use Psr\Log\LoggerInterface;
+
+/** @template-extends QBMapper<Wopi> */
+class WopiMapper extends QBMapper {
+	private const int TOKEN_TTL = 36000; // 10 hours
+
+	public function __construct(
+		IDBConnection $db,
+		private ISecureRandom $random,
+		private LoggerInterface $logger,
+		private ITimeFactory $timeFactory,
+	) {
+		parent::__construct($db, 'office_wopi', Wopi::class);
+	}
+
+	/**
+	 * Generate and persist a WOPI token for an authenticated user.
+	 */
+	public function generateFileToken(
+		int $fileId,
+		string $ownerUid,
+		string $editorUid,
+		string $version,
+		bool $canWrite,
+		bool $hideDownload,
+		string $serverHost,
+	): Wopi {
+		$token = $this->random->generate(32, ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS);
+
+		$wopi = $this->insert(Wopi::fromParams([
+			'fileid' => $fileId,
+			'ownerUid' => $ownerUid,
+			'editorUid' => $editorUid,
+			'version' => $version,
+			'canwrite' => $canWrite,
+			'hideDownload' => $hideDownload,
+			'serverHost' => $serverHost,
+			'token' => $token,
+			'expiry' => $this->newExpiry(),
+		]));
+
+		return $wopi;
+	}
+
+	/**
+	 * Generate and persist a WOPI token for a share-link session, bound to the share.
+	 * $editorUid is the logged-in visitor, or null for an anonymous guest.
+	 */
+	public function generateGuestToken(
+		int $fileId,
+		string $ownerUid,
+		#[\SensitiveParameter]
+		string $shareToken,
+		?string $editorUid,
+		string $guestDisplayname,
+		string $version,
+		bool $canWrite,
+		bool $hideDownload,
+		string $serverHost,
+	): Wopi {
+		$token = $this->random->generate(32, ISecureRandom::CHAR_LOWER . ISecureRandom::CHAR_UPPER . ISecureRandom::CHAR_DIGITS);
+
+		$wopi = $this->insert(Wopi::fromParams([
+			'fileid' => $fileId,
+			'ownerUid' => $ownerUid,
+			'editorUid' => $editorUid,
+			'guestDisplayname' => $guestDisplayname,
+			'shareToken' => $shareToken,
+			'version' => $version,
+			'canwrite' => $canWrite,
+			'hideDownload' => $hideDownload,
+			'serverHost' => $serverHost,
+			'token' => $token,
+			'expiry' => $this->newExpiry(),
+		]));
+
+		return $wopi;
+	}
+
+	/**
+	 * Look up and validate a WOPI token.
+	 *
+	 * @throws UnknownTokenException
+	 * @throws ExpiredTokenException
+	 */
+	public function getWopiForToken(
+		#[\SensitiveParameter]
+		string $token,
+	): Wopi {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('*')
+			->from('office_wopi')
+			->where($qb->expr()->eq('token', $qb->createNamedParameter($token)));
+
+		$result = $qb->executeQuery();
+		$row = $result->fetch();
+		$result->closeCursor();
+
+		if ($row === false) {
+			throw new UnknownTokenException('Could not find token.');
+		}
+
+		// Only identifiers: the row also holds the access token and the share token, both credentials.
+		$this->logger->debug('Loaded WOPI token record {id} for file {fileId}.', ['id' => $row['id'] ?? null, 'fileId' => $row['fileid'] ?? null]);
+
+		$wopi = Wopi::fromRow($row);
+
+		if ($wopi->isExpired()) {
+			throw new ExpiredTokenException('Provided token is expired.');
+		}
+
+		return $wopi;
+	}
+
+	/**
+	 * Return IDs of tokens that expired more than 60 seconds ago, for cleanup jobs.
+	 *
+	 * @return int[]
+	 */
+	public function getExpiredTokenIds(?int $limit = null, ?int $offset = null): array {
+		$qb = $this->db->getQueryBuilder();
+		$qb->select('id')
+			->from('office_wopi')
+			->where($qb->expr()->lt('expiry', $qb->createNamedParameter(time() - 60, IQueryBuilder::PARAM_INT)))
+			->setFirstResult($offset ?? 0)
+			->setMaxResults($limit);
+
+		return array_map('intval', array_column($qb->executeQuery()->fetchAll(), 'id'));
+	}
+
+	/**
+	 * Delete WOPI rows by their primary-key IDs.
+	 *
+	 * @param int[] $ids
+	 */
+	public function deleteByIds(array $ids): void {
+		if (empty($ids)) {
+			return;
+		}
+		$qb = $this->db->getQueryBuilder();
+		$qb->delete('office_wopi')
+			->where($qb->expr()->in('id', $qb->createNamedParameter($ids, IQueryBuilder::PARAM_INT_ARRAY)));
+		$qb->executeStatement();
+	}
+
+	private function newExpiry(): int {
+		return $this->timeFactory->getTime() + self::TOKEN_TTL;
+	}
+}

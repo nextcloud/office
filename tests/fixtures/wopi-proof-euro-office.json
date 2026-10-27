@@ -1,0 +1,17 @@
+{
+  "generatedBy": "Euro-Office wopiUtils.js proof signing (generateProofBuffer + RSA-SHA256)",
+  "discovery": {
+    "value": "unused",
+    "modulus": "r95gtZ7kWC+tADj2s+46RcuBuYXSTTQhzQlU+orH8gxxCjR4YYg9Gjdv7wBJ306c4SQeyRuRjKB0LTRAqlsS1V0I6UZQns8mqGTS08Rj6i5GRwFULZNWYSbZeGu285vZH/c9QTdt25T58WJf3DczgAk3Clb7Y6mPeqoJiEbeASGU6LbSopaRVIrAFOeK/qdxFiksgMrLhZUnGCp4dkAx/HiGINtBiXdDQU4WL0+Jhx0z2Kbj1/TgLBO587eo07YY02YPunMCjoWWktNdl0NXPUje3F1FLcX2+7+Vx8KDqZvuX9etY0Mf2n/TU9jUZTZ1ebsbdvari7xR9b4jzs9wqQ==",
+    "exponent": "AQAB",
+    "oldvalue": "unused",
+    "oldmodulus": "uSGcAn0BAkdkQoO19imTRGIRAjx4/uR2BQTZKhbeuQ6kzCYiI0W+lLID83rUa6AcGgM4mG/urCVCrPBte5YLvS8AM09Jqko3rUY7NKKNDVKnqlx8oO5QPsr0R7C4GXBtUnTM9rvoAudMmUlgVhk6ymx9u1BRcdHcNPRPK/YsdaW0U7Z6jtZNf7j20x5bcPQh/BLo5kfnSNguQE9CvQgAJP4fSs4ve/ybGRUaHLUQBzxeVUDfLqIa3TTIUsnAiVRP+jyYQCNEyyGqxGhKuMmDAhimsm+nAxnkEJaF6wL8RZZ+dj2xwaofNLgFM02xBC6wE9ct4G/VhqjAS7psuLOSCw==",
+    "oldexponent": "AQAB"
+  },
+  "accessToken": "Tok3nWithMixedCase0123456789abcd",
+  "url": "http://nextcloud-internal:8080/index.php/apps/office/wopi/files/82/contents?access_token=Tok3nWithMixedCase0123456789abcd",
+  "timestamp": "639286128000000000",
+  "proofCurrentKey": "Ke13nk7lGPoqXbe8lFJ2HyNNb5tJCeLc63cixdmKj8xo7lE2qOMz5CaHQVHmxMzgGDy2sAFTmuOaZO0cqufKeL04GQ7/6vnWBpLiaJtmcs+KV2/kKU6oAuk73tn5BcrdSGnFXIdV93JsG08Ba09Re3lwzZEsWGmnnTrUY4ZRLOF/BtVVQW58+iVYWqXB6Nemzq9SSSNNSUiGF5WFj9OvEpc1eqqt0Kx1op/6QCzZ14OI9/jUouQg3Zx5JsB+VJrJa/qbSv2WSBYsHvUJyjtB51Nuw2wXz9RQCZsj3mV0LcTQkedXkbXucDQf07/SLelQAemRmHoPVnVSSyza97mRRA==",
+  "proofOldKey": "N5ts1DprwaDz9WsJ3yS62WcM1mt4bobwWtPAw86VosopRFchcAKiMmY6PTxMBFogOmJAA3z6M+rnMIXIsmrvTwUPiydhEShIsHxOFTh1G8APLdxglR6p1N/CH1QwzqtnPD4V5YdkvyAFqBADla5Hij2NOuqFMRW0HpZw+j3oXDXdPo8drdap2J97naviQYW/GZXSlF4fmOD3FvkgGpPo2DozJj9NE9pJeHu1Zg+pZOqtzzF6Nfhz9Hi2WpZ0fWkAiOI9UnqE3q8gDLaHI+/8Fmh3mMTTWI2S00dWbXeXtW+nCK3FkRKjzk1Wv0o988tqyLKrZ7L0xwZ4iZsVjTa8WQ==",
+  "proofOtherKey": "ljtm3mD+7K0W4a0QuXS+RaR1GHc6y9j8Kshi8I2uEDaXbO+fPxPdd1WhiZcjE1i9765Rxd1S4SrewN+VlE1Kejt4xTW5cW5YtzYhehBAHHaamIJ8H2aAveoMbdsN29vWkTnOzZ99sGmZBNMFx9Cm7Ah66J+uO8IC/wm8nR36lIkYP76MsKhpO33wcr8MpM/QjqMCzKijUDavAnLvUA5FI7iEfa8VKAKrWsLp3J38jY75QtGcXoEXxhDm6JUIxTrdqGbAC15/ZQoyBZRqwFNIaymsNRTMeJZ9NS2ZNc2BmXCYcYqkTOrXuV6JcFhu5yLfErhqf1wixvVUId4Mk1b0Dw=="
+}
