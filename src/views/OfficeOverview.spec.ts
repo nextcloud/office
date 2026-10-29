@@ -11,10 +11,15 @@ const getTemplatesMock = vi.fn()
 const createFromTemplateMock = vi.fn()
 const getAllOfficeFilesMock = vi.fn()
 const invalidateOfficeFilesCacheMock = vi.fn()
+const nameExistsMock = vi.fn()
 
 vi.mock('../services/templates.ts', () => ({
 	getTemplates: getTemplatesMock,
 	createFromTemplate: createFromTemplateMock,
+}))
+
+vi.mock('../services/folders.ts', () => ({
+	nameExists: nameExistsMock,
 }))
 
 vi.mock('../services/officeFiles.ts', async (importOriginal) => {
@@ -127,6 +132,8 @@ beforeEach(() => {
 	createFromTemplateMock.mockReset()
 	getAllOfficeFilesMock.mockReset()
 	invalidateOfficeFilesCacheMock.mockReset()
+	nameExistsMock.mockReset()
+	nameExistsMock.mockResolvedValue(false)
 	localStorage.clear()
 
 	// jsdom's real Location.href setter attempts actual navigation, logs
@@ -592,6 +599,104 @@ describe('OfficeOverview > toggleViewMode', () => {
 
 		expect(localStorage.getItem('office.overview.gridView')).toBe('false')
 		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(true)
+	})
+})
+
+describe('OfficeOverview > suggested filename', () => {
+	async function mountWithCreators(...creators: ReturnType<typeof makeCreator>[]) {
+		getTemplatesMock.mockResolvedValue(creators)
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		return mountOverview()
+	}
+
+	async function select(wrapper: Awaited<ReturnType<typeof mountOverview>>, creator: ReturnType<typeof makeCreator>) {
+		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
+	}
+
+	function takenInRoot(...names: string[]) {
+		nameExistsMock.mockImplementation(async (folder: string, name: string) => folder === '/' && names.includes(name))
+	}
+
+	function fileName(wrapper: Awaited<ReturnType<typeof mountOverview>>) {
+		return wrapper.findComponent({ name: 'NcTextField' }).props('modelValue')
+	}
+
+	it('suggests the plain default name when it is free in the root folder', async () => {
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Document.odt')
+	})
+
+	it('suggests a numbered name when the default is already taken in the root folder', async () => {
+		takenInRoot('Document.odt', 'Document (1).odt')
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Document (2).odt')
+	})
+
+	it('falls back to the plain default name when the check fails', async () => {
+		nameExistsMock.mockRejectedValue(new Error('network down'))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Document.odt')
+	})
+
+	it('opens the dialog at once with the default name, before the check answers', async () => {
+		nameExistsMock.mockReturnValue(new Promise(() => {}))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(wrapper.findComponent({ name: 'NcDialog' }).props('open')).toBe(true)
+		expect(fileName(wrapper)).toBe('Document.odt')
+	})
+
+	it('ignores a late answer for an earlier click', async () => {
+		const document = makeCreator()
+		const spreadsheet = makeCreator({ label: 'Spreadsheet', extension: '.ods', mimetypes: ['application/vnd.oasis.opendocument.spreadsheet'] })
+		let answerFirstCheck: (taken: boolean) => void = () => {}
+		nameExistsMock
+			.mockReturnValueOnce(new Promise<boolean>((resolve) => { answerFirstCheck = resolve }))
+			.mockResolvedValue(false)
+		const wrapper = await mountWithCreators(document, spreadsheet)
+
+		await select(wrapper, document)
+		await select(wrapper, spreadsheet)
+		await flushPromises()
+		answerFirstCheck(false)
+		await flushPromises()
+
+		expect(wrapper.findComponent({ name: 'NcDialog' }).props('name')).toBe('Spreadsheet')
+		expect(fileName(wrapper)).toBe('Spreadsheet.ods')
+	})
+
+	it('keeps a name the user typed while the check was running', async () => {
+		takenInRoot('Document.odt')
+		let answerCheck: (taken: boolean) => void = () => {}
+		nameExistsMock.mockReturnValueOnce(new Promise<boolean>((resolve) => { answerCheck = resolve }))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await wrapper.findComponent({ name: 'NcTextField' }).vm.$emit('update:modelValue', 'Budget.odt')
+		answerCheck(true)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Budget.odt')
 	})
 })
 
