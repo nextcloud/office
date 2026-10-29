@@ -4,6 +4,7 @@ import { getCurrentUser } from '@nextcloud/auth'
 import { loadState } from '@nextcloud/initial-state'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { CREATOR_CATEGORIES, fakeLoadState, makeCreator, makeNode } from '../test-utils/fixtures.ts'
+import { getLastTargetFolder, setLastTargetFolder } from '../services/config.ts'
 import type { Node } from '@nextcloud/files'
 import type { Router } from 'vue-router'
 
@@ -11,10 +12,15 @@ const getTemplatesMock = vi.fn()
 const createFromTemplateMock = vi.fn()
 const getAllOfficeFilesMock = vi.fn()
 const invalidateOfficeFilesCacheMock = vi.fn()
+const canCreateInMock = vi.fn()
 
 vi.mock('../services/templates.ts', () => ({
 	getTemplates: getTemplatesMock,
 	createFromTemplate: createFromTemplateMock,
+}))
+
+vi.mock('../services/folders.ts', () => ({
+	canCreateIn: canCreateInMock,
 }))
 
 vi.mock('../services/officeFiles.ts', async (importOriginal) => {
@@ -127,6 +133,8 @@ beforeEach(() => {
 	createFromTemplateMock.mockReset()
 	getAllOfficeFilesMock.mockReset()
 	invalidateOfficeFilesCacheMock.mockReset()
+	canCreateInMock.mockReset()
+	canCreateInMock.mockResolvedValue(true)
 	localStorage.clear()
 
 	// jsdom's real Location.href setter attempts actual navigation, logs
@@ -592,6 +600,220 @@ describe('OfficeOverview > toggleViewMode', () => {
 
 		expect(localStorage.getItem('office.overview.gridView')).toBe('false')
 		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(true)
+	})
+})
+
+describe('OfficeOverview > target folder', () => {
+	async function openDialog() {
+		const creator = makeCreator()
+		getTemplatesMock.mockResolvedValue([creator])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		const wrapper = await mountOverview()
+
+		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
+		await flushPromises()
+
+		return wrapper
+	}
+
+	function targetFolderPicker(wrapper: Awaited<ReturnType<typeof openDialog>>) {
+		return wrapper.findComponent({ name: 'TargetFolderPicker' })
+	}
+
+	async function pickFolder(wrapper: Awaited<ReturnType<typeof openDialog>>, folder: string) {
+		await targetFolderPicker(wrapper).vm.$emit('update:path', folder)
+		await flushPromises()
+	}
+
+	async function create(wrapper: Awaited<ReturnType<typeof openDialog>>) {
+		createFromTemplateMock.mockResolvedValue({ fileid: 99, basename: 'x.odt', filename: '/x.odt' })
+		await findButtonByText(wrapper, 'Create').vm.$emit('click')
+		await flushPromises()
+	}
+
+	it('starts in the root folder when no folder was used before, without a folder check', async () => {
+		const wrapper = await openDialog()
+
+		expect(targetFolderPicker(wrapper).props('path')).toBe('/')
+		expect(canCreateInMock).not.toHaveBeenCalled()
+	})
+
+	it('starts in the last used folder when it is still usable', async () => {
+		setLastTargetFolder('/Team folder/Reports')
+
+		const wrapper = await openDialog()
+
+		expect(canCreateInMock).toHaveBeenCalledWith('/Team folder/Reports')
+		expect(targetFolderPicker(wrapper).props('path')).toBe('/Team folder/Reports')
+	})
+
+	it('falls back to the root folder when the last used folder is no longer writable', async () => {
+		setLastTargetFolder('/Read-only share')
+		canCreateInMock.mockResolvedValue(false)
+
+		const wrapper = await openDialog()
+
+		expect(targetFolderPicker(wrapper).props('path')).toBe('/')
+	})
+
+	it('falls back to the root folder when the last used folder is gone', async () => {
+		setLastTargetFolder('/Deleted')
+		canCreateInMock.mockRejectedValue(new Error('404 Not Found'))
+
+		const wrapper = await openDialog()
+
+		expect(targetFolderPicker(wrapper).props('path')).toBe('/')
+	})
+
+	it('keeps a folder picked while the remembered folder was still being checked', async () => {
+		setLastTargetFolder('/Old project')
+		let answerCheck: (writable: boolean) => void = () => {}
+		canCreateInMock.mockReturnValue(new Promise<boolean>((resolve) => { answerCheck = resolve }))
+		const creator = makeCreator()
+		getTemplatesMock.mockResolvedValue([creator])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		const wrapper = await mountOverview()
+		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
+
+		await pickFolder(wrapper, '/Team folder')
+		answerCheck(false)
+		await flushPromises()
+
+		expect(targetFolderPicker(wrapper).props('path')).toBe('/Team folder')
+	})
+
+	it('creates the file in the picked folder and remembers that folder', async () => {
+		const wrapper = await openDialog()
+
+		await pickFolder(wrapper, '/Team folder')
+		await create(wrapper)
+
+		expect(createFromTemplateMock).toHaveBeenCalledWith('/Team folder/Document.odt', '', 'user_system')
+		expect(getLastTargetFolder()).toBe('/Team folder')
+	})
+
+	it('creates the file in the root folder without a double slash', async () => {
+		const wrapper = await openDialog()
+
+		await create(wrapper)
+
+		expect(createFromTemplateMock).toHaveBeenCalledWith('/Document.odt', '', 'user_system')
+	})
+
+	it('does not remember the folder when creating fails', async () => {
+		const wrapper = await openDialog()
+		await pickFolder(wrapper, '/Team folder')
+
+		createFromTemplateMock.mockRejectedValue(new Error('network down'))
+		await findButtonByText(wrapper, 'Create').vm.$emit('click')
+		await flushPromises()
+
+		expect(getLastTargetFolder()).toBe('/')
+	})
+
+	it('tells the user when the remembered folder could not be used, and clears that after picking', async () => {
+		setLastTargetFolder('/Deleted')
+		canCreateInMock.mockResolvedValue(false)
+
+		const wrapper = await openDialog()
+
+		expect(wrapper.findComponent({ name: 'NcNoteCard' }).props('text'))
+			.toBe('The last used folder is no longer available. The file will be saved in All files.')
+
+		await pickFolder(wrapper, '/Team folder')
+
+		expect(wrapper.findComponent({ name: 'NcNoteCard' }).exists()).toBe(false)
+	})
+
+	it('shows no notice when the remembered folder is still usable', async () => {
+		setLastTargetFolder('/Team folder')
+
+		const wrapper = await openDialog()
+
+		expect(wrapper.findComponent({ name: 'NcNoteCard' }).exists()).toBe(false)
+	})
+
+	it('keeps the folder button disabled while the remembered folder is being checked', async () => {
+		setLastTargetFolder('/Team folder')
+		let answerCheck: (writable: boolean) => void = () => {}
+		canCreateInMock.mockReturnValue(new Promise<boolean>((resolve) => { answerCheck = resolve }))
+		const creator = makeCreator()
+		getTemplatesMock.mockResolvedValue([creator])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		const wrapper = await mountOverview()
+		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
+		await flushPromises()
+
+		expect(targetFolderPicker(wrapper).props('disabled')).toBe(true)
+
+		answerCheck(true)
+		await flushPromises()
+
+		expect(targetFolderPicker(wrapper).props('disabled')).toBe(false)
+	})
+
+	it('shows a picker failure below the folder, not on the filename field', async () => {
+		const wrapper = await openDialog()
+
+		await targetFolderPicker(wrapper).vm.$emit('error')
+		await flushPromises()
+
+		const note = wrapper.findComponent({ name: 'NcNoteCard' })
+		expect(note.props('type')).toBe('error')
+		expect(note.props('text')).toBe('The folder picker could not be opened. Please try again.')
+		expect(wrapper.findComponent({ name: 'NcTextField' }).props('helperText')).toBe('')
+	})
+
+	it('clears a picker failure when another folder is picked', async () => {
+		const wrapper = await openDialog()
+		await targetFolderPicker(wrapper).vm.$emit('error')
+		await flushPromises()
+
+		await pickFolder(wrapper, '/Team folder')
+
+		expect(wrapper.findComponent({ name: 'NcNoteCard' }).exists()).toBe(false)
+	})
+
+	it('keeps the folder button disabled when an older folder check answers during a newer one', async () => {
+		setLastTargetFolder('/Team folder')
+		const answers: ((writable: boolean) => void)[] = []
+		canCreateInMock.mockImplementation(() => new Promise<boolean>((resolve) => { answers.push(resolve) }))
+		const creator = makeCreator()
+		getTemplatesMock.mockResolvedValue([creator])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		const wrapper = await mountOverview()
+		const select = () => wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
+
+		await select()
+		await select()
+		answers[0](true)
+		await flushPromises()
+
+		expect(targetFolderPicker(wrapper).props('disabled')).toBe(true)
+
+		answers[1](true)
+		await flushPromises()
+
+		expect(targetFolderPicker(wrapper).props('disabled')).toBe(false)
+	})
+
+	it('does not switch folder under a create that was started during the folder check', async () => {
+		setLastTargetFolder('/Old project')
+		let answerCheck: (writable: boolean) => void = () => {}
+		canCreateInMock.mockReturnValue(new Promise<boolean>((resolve) => { answerCheck = resolve }))
+		createFromTemplateMock.mockReturnValue(new Promise(() => {}))
+		const creator = makeCreator()
+		getTemplatesMock.mockResolvedValue([creator])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		const wrapper = await mountOverview()
+		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
+
+		await findButtonByText(wrapper, 'Create').vm.$emit('click')
+		answerCheck(false)
+		await flushPromises()
+
+		expect(createFromTemplateMock).toHaveBeenCalledWith('/Old project/Document.odt', '', 'user_system')
+		expect(targetFolderPicker(wrapper).props('path')).toBe('/Old project')
 	})
 })
 
