@@ -5,7 +5,7 @@ OC.L10N.register(
     "Spreadsheets" : "Regneark",
     "Presentations" : "Præsentationer",
     "Diagrams" : "Diagrammer",
-    "Office" : "Kontor",
+    "Office" : "Office",
     "Office overview" : "Kontoroversigt",
     "Office overview app for Nextcloud" : "App med kontoroversigt til Nextcloud",
     "Shared" : "Delt",
@@ -37,7 +37,7 @@ OC.L10N.register(
     "Create" : "Opret",
     "Filename" : "Filnavn",
     "_%n file found in {category}_::_%n files found in {category}_" : ["%n fil fundet i {category}","%n filer fundet i {category}"],
-    "Filename cannot be empty" : "Filnavnet kan ikke stå tomt.",
+    "Filename cannot be empty" : "Filnavnet kan ikke stå tomt",
     "Filename contains invalid characters" : "Filnavnet indeholder ugyldige tegn",
     "{count} {category} found" : "{count} {category} fundet",
     "{count} found in {category}" : "{count} fundet i {category}"
