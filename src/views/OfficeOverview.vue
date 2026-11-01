@@ -36,10 +36,12 @@ import FilePreview from '../components/FilePreview.vue'
 import ShareIndicator from '../components/ShareIndicator.vue'
 import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
+import { nameExists } from '../services/folders.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
 import { categoryId, categoryName, categoryMimes, creatorById, allOfficeMimes } from '../utils/fileCategories.ts'
 import { previewAspectRatio } from '../utils/creatorTheme.ts'
+import { findFreeFileName } from '../utils/freeFileName.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
 import { isShared } from '../utils/fileSharing.ts'
@@ -69,6 +71,10 @@ const pendingTemplate = ref<TemplateFile | null>(null)
 const creating = ref(false)
 const createError = ref('')
 const createInput = ref<InstanceType<typeof NcTextField> | null>(null)
+// The name the dialog last suggested; a name the user typed is never replaced.
+const suggestedName = ref('')
+// Bumped per opened dialog, so a slow suggestion for an earlier click is dropped.
+let suggestionRequest = 0
 
 const routeCreatorId = computed(() => {
 	const param = route.params.creatorId
@@ -190,12 +196,20 @@ function openInFiles() {
 	}
 }
 
-function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | null) {
-	pendingCreator.value = creator
-	pendingTemplate.value = template
-	newFileName.value = creator.label + creator.extension
-	createError.value = ''
-	showCreateDialog.value = true
+// Files are created in the root folder, so suggest a name that is still free
+// there ("New document (1).docx"), as the Files app's own "New" menu does. If a
+// check fails, fall back to the plain default; the server still rejects a name
+// that is taken.
+async function suggestFreeName(defaultName: string): Promise<string> {
+	try {
+		return await findFreeFileName(defaultName, name => nameExists('/', name))
+	} catch {
+		return defaultName
+	}
+}
+
+// setSelectionRange pre-selects the basename (without extension) for quick editing.
+function focusFileNameInput(extension: string) {
 	nextTick(() => {
 		const component = createInput.value as { focus?: () => void; $el?: HTMLElement } | null
 		if (typeof component?.focus === 'function') {
@@ -203,10 +217,34 @@ function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | nul
 		} else {
 			component?.$el?.querySelector<HTMLInputElement>('input')?.focus()
 		}
-		// setSelectionRange pre-selects the basename (without extension) for quick editing.
 		component?.$el?.querySelector<HTMLInputElement>('input')
-			?.setSelectionRange(0, newFileName.value.length - creator.extension.length)
+			?.setSelectionRange(0, newFileName.value.length - extension.length)
 	})
+}
+
+// The dialog opens at once with the plain default; the free name follows when
+// the existence checks are done, so a slow connection never delays the dialog.
+async function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | null) {
+	const request = ++suggestionRequest
+	const defaultName = creator.label + creator.extension
+	pendingCreator.value = creator
+	pendingTemplate.value = template
+	suggestedName.value = defaultName
+	newFileName.value = defaultName
+	createError.value = ''
+	showCreateDialog.value = true
+	focusFileNameInput(creator.extension)
+
+	const freeName = await suggestFreeName(defaultName)
+	// A later click, a closed dialog, a create already under way or a name the
+	// user typed all win over this answer.
+	if (request !== suggestionRequest || !showCreateDialog.value || creating.value
+		|| newFileName.value !== suggestedName.value) {
+		return
+	}
+	suggestedName.value = freeName
+	newFileName.value = freeName
+	focusFileNameInput(creator.extension)
 }
 
 async function doCreateFromTemplate() {
