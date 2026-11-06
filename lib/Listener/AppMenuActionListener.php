@@ -6,6 +6,7 @@ namespace OCA\Office\Listener;
 
 use OCA\Office\AppInfo\Application;
 use OCA\Office\Service\CreatorCategoryService;
+use OCP\App\IAppManager;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\INavigationManager;
@@ -22,6 +23,7 @@ use OCP\Navigation\Events\LoadAdditionalEntriesEvent;
 final class AppMenuActionListener implements IEventListener {
 	/** @psalm-suppress PossiblyUnusedMethod Constructed by the DI container */
 	public function __construct(
+		private IAppManager $appManager,
 		private CreatorCategoryService $categoryService,
 		private INavigationManager $navigationManager,
 		private IURLGenerator $urlGenerator,
@@ -35,8 +37,9 @@ final class AppMenuActionListener implements IEventListener {
 			return;
 		}
 
-		// Creators are registered per user, so there is nothing to offer a guest.
-		if (!$this->userSession->isLoggedIn()) {
+		// Creators are registered per user, so there is nothing to offer a guest,
+		// nor to a user outside the groups the app is limited to.
+		if (!$this->userSession->isLoggedIn() || !$this->appManager->isEnabledForUser(Application::APP_ID)) {
 			return;
 		}
 
