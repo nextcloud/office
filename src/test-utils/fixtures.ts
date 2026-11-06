@@ -16,6 +16,8 @@ interface MakeNodeOptions {
 	favorite?: boolean
 	mtime?: Date
 	basename?: string
+	/** Folder the file sits in, relative to the owner's root; '/' for the root. */
+	dirname?: string
 	/** Outgoing share-type numbers; stored in the nested shape DAV returns. */
 	shareTypes?: number[]
 }
@@ -33,12 +35,14 @@ export function makeNode({
 	favorite = false,
 	mtime = new Date('2024-01-01T00:00:00Z'),
 	basename = `file-${id}.odt`,
+	dirname = '/',
 	shareTypes,
 }: MakeNodeOptions = {}): Node {
 	const ownerSegment = owner ?? 'nobody'
+	const folder = dirname === '/' ? '' : dirname
 	return new File({
 		id,
-		source: `https://cloud.example.com/remote.php/dav/files/${ownerSegment}/${basename}`,
+		source: `https://cloud.example.com/remote.php/dav/files/${ownerSegment}${folder}/${basename}`,
 		root: `/files/${ownerSegment}`,
 		owner,
 		mime,

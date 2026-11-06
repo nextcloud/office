@@ -51,6 +51,12 @@ type ViewMode = 'list' | 'grid'
 
 const currentUid = getCurrentUser()?.uid ?? null
 
+/** Folder the file lives in, shown next to the date so same-named files can be told apart. */
+function folderLabel(file: Node): string {
+	const dir = (file.dirname ?? '/').replace(/\/+$/, '')
+	return dir === '' ? '/' : dir
+}
+
 const route = useRoute()
 const router = useRouter()
 
@@ -401,7 +407,7 @@ fetchAll()
 								</template>
 
 								<template #subname>
-									<NcDateTime :timestamp="file.mtime" />
+									<NcDateTime :timestamp="file.mtime" /> · {{ folderLabel(file) }}
 								</template>
 							</FileCard>
 						</div>
@@ -429,7 +435,7 @@ fetchAll()
 									</span>
 								</template>
 								<template #subname>
-									<NcDateTime :timestamp="file.mtime" />
+									<NcDateTime :timestamp="file.mtime" /> · {{ folderLabel(file) }}
 								</template>
 							</NcListItem>
 						</div>
