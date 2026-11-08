@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "Vytvoriť nový",
     "Scroll left" : "Posunúť doľava",
     "Scroll right" : "Posunúť doprava",
+    "{creator} templates" : "Šablóny od {creator}",
     "Blank" : "Prázdne",
     "Search {category}" : "Hľadať {category}",
     "Search" : "Hľadať",
@@ -30,9 +31,9 @@ OC.L10N.register(
     "Starred" : "S hviezdičkou",
     "Switch to grid view" : "Prepnúť na zobrazenie v mriežke",
     "Switch to list view" : "Prepnúť na zobrazenie v zozname",
-    "No {category} found" : "{category} nenájdené",
-    "Switch to \"All\" to see every file you have access to" : "Prepnúť na „Všetky“, aby ste videli všetky súbory, ku ktorým máte prístup",
-    "Search all in Files" : "Vyhľadať všetko v Súboroch",
+    "No {category} found" : "V kategórii {category} sa nič nenašlo",
+    "Switch to \"All\" to see every file you have access to" : "Prepnite na „Všetky“, aby ste videli všetky súbory, ku ktorým máte prístup",
+    "Search all in Files" : "Vyhľadať všetko v aplikácii Files",
     "Show all in Files" : "Zobraziť všetko v Súboroch",
     "Create" : "Vytvoriť",
     "Filename" : "Názov súboru",
@@ -40,6 +41,6 @@ OC.L10N.register(
     "Filename cannot be empty" : "Názov súboru nemôže byť prázdny",
     "Filename contains invalid characters" : "Názov súboru obsahuje neplatné znaky",
     "{count} {category} found" : "{count} {category} nájdené",
-    "{count} found in {category}" : "{count} nájdené v {category}"
+    "{count} found in {category}" : "Počet nájdených v kategórii {category}: {count}"
 },
 "nplurals=4; plural=(n % 1 == 0 && n == 1 ? 0 : n % 1 == 0 && n >= 2 && n <= 4 ? 1 : n % 1 != 0 ? 2: 3);");

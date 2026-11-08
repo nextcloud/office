@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "Yeni oluştur",
     "Scroll left" : "Sola kaydır",
     "Scroll right" : "Sağa kaydır",
+    "{creator} templates" : "{creator} kalıpları",
     "Blank" : "Boş",
     "Search {category}" : "{category} ara",
     "Search" : "Ara",
