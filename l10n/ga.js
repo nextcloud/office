@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "Cruthaigh nua",
     "Scroll left" : "Scrollaigh ar chlé",
     "Scroll right" : "Scrollaigh ar dheis",
+    "{creator} templates" : "Teimpléid {creator}",
     "Blank" : "Bán",
     "Search {category}" : "Cuardaigh {category}",
     "Search" : "Cuardach",

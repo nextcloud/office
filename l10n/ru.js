@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "Создать",
     "Scroll left" : "Пролистать влево",
     "Scroll right" : "Пролистать вправо",
+    "{creator} templates" : "Шаблоны: {creator}",
     "Blank" : "Пустой",
     "Search {category}" : "Поиск: {category}",
     "Search" : "Поиск",
