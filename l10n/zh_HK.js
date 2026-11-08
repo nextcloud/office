@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "建立新的",
     "Scroll left" : "向左捲動",
     "Scroll right" : "向右捲動",
+    "{creator} templates" : "{creator}的範本",
     "Blank" : "空白",
     "Search {category}" : "搜尋{category}",
     "Search" : "搜尋",

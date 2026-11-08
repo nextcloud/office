@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "Opret ny",
     "Scroll left" : "Rul til venstre",
     "Scroll right" : "Rul til højre",
+    "{creator} templates" : "Skabeloner fra {creator}",
     "Blank" : "Tom",
     "Search {category}" : "Søg i {category}",
     "Search" : "Søg",
