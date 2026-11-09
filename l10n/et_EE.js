@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "Loo uus",
     "Scroll left" : "Keri vasakule",
     "Scroll right" : "Keri paremale",
+    "{creator} templates" : "Mallid: {creator}",
     "Blank" : "Tühi",
     "Search {category}" : "Otsi kategooriat „{category}“",
     "Search" : "Otsi",
