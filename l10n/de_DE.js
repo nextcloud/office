@@ -13,6 +13,7 @@ OC.L10N.register(
     "Create new" : "Neu erstellen",
     "Scroll left" : "Nach kinks scrollen",
     "Scroll right" : "Nach rechts scrollen",
+    "{creator} templates" : "Vorlagen von {creator}",
     "Blank" : "Leer",
     "Search {category}" : "Suche {category}",
     "Search" : "Suche",
