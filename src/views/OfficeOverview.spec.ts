@@ -257,6 +257,33 @@ describe('OfficeOverview > rendering states', () => {
 		expect(wrapper.findComponent({ name: 'NcListItem' }).props('name')).toBe('report.odt')
 		expect(wrapper.findComponent({ name: 'FileCard' }).exists()).toBe(false)
 	})
+
+	it('shows the folder of each file in grid view, "/" for the root', async () => {
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([
+			makeNode({ owner: 'alice', basename: 'report.odt', dirname: '/Projects/2024' }),
+			makeNode({ owner: 'alice', basename: 'report.odt' }),
+		]))
+
+		const wrapper = await mountOverview({ FileCard: stubRenderingAllSlots('FileCard') })
+
+		const subnames = wrapper.findAllComponents({ name: 'FileCard' }).map(card => card.text())
+		expect(subnames[0]).toContain('/Projects/2024')
+		expect(subnames[1]).toContain('/')
+		expect(subnames[1]).not.toContain('/Projects')
+	})
+
+	it('shows the folder of each file in list view', async () => {
+		localStorage.setItem('office.overview.gridView', 'false')
+		getTemplatesMock.mockResolvedValue([makeCreator()])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([
+			makeNode({ owner: 'alice', basename: 'report.odt', dirname: '/Projects/2024' }),
+		]))
+
+		const wrapper = await mountOverview({ NcListItem: stubRenderingAllSlots('NcListItem', ['name']) })
+
+		expect(wrapper.findComponent({ name: 'NcListItem' }).text()).toContain('/Projects/2024')
+	})
 })
 
 describe('OfficeOverview > creator on the URL', () => {
