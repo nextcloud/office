@@ -16,6 +16,50 @@
 			<directory name="vendor-bin" />
 		</ignoreFiles>
 	</projectFiles>
+	<issueHandlers>
+		<!-- Nextcloud wires these by name (info.xml, DI container, routing attributes, the migration runner),
+		     which psalm can't see. Real unused code elsewhere is still reported. -->
+		<UnusedClass>
+			<errorLevel type="suppress">
+				<directory name="lib/AppInfo" />
+				<directory name="lib/BackgroundJob" />
+				<directory name="lib/Controller" />
+				<directory name="lib/Listener" />
+				<directory name="lib/Migration" />
+				<directory name="lib/Settings" />
+			</errorLevel>
+		</UnusedClass>
+		<PossiblyUnusedMethod>
+			<errorLevel type="suppress">
+				<referencedMethod name="*::__construct" />
+				<!-- Route methods are called by the framework's router. -->
+				<directory name="lib/Controller" />
+			</errorLevel>
+		</PossiblyUnusedMethod>
+		<!-- Entity columns are read and written through Entity's magic accessors, and set by
+		     Entity::fromRow()/fromParams() rather than a constructor. -->
+		<PossiblyUnusedProperty>
+			<errorLevel type="suppress">
+				<directory name="lib/Db" />
+			</errorLevel>
+		</PossiblyUnusedProperty>
+		<PropertyNotSetInConstructor>
+			<errorLevel type="suppress">
+				<directory name="lib/Db" />
+			</errorLevel>
+		</PropertyNotSetInConstructor>
+		<!-- Unit tests mock these, which PHPUnit can't do for final classes. -->
+		<ClassMustBeFinal>
+			<errorLevel type="suppress">
+				<file name="lib/Controller/SettingsController.php" />
+				<file name="lib/Controller/WopiController.php" />
+				<file name="lib/Db/WopiLockMapper.php" />
+				<file name="lib/Db/WopiMapper.php" />
+				<file name="lib/Service/DiscoveryService.php" />
+				<file name="lib/TokenManager.php" />
+			</errorLevel>
+		</ClassMustBeFinal>
+	</issueHandlers>
 	<extraFiles>
 		<directory name="vendor"/>
 		<directory name="vendor-bin/nextcloud-ocp/vendor"/>
