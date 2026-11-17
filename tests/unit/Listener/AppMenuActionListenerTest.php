@@ -6,6 +6,7 @@ namespace Listener;
 
 use OCA\Office\Listener\AppMenuActionListener;
 use OCA\Office\Service\CreatorCategoryService;
+use OCP\App\IAppManager;
 use OCP\EventDispatcher\Event;
 use OCP\Files\Template\ITemplateManager;
 use OCP\Files\Template\TemplateFileCreator;
@@ -20,6 +21,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class AppMenuActionListenerTest extends TestCase {
+	private bool $appEnabled = true;
 	private ITemplateManager&MockObject $templateManager;
 	private INavigationManager&MockObject $navigationManager;
 	private IUserSession&MockObject $userSession;
@@ -30,6 +32,8 @@ final class AppMenuActionListenerTest extends TestCase {
 
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnArgument(0);
+		$appManager = $this->createMock(IAppManager::class);
+		$appManager->method('isEnabledForUser')->willReturnCallback(fn (string $app): bool => $app === 'office' && $this->appEnabled);
 		$this->templateManager = $this->createMock(ITemplateManager::class);
 		$this->navigationManager = $this->createMock(INavigationManager::class);
 		$this->userSession = $this->createMock(IUserSession::class);
@@ -43,6 +47,7 @@ final class AppMenuActionListenerTest extends TestCase {
 			->willReturnCallback(static fn (string $app, string $image): string => "/apps/$app/img/$image");
 
 		$this->listener = new AppMenuActionListener(
+			$appManager,
 			$this->categoryService($l10n, $this->userSession),
 			$this->navigationManager,
 			$urlGenerator,
@@ -177,6 +182,7 @@ final class AppMenuActionListenerTest extends TestCase {
 		$userSession->method('getUser')->willReturn(null);
 		$l10n = $this->createMock(IL10N::class);
 		$listener = new AppMenuActionListener(
+			$this->createMock(IAppManager::class),
 			$this->categoryService($l10n, $userSession),
 			$this->navigationManager,
 			$this->createMock(IURLGenerator::class),
@@ -186,6 +192,14 @@ final class AppMenuActionListenerTest extends TestCase {
 		$this->navigationManager->expects($this->never())->method('add');
 
 		$listener->handle(new LoadAdditionalEntriesEvent());
+	}
+
+	public function testIgnoresUsersTheAppIsNotEnabledFor(): void {
+		$this->appEnabled = false;
+		$this->templateManager->expects($this->never())->method('listCreators');
+		$this->navigationManager->expects($this->never())->method('add');
+
+		$this->listener->handle(new LoadAdditionalEntriesEvent());
 	}
 
 	public function testIgnoresOtherEvents(): void {

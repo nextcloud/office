@@ -14,13 +14,4 @@
 	<dependencies>
 		<nextcloud min-version="36" max-version="36"/>
 	</dependencies>
-	<navigations>
-		<navigation>
-			<id>office</id>
-			<name>Office</name>
-			<route>office.page.index</route>
-			<icon>app.svg</icon>
-			<type>link</type>
-		</navigation>
-	</navigations>
 </info>
