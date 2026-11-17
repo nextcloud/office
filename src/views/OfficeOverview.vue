@@ -4,7 +4,7 @@
 -->
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCurrentUser } from '@nextcloud/auth'
 import { translate as t, translatePlural as n } from '@nextcloud/l10n'
@@ -36,10 +36,12 @@ import FilePreview from '../components/FilePreview.vue'
 import ShareIndicator from '../components/ShareIndicator.vue'
 import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
+import { nameExists } from '../services/folders.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
 import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
 import { categoryId, categoryName, categoryMimes, creatorById, allOfficeMimes } from '../utils/fileCategories.ts'
 import { previewAspectRatio } from '../utils/creatorTheme.ts'
+import { findFreeFileName } from '../utils/freeFileName.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
 import { filterFiles } from '../utils/fileFilters.ts'
 import { isShared } from '../utils/fileSharing.ts'
@@ -69,6 +71,12 @@ const pendingTemplate = ref<TemplateFile | null>(null)
 const creating = ref(false)
 const createError = ref('')
 const createInput = ref<InstanceType<typeof NcTextField> | null>(null)
+// The name the dialog last suggested; a name the user typed is never replaced.
+let suggestedName = ''
+// The free-name check for the open dialog: settles once its answer is applied,
+// and is aborted when the dialog closes or another creator is picked.
+let suggestion: Promise<void> | null = null
+let suggestionAbort: AbortController | null = null
 
 const routeCreatorId = computed(() => {
 	const param = route.params.creatorId
@@ -190,35 +198,107 @@ function openInFiles() {
 	}
 }
 
-function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | null) {
-	pendingCreator.value = creator
-	pendingTemplate.value = template
-	newFileName.value = creator.label + creator.extension
-	createError.value = ''
-	showCreateDialog.value = true
+// Files are created in the root folder, so suggest a name that is still free
+// there ("New document (1).docx"), as the Files app's own "New" menu does. If a
+// check fails or is aborted, fall back to the plain default; the server still
+// rejects a name that is taken.
+async function suggestFreeName(defaultName: string, signal: AbortSignal): Promise<string> {
+	try {
+		return await findFreeFileName(defaultName, name => nameExists('/', name, signal))
+	} catch {
+		return defaultName
+	}
+}
+
+function fileNameInput(): HTMLInputElement | null | undefined {
+	const component = createInput.value as { $el?: HTMLElement } | null
+	return component?.$el?.querySelector<HTMLInputElement>('input')
+}
+
+// setSelectionRange pre-selects the basename (without extension) for quick editing.
+function selectBasename(input: HTMLInputElement | null | undefined, extension: string) {
+	input?.setSelectionRange(0, newFileName.value.length - extension.length)
+}
+
+function focusFileNameInput(extension: string) {
 	nextTick(() => {
-		const component = createInput.value as { focus?: () => void; $el?: HTMLElement } | null
+		const component = createInput.value as { focus?: () => void } | null
 		if (typeof component?.focus === 'function') {
 			component.focus()
 		} else {
-			component?.$el?.querySelector<HTMLInputElement>('input')?.focus()
+			fileNameInput()?.focus()
 		}
-		// setSelectionRange pre-selects the basename (without extension) for quick editing.
-		component?.$el?.querySelector<HTMLInputElement>('input')
-			?.setSelectionRange(0, newFileName.value.length - creator.extension.length)
+		selectBasename(fileNameInput(), extension)
 	})
 }
 
-async function doCreateFromTemplate() {
-	if (creating.value) return
-	const validationError = validateFilename(newFileName.value)
-	if (validationError) {
-		createError.value = validationError
+function cancelSuggestion() {
+	suggestionAbort?.abort()
+	suggestionAbort = null
+	suggestion = null
+}
+
+// Replace the plain default with the free name, unless the user typed a name
+// meanwhile. Focus stays where it is: the basename is only reselected when the
+// field still has focus, so a late answer never pulls the user back into it.
+async function applyFreeName(defaultName: string, extension: string, signal: AbortSignal) {
+	const freeName = await suggestFreeName(defaultName, signal)
+	if (signal.aborted || newFileName.value !== suggestedName) {
 		return
 	}
+	suggestedName = freeName
+	newFileName.value = freeName
+	await nextTick()
+	const input = fileNameInput()
+	if (input && input === document.activeElement) {
+		selectBasename(input, extension)
+	}
+}
+
+// The dialog opens at once with the plain default; the free name follows when
+// the existence checks are done, so a slow connection never delays the dialog.
+function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | null) {
+	cancelSuggestion()
+	const defaultName = creator.label + creator.extension
+	pendingCreator.value = creator
+	pendingTemplate.value = template
+	suggestedName = defaultName
+	newFileName.value = defaultName
+	createError.value = ''
+	showCreateDialog.value = true
+	focusFileNameInput(creator.extension)
+
+	suggestionAbort = new AbortController()
+	suggestion = applyFreeName(defaultName, creator.extension, suggestionAbort.signal)
+}
+
+// Closing the dialog stops the remaining checks instead of only ignoring them.
+watch(showCreateDialog, (open) => {
+	if (!open) {
+		cancelSuggestion()
+	}
+})
+onUnmounted(cancelSuggestion)
+
+async function doCreateFromTemplate() {
+	if (creating.value) return
+	// Busy first: field and button are disabled while a pending free-name check
+	// finishes, so pressing Enter right after opening creates the free name, not
+	// the taken default.
 	creating.value = true
 	createError.value = ''
 	try {
+		const pending = suggestion
+		if (pending && newFileName.value === suggestedName) {
+			await pending
+			// Closed (and maybe reopened for another creator) while waiting.
+			if (suggestion !== pending || !showCreateDialog.value) return
+		}
+		const validationError = validateFilename(newFileName.value)
+		if (validationError) {
+			createError.value = validationError
+			return
+		}
 		const filePath = '/' + newFileName.value.trim()
 		const templatePath = pendingTemplate.value?.templateId ?? ''
 		const templateType = pendingTemplate.value?.templateType ?? 'user_system'
