@@ -1,0 +1,202 @@
+# Based on the organization's phpunit-*.yml templates
+# (https://github.com/nextcloud/.github), merged into one workflow: the
+# integration suite needs OFFICE_TEST_BASE_URL and runs once per database.
+#
+# SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: MIT
+
+name: PHPUnit
+
+on: pull_request
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phpunit-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  changes-and-matrix:
+    runs-on: ubuntu-latest-low
+    permissions:
+      contents: read
+      pull-requests: read
+
+    outputs:
+      src: ${{ steps.changes.outputs.src }}
+      php-versions: ${{ steps.versions.outputs.php-available-list }}
+      php-max: ${{ steps.versions.outputs.php-max }}
+      server-max: ${{ steps.versions.outputs.branches-max }}
+
+    steps:
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: changes
+        continue-on-error: true
+        with:
+          filters: |
+            src:
+              - '.github/workflows/**'
+              - 'appinfo/**'
+              - 'lib/**'
+              - 'templates/**'
+              - 'tests/**'
+              - 'vendor-bin/**'
+              - 'composer.json'
+              - 'composer.lock'
+
+      - name: Checkout app
+        if: steps.changes.outputs.src != 'false'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Get version matrix
+        if: steps.changes.outputs.src != 'false'
+        id: versions
+        uses: nextcloud-libraries/nextcloud-version-matrix@cd0211ffcef1065e2020cd579e4843b8746e7a58 # v1.3.3
+
+  unit:
+    runs-on: ubuntu-latest
+
+    needs: changes-and-matrix
+    if: needs.changes-and-matrix.outputs.src != 'false'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions: ${{ fromJson(needs.changes-and-matrix.outputs.php-versions) }}
+
+    name: Unit PHP ${{ matrix.php-versions }}
+
+    steps:
+      - name: Checkout app
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up php ${{ matrix.php-versions }}
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: ctype, json, mbstring, openssl, simplexml
+          coverage: none
+          ini-file: development
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
+
+      - name: PHPUnit
+        run: composer run test:unit
+
+  integration:
+    runs-on: ubuntu-latest
+
+    needs: changes-and-matrix
+    if: needs.changes-and-matrix.outputs.src != 'false'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        database: ['sqlite', 'mysql', 'pgsql']
+
+    name: Integration ${{ matrix.database }} PHP ${{ needs.changes-and-matrix.outputs.php-max }} Nextcloud ${{ needs.changes-and-matrix.outputs.server-max }}
+
+    # Both start in every job; only the matrix database is used.
+    services:
+      mysql:
+        image: ghcr.io/nextcloud/continuous-integration-mysql-8.4:latest # zizmor: ignore[unpinned-images]
+        ports:
+          - 4444:3306/tcp
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+        options: --health-cmd="mysqladmin ping" --health-interval 5s --health-timeout 2s --health-retries 10
+      postgres:
+        image: ghcr.io/nextcloud/continuous-integration-postgres-16:latest # zizmor: ignore[unpinned-images]
+        ports:
+          - 4445:5432/tcp
+        env:
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: rootpassword
+          POSTGRES_DB: nextcloud
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 2s --health-retries 5
+
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+          repository: nextcloud/server
+          ref: ${{ needs.changes-and-matrix.outputs.server-max }}
+
+      - name: Checkout app
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          path: apps/office
+
+      - name: Set up php ${{ needs.changes-and-matrix.outputs.php-max }}
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: ${{ needs.changes-and-matrix.outputs.php-max }}
+          # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+          extensions: bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, sqlite, pdo_sqlite, mysql, pdo_mysql, pgsql, pdo_pgsql
+          coverage: none
+          ini-file: development
+          # Temporary workaround for missing pcntl_* in PHP 8.3
+          ini-values: disable_functions=
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install composer dependencies
+        uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
+        with:
+          working-directory: apps/office
+
+      - name: Set up Nextcloud
+        env:
+          DATABASE: ${{ matrix.database }}
+        run: |
+          case "$DATABASE" in
+            mysql) db_args=(--database-host=127.0.0.1 --database-port=4444) ;;
+            pgsql) db_args=(--database-host=127.0.0.1 --database-port=4445) ;;
+            *) db_args=() ;;
+          esac
+          mkdir data
+          ./occ maintenance:install --verbose --database="$DATABASE" --database-name=nextcloud --database-user=root --database-pass=rootpassword "${db_args[@]}" --admin-user admin --admin-pass admin
+          ./occ app:enable --force office
+
+      - name: Run Nextcloud
+        env:
+          PHP_CLI_SERVER_WORKERS: 4
+        run: php -S localhost:8080 &
+
+      - name: PHPUnit integration
+        working-directory: apps/office
+        env:
+          NEXTCLOUD_ROOT: ${{ github.workspace }}
+          OFFICE_TEST_BASE_URL: http://localhost:8080
+          # composer stops scripts after 300 s by default
+          COMPOSER_PROCESS_TIMEOUT: 0
+        run: composer run test:integration
+
+      - name: Print logs
+        if: always()
+        run: cat data/nextcloud.log
+
+  summary:
+    permissions:
+      contents: none
+    runs-on: ubuntu-latest-low
+    needs: [changes-and-matrix, unit, integration]
+
+    if: always()
+
+    name: phpunit-summary
+
+    steps:
+      - name: Summary status
+        run: if ${{ needs.changes-and-matrix.outputs.src != 'false' && (needs.unit.result != 'success' || needs.integration.result != 'success') }}; then exit 1; fi
