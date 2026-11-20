@@ -1,6 +1,5 @@
 import { config } from '@vue/test-utils'
 import { vi } from 'vitest'
-import escapeHTML from 'escape-html'
 
 // shallowMount()'s auto-stubs render nothing by default, including slot
 // content passed to them — without this, any content nested inside a
@@ -21,17 +20,10 @@ function substitutePlaceholders(text: string, vars?: Record<string, unknown>): s
 	})
 }
 
-// Real translate() escapes every placeholder value by default (escape-html) —
-// match that here, or a component relying on the default silently ships
-// double-escaped output that only breaks against the real implementation.
-vi.mock('@nextcloud/l10n', async (importOriginal) => ({
-	...(await importOriginal<typeof import('@nextcloud/l10n')>()),
-	translate: (app: string, text: string, placeholders?: Record<string, unknown>) =>
-		text.replace(/{([^{}]*)}/g, (match: string, key: string) => {
-			const value = placeholders?.[key]
-			return value !== undefined ? escapeHTML(String(value)) : match
-		}),
-}))
+// @nextcloud/l10n is deliberately NOT mocked: the real translate() escapes and
+// sanitizes placeholder values (escape-html + DOMPurify, which runs on jsdom),
+// and a stand-in that skips either step lets labels pass here that render
+// mangled in a browser.
 
 vi.mock('@nextcloud/auth', () => ({
 	getCurrentUser: vi.fn(() => null),
