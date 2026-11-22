@@ -25,5 +25,14 @@ module.exports = {
 				'n/no-unpublished-import': 'off',
 			},
 		},
+		{
+			// The e2e suite and its server script run in Node, outside the bundle.
+			files: ['playwright/**', 'playwright.config.ts'],
+			rules: {
+				'n/no-unpublished-import': 'off',
+				'n/no-process-exit': 'off',
+				'no-console': 'off',
+			},
+		},
 	],
 }
