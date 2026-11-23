@@ -11,10 +11,15 @@ const getTemplatesMock = vi.fn()
 const createFromTemplateMock = vi.fn()
 const getAllOfficeFilesMock = vi.fn()
 const invalidateOfficeFilesCacheMock = vi.fn()
+const nameExistsMock = vi.fn()
 
 vi.mock('../services/templates.ts', () => ({
 	getTemplates: getTemplatesMock,
 	createFromTemplate: createFromTemplateMock,
+}))
+
+vi.mock('../services/folders.ts', () => ({
+	nameExists: nameExistsMock,
 }))
 
 vi.mock('../services/officeFiles.ts', async (importOriginal) => {
@@ -127,6 +132,8 @@ beforeEach(() => {
 	createFromTemplateMock.mockReset()
 	getAllOfficeFilesMock.mockReset()
 	invalidateOfficeFilesCacheMock.mockReset()
+	nameExistsMock.mockReset()
+	nameExistsMock.mockResolvedValue(false)
 	localStorage.clear()
 
 	// jsdom's real Location.href setter attempts actual navigation, logs
@@ -592,6 +599,222 @@ describe('OfficeOverview > toggleViewMode', () => {
 
 		expect(localStorage.getItem('office.overview.gridView')).toBe('false')
 		expect(wrapper.findComponent({ name: 'NcListItem' }).exists()).toBe(true)
+	})
+})
+
+describe('OfficeOverview > suggested filename', () => {
+	async function mountWithCreators(...creators: ReturnType<typeof makeCreator>[]) {
+		getTemplatesMock.mockResolvedValue(creators)
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		return mountOverview()
+	}
+
+	// A text field with a real <input> and a focus() spy, for the focus and
+	// selection checks; the default shallow stub renders neither.
+	const focusSpy = vi.fn()
+	const TEXT_FIELD_WITH_INPUT_STUB = {
+		name: 'NcTextField',
+		props: ['modelValue', 'label', 'error', 'helperText', 'disabled'],
+		methods: { focus: focusSpy },
+		template: '<div><input :value="modelValue" :disabled="disabled" /></div>',
+	}
+
+	async function mountWithInput(creator: ReturnType<typeof makeCreator>) {
+		getTemplatesMock.mockResolvedValue([creator])
+		getAllOfficeFilesMock.mockResolvedValue(officeFilesResult([]))
+		return mountOverview({ NcTextField: TEXT_FIELD_WITH_INPUT_STUB })
+	}
+
+	// Answers the first check only when the test says so; later checks follow
+	// the mock's implementation.
+	function holdFirstCheck() {
+		let answer: (taken: boolean) => void = () => {}
+		nameExistsMock.mockReturnValueOnce(new Promise<boolean>((resolve) => { answer = resolve }))
+		return (taken: boolean) => answer(taken)
+	}
+
+	async function select(wrapper: Awaited<ReturnType<typeof mountOverview>>, creator: ReturnType<typeof makeCreator>) {
+		await wrapper.findComponent({ name: 'TemplateSection' }).vm.$emit('select', creator, null)
+	}
+
+	function takenInRoot(...names: string[]) {
+		nameExistsMock.mockImplementation(async (folder: string, name: string) => folder === '/' && names.includes(name))
+	}
+
+	function fileName(wrapper: Awaited<ReturnType<typeof mountOverview>>) {
+		return wrapper.findComponent({ name: 'NcTextField' }).props('modelValue')
+	}
+
+	it('suggests the plain default name when it is free in the root folder', async () => {
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Document.odt')
+	})
+
+	it('suggests a numbered name when the default is already taken in the root folder', async () => {
+		takenInRoot('Document.odt', 'Document (1).odt')
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Document (2).odt')
+	})
+
+	it('falls back to the plain default name when the check fails', async () => {
+		nameExistsMock.mockRejectedValue(new Error('network down'))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Document.odt')
+	})
+
+	it('opens the dialog at once with the default name, before the check answers', async () => {
+		nameExistsMock.mockReturnValue(new Promise(() => {}))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+
+		expect(wrapper.findComponent({ name: 'NcDialog' }).props('open')).toBe(true)
+		expect(fileName(wrapper)).toBe('Document.odt')
+	})
+
+	it('ignores a late answer for an earlier click', async () => {
+		const document = makeCreator()
+		const spreadsheet = makeCreator({ label: 'Spreadsheet', extension: '.ods', mimetypes: ['application/vnd.oasis.opendocument.spreadsheet'] })
+		let answerFirstCheck: (taken: boolean) => void = () => {}
+		nameExistsMock
+			.mockReturnValueOnce(new Promise<boolean>((resolve) => { answerFirstCheck = resolve }))
+			.mockResolvedValue(false)
+		const wrapper = await mountWithCreators(document, spreadsheet)
+
+		await select(wrapper, document)
+		await select(wrapper, spreadsheet)
+		await flushPromises()
+		answerFirstCheck(false)
+		await flushPromises()
+
+		expect(wrapper.findComponent({ name: 'NcDialog' }).props('name')).toBe('Spreadsheet')
+		expect(fileName(wrapper)).toBe('Spreadsheet.ods')
+		expect((nameExistsMock.mock.calls[0][2] as AbortSignal).aborted).toBe(true)
+	})
+
+	it('keeps a name the user typed while the check was running', async () => {
+		takenInRoot('Document.odt')
+		let answerCheck: (taken: boolean) => void = () => {}
+		nameExistsMock.mockReturnValueOnce(new Promise<boolean>((resolve) => { answerCheck = resolve }))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await wrapper.findComponent({ name: 'NcTextField' }).vm.$emit('update:modelValue', 'Budget.odt')
+		answerCheck(true)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Budget.odt')
+	})
+
+	it('creates the free name when Create is pressed before the check answers', async () => {
+		takenInRoot('Document.odt')
+		const answerCheck = holdFirstCheck()
+		createFromTemplateMock.mockResolvedValue({ fileid: 7, basename: 'Document (1).odt', filename: '/Document (1).odt' })
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await wrapper.find('form').trigger('submit')
+		await flushPromises()
+
+		expect(createFromTemplateMock).not.toHaveBeenCalled()
+		expect(wrapper.findComponent({ name: 'NcTextField' }).props('disabled')).toBe(true)
+
+		answerCheck(true)
+		await flushPromises()
+
+		expect(createFromTemplateMock).toHaveBeenCalledWith('/Document (1).odt', '', 'user_system')
+	})
+
+	it('does not create a file when the dialog is closed while Create waits for the check', async () => {
+		nameExistsMock.mockImplementation((_folder: string, _name: string, signal: AbortSignal) => new Promise((_resolve, reject) => {
+			signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+		}))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		await wrapper.find('form').trigger('submit')
+		await wrapper.findComponent({ name: 'NcDialog' }).vm.$emit('update:open', false)
+		await flushPromises()
+
+		expect(createFromTemplateMock).not.toHaveBeenCalled()
+		expect(wrapper.findComponent({ name: 'NcDialog' }).exists()).toBe(false)
+	})
+
+	it('aborts the remaining checks when the dialog is closed', async () => {
+		nameExistsMock.mockReturnValue(new Promise(() => {}))
+		const creator = makeCreator()
+		const wrapper = await mountWithCreators(creator)
+
+		await select(wrapper, creator)
+		const signal = nameExistsMock.mock.calls[0][2] as AbortSignal
+		expect(signal.aborted).toBe(false)
+
+		await wrapper.findComponent({ name: 'NcDialog' }).vm.$emit('update:open', false)
+		await flushPromises()
+
+		expect(signal.aborted).toBe(true)
+	})
+
+	it('leaves focus and selection alone when the answer arrives after the user left the field', async () => {
+		takenInRoot('Document.odt')
+		const answerCheck = holdFirstCheck()
+		const creator = makeCreator()
+		const wrapper = await mountWithInput(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+		const input = wrapper.find('input').element as HTMLInputElement
+		const selectSpy = vi.spyOn(input, 'setSelectionRange')
+		focusSpy.mockClear()
+
+		// The wrapper is not attached to the document, so the input is not focused.
+		answerCheck(true)
+		await flushPromises()
+
+		expect(fileName(wrapper)).toBe('Document (1).odt')
+		expect(focusSpy).not.toHaveBeenCalled()
+		expect(selectSpy).not.toHaveBeenCalled()
+	})
+
+	it('reselects the basename when the field still has focus as the answer arrives', async () => {
+		takenInRoot('Document.odt')
+		const answerCheck = holdFirstCheck()
+		const creator = makeCreator()
+		const wrapper = await mountWithInput(creator)
+
+		await select(wrapper, creator)
+		await flushPromises()
+		const input = wrapper.find('input').element as HTMLInputElement
+		const selectSpy = vi.spyOn(input, 'setSelectionRange')
+		const activeElement = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(input)
+		focusSpy.mockClear()
+
+		answerCheck(true)
+		await flushPromises()
+		activeElement.mockRestore()
+
+		expect(focusSpy).not.toHaveBeenCalled()
+		expect(selectSpy).toHaveBeenCalledWith(0, 'Document (1)'.length)
 	})
 })
 
