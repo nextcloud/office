@@ -22,6 +22,7 @@ import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 import NcIconSvgWrapper from '@nextcloud/vue/components/NcIconSvgWrapper'
 import NcListItem from '@nextcloud/vue/components/NcListItem'
 import NcLoadingIcon from '@nextcloud/vue/components/NcLoadingIcon'
+import NcNoteCard from '@nextcloud/vue/components/NcNoteCard'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
 import {
 	mdiAlertCircleOutline,
@@ -34,10 +35,12 @@ import {
 import FileCard from '../components/FileCard.vue'
 import FilePreview from '../components/FilePreview.vue'
 import ShareIndicator from '../components/ShareIndicator.vue'
+import TargetFolderPicker from '../components/TargetFolderPicker.vue'
 import TemplateSection from '../components/TemplateSection.vue'
 import { getAllOfficeFiles, invalidateOfficeFilesCache, MAX_DISPLAY_FILES } from '../services/officeFiles.ts'
+import { canCreateIn } from '../services/folders.ts'
 import { getTemplates, createFromTemplate } from '../services/templates.ts'
-import { getOverviewGridView, setOverviewGridView } from '../services/config.ts'
+import { getLastTargetFolder, getOverviewGridView, setLastTargetFolder, setOverviewGridView } from '../services/config.ts'
 import { categoryId, categoryName, categoryMimes, creatorById, allOfficeMimes } from '../utils/fileCategories.ts'
 import { previewAspectRatio } from '../utils/creatorTheme.ts'
 import { validateFilename } from '../utils/validateFilename.ts'
@@ -69,6 +72,20 @@ const pendingTemplate = ref<TemplateFile | null>(null)
 const creating = ref(false)
 const createError = ref('')
 const createInput = ref<InstanceType<typeof NcTextField> | null>(null)
+// Folder the new file is created in, relative to the user's Files root.
+const targetFolder = ref('/')
+// True while the remembered folder is being re-checked; the picker stays
+// closed meanwhile, as it would start in a folder that may be gone.
+const checkingFolder = ref(false)
+// Bumped per folder check, so only the latest check may end checkingFolder.
+let folderCheck = 0
+// Bumped whenever the target folder is decided — a new dialog, a picked
+// folder, a started create — so a slow check never overrides that decision.
+let folderRequest = 0
+// Shown when the remembered folder could not be used.
+const folderNotice = ref('')
+// Shown when the folder picker could not be opened; the filename is fine then.
+const folderPickerError = ref('')
 
 const routeCreatorId = computed(() => {
 	const param = route.params.creatorId
@@ -190,11 +207,29 @@ function openInFiles() {
 	}
 }
 
-function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | null) {
+// The remembered folder may have been deleted or lost its create permission
+// since it was picked; then fall back to the root folder.
+async function usableFolder(folder: string): Promise<string> {
+	if (folder === '/') {
+		return folder
+	}
+	try {
+		return await canCreateIn(folder) ? folder : '/'
+	} catch {
+		return '/'
+	}
+}
+
+// The dialog opens at once in the last used folder; the check whether that
+// folder is still usable follows, so a slow connection never delays it.
+async function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | null) {
 	pendingCreator.value = creator
 	pendingTemplate.value = template
 	newFileName.value = creator.label + creator.extension
 	createError.value = ''
+	targetFolder.value = getLastTargetFolder()
+	folderNotice.value = ''
+	folderPickerError.value = ''
 	showCreateDialog.value = true
 	nextTick(() => {
 		const component = createInput.value as { focus?: () => void; $el?: HTMLElement } | null
@@ -207,6 +242,37 @@ function onTemplateSelect(creator: TemplateCreator, template: TemplateFile | nul
 		component?.$el?.querySelector<HTMLInputElement>('input')
 			?.setSelectionRange(0, newFileName.value.length - creator.extension.length)
 	})
+
+	const request = ++folderRequest
+	const check = ++folderCheck
+	const rememberedFolder = targetFolder.value
+	checkingFolder.value = rememberedFolder !== '/'
+	const folder = await usableFolder(rememberedFolder)
+	// An older check, e.g. from a dialog closed and reopened meanwhile, must not
+	// re-enable the picker while the current one is still running.
+	if (check === folderCheck) {
+		checkingFolder.value = false
+	}
+	// Another dialog, a picked folder or a started create wins over this check.
+	if (request !== folderRequest) {
+		return
+	}
+	if (folder !== rememberedFolder) {
+		folderNotice.value = t('office', 'The last used folder is no longer available. The file will be saved in All files.')
+	}
+	targetFolder.value = folder
+}
+
+function onTargetFolderChange(folder: string) {
+	folderRequest++
+	targetFolder.value = folder
+	folderNotice.value = ''
+	folderPickerError.value = ''
+	createError.value = ''
+}
+
+function onFolderPickerError() {
+	folderPickerError.value = t('office', 'The folder picker could not be opened. Please try again.')
 }
 
 async function doCreateFromTemplate() {
@@ -218,11 +284,15 @@ async function doCreateFromTemplate() {
 	}
 	creating.value = true
 	createError.value = ''
+	// Drop a folder check still in flight: the dialog must not change folder
+	// under a create that has already been sent.
+	folderRequest++
 	try {
-		const filePath = '/' + newFileName.value.trim()
+		const filePath = targetFolder.value.replace(/\/$/, '') + '/' + newFileName.value.trim()
 		const templatePath = pendingTemplate.value?.templateId ?? ''
 		const templateType = pendingTemplate.value?.templateType ?? 'user_system'
 		const newFile: CreatedFile = await createFromTemplate(filePath, templatePath, templateType)
+		setLastTargetFolder(targetFolder.value)
 		showCreateDialog.value = false
 		invalidateOfficeFilesCache()
 		window.location.href = generateUrl('/f/{fileid}', { fileid: newFile.fileid })
@@ -463,6 +533,12 @@ fetchAll()
 							:error="!!createError"
 							:helper-text="createError"
 							:disabled="creating" />
+						<TargetFolderPicker :path="targetFolder"
+							:disabled="creating || checkingFolder"
+							@update:path="onTargetFolderChange"
+							@error="onFolderPickerError" />
+						<NcNoteCard v-if="folderPickerError" type="error" :text="folderPickerError" />
+						<NcNoteCard v-else-if="folderNotice" type="info" :text="folderNotice" />
 					</form>
 				</NcDialog>
 			</template>
