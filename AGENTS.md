@@ -23,7 +23,8 @@ CI checks every commit: conventional-format headline (`fix:`, `feat:`,
 `docs:`, ...) and DCO sign-off — `git commit -s`.
 
 Commit messages are written for a public reviewer who has only the diff —
-not for your own notes. If a sentence only makes sense with context outside
+not for your own notes. The body explains why the change was made, not how;
+the diff already shows that. If a sentence only makes sense with context outside
 this repo, it doesn't belong in the message.
 
 Commits substantially written by an AI agent carry two trailers:
@@ -203,6 +204,19 @@ git fetch origin && git log --oneline HEAD..origin/main   # rebase if non-empty
 
 Say in the description which reuse option ("Reuse before you write") you
 used, or that none fit and why.
+
+Issues, PR descriptions and comments may be drafted with AI and posted on
+the contributor's behalf when they ask for it. Write them for human readers:
+lead with what changed and why, keep the repository's issue or PR template
+intact, end AI-drafted issues and comments with an `Assisted by
+<Tool>:<model>` footer, and put agent-only details in a collapsed
+`<details>` block. For a bug report, also state whether the bug was
+validated and reproduced on a live Nextcloud instance. Post only what the
+contributor asked for, on their behalf, and tell them what you posted.
+
+Validate every change to runtime behavior on a live Nextcloud instance where
+you can, and give the contributor concrete steps to test it there
+themselves; your testing supports theirs, it does not replace it.
 
 If the change touches `src/` (JS/Vue/CSS):
 
